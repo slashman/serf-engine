@@ -471,7 +471,7 @@ public abstract class AbstractLevel implements FOVMap, Serializable{
 	protected abstract boolean isLit(Position p);
 	
 	protected abstract void markVisible(int x, int y, int z) ;
-	protected abstract boolean isVisible(int x, int y, int z);
+	public abstract boolean isVisible(int x, int y, int z);
 	
 
 	// Level Flags

@@ -141,7 +141,7 @@ public class GridLevelReader extends AbstractLevel {
 	}
 
 	@Override
-	protected boolean isVisible(int x, int y, int z) {
+	public boolean isVisible(int x, int y, int z) {
 		// TODO Auto-generated method stub
 		return true;
 	}
