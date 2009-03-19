@@ -11,6 +11,7 @@ import net.slashie.serf.game.SworeGame;
 import net.slashie.serf.level.AbstractCell;
 import net.slashie.serf.level.AbstractFeature;
 import net.slashie.serf.level.AbstractLevel;
+import net.slashie.serf.level.BufferedLevel;
 import net.slashie.serf.level.Dispatcher;
 import net.slashie.serf.level.FeatureFactory;
 import net.slashie.serf.level.MapCellFactory;
@@ -36,7 +37,7 @@ public class StaticGenerator {
 		return singleton;
     }
 
-	public void renderOverLevel(AbstractLevel l, String[] map, Hashtable<String,String> table, Position where) throws SworeException{
+	public void renderOverLevel(BufferedLevel l, String[] map, Hashtable<String,String> table, Position where) throws SworeException{
 		AbstractCell [][][] cmap = l.getCells();
     	for (int y = 0; y < map.length; y++)
 			for (int x = 0; x < map[0].length(); x++) {
@@ -100,7 +101,7 @@ public class StaticGenerator {
 		
 	}
 	
-	public void renderOverLevel(AbstractLevel l, String[][] map, Hashtable<String,String> table, Position where) throws SworeException{
+	public void renderOverLevel(BufferedLevel l, String[][] map, Hashtable<String,String> table, Position where) throws SworeException{
 		Position runner = new Position(where);
 		runner.z = 0;
 		for (int i = 0; i < map.length; i++){
@@ -109,7 +110,7 @@ public class StaticGenerator {
 		}
 	}
 	
-	public void createLevel(AbstractLevel l) throws SworeException{
+	public void createLevel(BufferedLevel l) throws SworeException{
 		l.setDispatcher(new Dispatcher());
 	    AbstractCell [][][] cmap = new AbstractCell[level.length][level[0][0].length()][level[0].length];
 	    l.setCells(cmap);
