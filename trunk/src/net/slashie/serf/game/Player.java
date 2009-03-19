@@ -229,7 +229,7 @@ public abstract class Player extends AwareActor {
 	}
 	
 	 public boolean sees(Position p){
-		 return level.isVisible(p.x, p.y);
+		 return level.isVisible(p.x, p.y, p.z);
 	 }
 	 
 	 public boolean sees(Actor m){
