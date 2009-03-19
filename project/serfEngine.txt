@@ -1,0 +1,52 @@
+Hello all.
+
+I announce the release to the world of the SERF engine! 
+
+I decided to continue the project using Open Source, for the following 2 reasons:
+
+* I think the project can greatly benefit from the ideas and stability contributions of a distributed development team
+* I think some people may want to use some parts of the project on their own games
+
+A note to vapourware engine developers: This project is not a dream! all this idea-crap has been put into test on the development of the 7DRL: Expedition, and all of slashie.net projects will gradually be translated into using it.
+
+The project is hosted at google code at http://code.google.com/p/serf-engine/ , issues however will be tracked at the main slashie.net mantis repository at http://slashie.net/mantis
+
+What is the Serf Engine?
+------------------------
+The Serf Engine is a tool for Java roguelike developers which provides them with the following functionalities:
+
+* Actors and Actions handling: The game is modelled around an infinite timeline of actions caused by a actors.
+* Extensible User Interface: Shows the area around an actor in several representations
+* Line Of Sight Calculation: Double Area LOS calculation 
+* Sound and Music playback: Supporting WAV, MIDI and MP3
+* More to come, focused on common roguelike development activities
+
+The Serf roguelike development model
+------------------------------------
+A roguelike developer using Serf creates his roguelike by:
+* Extending the base domain classes and defining his own domain specific data and behaviour
+* Refining the User Interface layer to show these specific data
+* Implementing new domain specific actions, again, extending the base action classes.
+
+What Serf doesn't intend to be
+------------------------------
+Serf does NOT seeks to be:
+* A tool dependant on a propietary scripting language to achieve anything barely interesting
+* The gears behind a development frontend for non-developers to make games etc
+* A data-driven "library" driven by human-readable text files 
+* A program with predefined combat/inventory/magic systems which allows you to freely modify the data
+* An advanced console output library for the XXI century.
+
+Foundations
+-----------
+The engine was created based on the source code of some years-tested roguelikes, including CastlevaniaRL, DrashRL and ZeldaRL, and thus is relatively stable on the moment of its conception.
+
+Current Status
+--------------
+The engine has been used for the sucessful development of Expedition 7DRL, however it is considered still on development (Beta), and some documentation will be required to aid developers into understanding and using the model.
+
+Dependencies
+------------
+The library is built on top of libjcsi for console output, and relies on the JLayer library for MP3 playback
+
+
