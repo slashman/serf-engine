@@ -20,13 +20,10 @@ import net.slashie.utils.Debug;
 import net.slashie.utils.Position;
 import net.slashie.utils.SZQueue;
 
-public class AbstractLevel implements FOVMap, Serializable{
+
+public abstract class AbstractLevel implements FOVMap, Serializable{
 	private String ID;
 	private Unleasher[] unleashers = new Unleasher[]{};
-	private AbstractCell[][][] map;
-	private boolean[][][] visible;
-	private boolean[][][] lit;
-	private boolean[][][] remembered;
 	private List<AbstractFeature> features;
 	private Player player;
 	private SZQueue messagesneffects;
@@ -111,11 +108,7 @@ public class AbstractLevel implements FOVMap, Serializable{
 		return messagesneffects;
 	}
 
-	public AbstractCell getMapCell(int x, int y, int z){
-		if (z<map.length && x<map[0].length && y < map[0][0].length && x >= 0 && y >= 0 && z >= 0)
-			return map[z][x][y];
-		else return null;
-	}
+	public abstract AbstractCell getMapCell(int x, int y, int z);
 
 	private List<AbstractFeature> temp = new ArrayList<AbstractFeature>();
 	public List<AbstractFeature> getFeaturesAt(Position p){
@@ -196,27 +189,11 @@ public class AbstractLevel implements FOVMap, Serializable{
 		return !getMapCell(where).isSolid();
 	}
 
-	public void setCells(AbstractCell[][][] what){
-		map = what;
-		visible= new boolean[what.length][what[0].length][what[0][0].length];
-		lit= new boolean[what.length][what[0].length][what[0][0].length];
-		remembered= new boolean[what.length][what[0].length][what[0][0].length];
-	}
+	public abstract int getWidth();
 
-	public int getWidth(){
-		return map[0].length;
-	}
-
-	public int getHeight(){
-		return map[0][0].length;
-
-	}
+	public abstract int getHeight();
 	
-	public int getDepth(){
-		return map.length;
-	}
-
-
+	public abstract int getDepth();
 
 
 	public void addFeature(AbstractFeature what){
@@ -252,11 +229,16 @@ public class AbstractLevel implements FOVMap, Serializable{
 				if (!isValidCoordinate(lightRunner))
 					continue;
 				if (Position.distance(where, lightRunner) <= intensity){
-					lit[where.z][x][y] = light;
+					if (light)
+						markLit(x,y,where.z);
+					else
+						darken(x,y,where.z);
 				}
 			}
 		}
 	}
+	
+	
 	
 	public void addFeature(String featureID, Position location){
 		//Debug.say("Add"+featureID);
@@ -283,10 +265,6 @@ public class AbstractLevel implements FOVMap, Serializable{
 		player.setLevel(this);
 	}
 
-	public AbstractCell[][][] getCells(){
-		return map;
-	}
-
 	public AbstractCell[][] getVisibleCellsAround(int x, int y, int z, int xspan, int yspan){
 		int xstart = x - xspan;
 		int ystart = y - yspan;
@@ -297,18 +275,17 @@ public class AbstractLevel implements FOVMap, Serializable{
 		for (int ix = xstart; ix <=xend; ix++){
 			int py = 0;
 			for (int iy =  ystart ; iy <= yend; iy++){
-				if (ix >= 0 && ix < map[0].length && iy >= 0 && iy<map[0][0].length && isVisible(ix, iy)){
-					//darken(ix, iy);
-					ret[px][py] = map[z][ix][iy];
-					/*Las celdas de abajo*/
-					if (isValidCoordinate(ix,iy,z) && (map[z][ix][iy] == null|| map[z][ix][iy].getID().equals("AIR"))){
+				if (ix >= 0 && ix < getWidth() && iy >= 0 && iy < getHeight() && isVisible(ix, iy, z)){
+					ret[px][py] = getMapCell(ix, iy, z);
+					/* Look to the cells behind
+					 */
+					if (isValidCoordinate(ix,iy,z) && (ret[px][py] == null || ret[px][py].getID().equals("AIR"))){
 						int pz = z;
 						while (pz < getDepth()-1){
-							if (map[pz+1][ix][iy] == null || map[pz+1][ix][iy].getID().equals("AIR")){
+							if (getMapCell(ix, iy, pz+1) == null || getMapCell(ix, iy, pz+1).getID().equals("AIR")){
 								pz++;
 							} else {
-								ret[px][py] = map[pz+1][ix][iy];
-								//remembered[pz+1][ix][iy]= true;
+								ret[px][py] = getMapCell(ix, iy, pz+1);
 								break;
 							}
 						}
@@ -331,19 +308,19 @@ public class AbstractLevel implements FOVMap, Serializable{
 		for (int ix = xstart; ix <=xend; ix++){
 			int py = 0;
 			for (int iy =  ystart ; iy <= yend; iy++){
-				if (ix >= 0 && ix < map[0].length && iy >= 0 && iy<map[0][0].length && remembers(ix, iy)){
-					ret[px][py] = map[z][ix][iy];
-				}
-				/*Las celdas de abajo*/
-				//if (isValidCoordinate(ix,iy,z) && (map[z][ix][iy] == null || map[z][ix][iy].getID().equals("AIR"))){
-				if (isValidCoordinate(ix,iy,z) && (map[z][ix][iy] == null || map[z][ix][iy].getID().equals("AIR"))){
-					int pz = z;
-					while (pz < getDepth()-1 && remembers(ix, iy, pz+1)){
-						if (map[pz+1][ix][iy] == null || map[pz+1][ix][iy].getID().equals("AIR")){
-							pz++;
-						} else {
-							ret[px][py] = map[pz+1][ix][iy];
-							break;
+				if (ix >= 0 && ix < getWidth() && iy >= 0 && iy < getHeight() && remembers(ix, iy, z)){
+					ret[px][py] = getMapCell(ix, iy, z);
+					/* Look to the cells behind
+					 */
+					if (isValidCoordinate(ix,iy,z) && (ret[px][py] == null || ret[px][py].getID().equals("AIR"))){
+						int pz = z;
+						while (pz < getDepth()-1){
+							if (getMapCell(ix, iy, pz+1) == null || getMapCell(ix, iy, pz+1).getID().equals("AIR")){
+								pz++;
+							} else {
+								ret[px][py] = getMapCell(ix, iy, pz+1);
+								break;
+							}
 						}
 					}
 				}
@@ -364,8 +341,6 @@ public class AbstractLevel implements FOVMap, Serializable{
 		dispatcher = value;
 		Debug.exitMethod();
 	}
-
-
 
 
 	private void validate(Position what){
@@ -456,21 +431,24 @@ public class AbstractLevel implements FOVMap, Serializable{
 	public boolean blockLOS(int x, int y) {
 		if (!isValidCoordinate(x,y))
 			return true;
-		if (map[player.getPosition().z][x][y] == null)
+		AbstractCell cell = getMapCell(x, y, player.getPosition().z);
+		if (cell == null)
 			return false;
 		else
-			return map[player.getPosition().z][x][y].isOpaque();
-			//return map[player.getPosition().z][x][y] == null || map[player.getPosition().z][x][y].isSolid();
+			return cell.isOpaque();
 	}
 	
 	private Position tempSeen = new Position(0,0);
+	
+	
+	
 	public void setSeen(int x, int y) {
 		if (!isValidCoordinate(x,y))
 			return;
 		tempSeen.x = x; tempSeen.y = y; tempSeen.z = player.getPosition().z;
-		if (Position.distance(tempSeen, player.getPosition())<= player.getSightRange() || lit[tempSeen.z][tempSeen.x][tempSeen.y]){
-			visible[player.getPosition().z][x][y]= true;
-			remembered[player.getPosition().z][x][y]= true;
+		if (Position.distance(tempSeen, player.getPosition())<= player.getSightRange() || isLit(tempSeen)){
+			markVisible(x, y, player.getPosition().z);
+			markRemembered(x, y, player.getPosition().z);
 			Actor m = getActorAt(tempSeen);
 			if (m != null){
 				m.setWasSeen(true);
@@ -479,38 +457,24 @@ public class AbstractLevel implements FOVMap, Serializable{
 	}
 	
 	public void darken(){
-		for (int x = 0; x < getWidth(); x++)
-			for (int y = 0; y < getHeight(); y++)
-				darken(x,y);
+		for (int z = 0; z < getDepth(); z++)
+			for (int x = 0; x < getWidth(); x++)
+				for (int y = 0; y < getHeight(); y++)
+					darken(x,y,z);
 	}
 	
-	public void darken(int x, int y){
-		if (!isValidCoordinate(x,y))
-			return;
-		visible[player.getPosition().z][x][y]= false;
-	}
+	protected abstract void markRemembered(int x, int y, int z) ;
+	protected abstract boolean remembers(int x, int y, int z);
 
-	public boolean remembers(int x, int y){
-		if (!isValidCoordinate(x,y))
-			return false;
-		return remembered[player.getPosition().z][x][y];
-	}
+	protected abstract void markLit(int x, int y, int z) ;
+	protected abstract void darken(int x, int y, int z);
+	protected abstract boolean isLit(Position p);
 	
-	public boolean remembers(int x, int y, int z){
-		if (!isValidCoordinate(x,y,z))
-			return false;
-		return remembered[z][x][y];
-	}
-	
-	public boolean isVisible(int x, int y){
-		if (!isValidCoordinate(x,y))
-			return false;
-		return visible[player.getPosition().z][x][y] /*|| lit[player.getPosition().z][x][y]*/;
-	}
+	protected abstract void markVisible(int x, int y, int z) ;
+	protected abstract boolean isVisible(int x, int y, int z);
 	
 
 	// Level Flags
-	
 	private Map<String, Boolean> hashFlags = new Hashtable<String, Boolean>();
 	
 	public void setFlag(String flagID, boolean value){
