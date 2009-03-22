@@ -3,6 +3,7 @@ package net.slashie.serf.level;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.IOException;
+import java.io.RandomAccessFile;
 import java.util.Hashtable;
 import java.util.Map;
 
@@ -66,17 +67,27 @@ public class GridLevelReader extends AbstractLevel {
 	
 	private AbstractCell[][] readLevelBuffer(String levelNameset, int bigX, int bigY){
 		try {
-			String filename = "maps/"+levelNameset+"-"+bigX+"-"+bigY+".fragment";
-			BufferedReader reader = FileUtil.getReader(filename);
-			String[] map = new String[FileUtil.filasEnArchivo(filename)];
-            String line = reader.readLine();
+			//String filename = "maps/"+levelNameset+"-"+bigX+"-"+bigY+".fragment";
+			RandomAccessFile raf = new RandomAccessFile(levelNameset+".txt", "r");
+			String[] map = new String[gridHeight];
+			raf.seek(2*bigY*(levelWidth+1) + 2*bigX*gridWidth*gridHeight);
+			byte[] buffer = new byte[gridWidth*2];
+			int bytes = raf.read(buffer);
+            /*String line = raf.readLine();
             int yr = 0;
             while (line != null){
             	map[yr]=line;
-            	line = reader.readLine();
+            	line = raf.readLine();
             	yr++;
             }
-            reader.close();
+            raf.close();*/
+			
+			int yr = 0;
+            while (bytes > -1 && yr < gridHeight){
+            	map[yr]= new String(buffer);
+            	bytes = raf.read(buffer);
+            	yr++;
+            }
             
             AbstractCell [][] ret = new AbstractCell[map[0].length()][map.length];
     	    Position where = new Position(0,0,0);

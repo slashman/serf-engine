@@ -24,7 +24,7 @@ import javax.imageio.stream.ImageInputStream;
 import javax.imageio.stream.ImageInputStreamImpl;
 
 public class ImageUtils {
-	public static  BufferedImage createImage (String filename) throws Exception {
+	public static  BufferedImage createImage (String filename) throws IOException  {
          /*BufferedImage im =  ImageIO.read(
                    ImageUtils.class.getResource(filename) );*/
 		BufferedImage im =  ImageIO.read(new File(filename));
