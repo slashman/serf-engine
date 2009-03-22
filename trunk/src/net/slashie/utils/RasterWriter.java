@@ -6,27 +6,20 @@ import java.awt.image.PixelGrabber;
 import java.io.BufferedWriter;
 import java.io.IOException;
 import java.util.Hashtable;
+import java.util.logging.Level;
 
 public class RasterWriter {
-	static Hashtable<String, String> charmap = new Hashtable<String, String>();
-	static {
-		/*charmap.put("R189G188B106", "x");
-		charmap.put("R187G254B145", "y");
-		charmap.put("R132G130B77", "z");
-		charmap.put("R132G190B130", "2");
-		charmap.put("R162G254B252", "1");*/
-		charmap.put("132,130,77", "^"); // Very high mountains
-		charmap.put("187,254,145", "."); // Grassland
-		charmap.put("33,130,188", " "); // Deep Sea
-		charmap.put("189,188,106", ","); // Plain
-		charmap.put("149,190,235", " "); // Medium Sea
-		charmap.put("162,254,252", "-"); // Shallow Sea
-		charmap.put("132,190,130", "&"); // Forest
-		charmap.put("162,254,252", " "); // Medium Sea
-		charmap.put("41,190,250", "#"); // River
+	private Hashtable<String, String> charmap = new Hashtable<String, String>();
+	
+	
+	
+	public RasterWriter(Hashtable<String, String> charmap) {
+		super();
+		this.charmap = charmap;
 	}
-	public static String handlesinglepixel(int pixel) {
-		int alpha = (pixel >> 24) & 0xff;
+
+	private String handlesinglepixel(int pixel) {
+		//int alpha = (pixel >> 24) & 0xff;
 		int red   = (pixel >> 16) & 0xff;
 		int green = (pixel >>  8) & 0xff;
 		int blue  = (pixel      ) & 0xff;
@@ -37,11 +30,10 @@ public class RasterWriter {
 			System.exit(-1);
 		}
 		
-		//System.out.print(value);
 		return value;
 	 }
 	
-	private static void flatRaster(String sourcefile,String destfile){
+	public void flatRaster(String sourcefile,String destfile){
 		try {
 			BufferedWriter writer = FileUtil.getWriter(destfile);
 			BufferedImage image = ImageUtils.createImage(sourcefile);
@@ -72,12 +64,11 @@ public class RasterWriter {
 		
 			
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
 	
-	private static void gridRaster(String sourcefile,String destfile, int gridWidth, int gridHeight){
+	public void gridRaster(String sourcefile,String destfile, int gridWidth, int gridHeight){
 		try {
 			BufferedWriter writer = FileUtil.getWriter(destfile);
 			BufferedImage image = ImageUtils.createImage(sourcefile);
@@ -104,8 +95,14 @@ public class RasterWriter {
 				for (int i = 0; i < squaresWidth; i++) {
 					for (int yr = 0; yr < gridHeight; yr++){
 						for (int xr = 0; xr < gridWidth; xr++){
-							String charact = handlesinglepixel(pixels[(j * gridHeight+yr) * w + (i * gridWidth+xr)]);
-							writer.write(charact);
+							int xpixel = i * gridWidth + xr;
+							int ypixel = j * gridHeight + yr;
+							if (xpixel >= w || ypixel >= h){
+								writer.write(" ");
+							} else {
+								String charact = handlesinglepixel(pixels[ypixel * w + xpixel]);
+								writer.write(charact);
+							}
 						}
 					}
 				}
@@ -115,13 +112,7 @@ public class RasterWriter {
 		
 			
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-	}
-	
-	public static void main(String[] args){
-		//flatRaster(args[0], args[1]);
-		gridRaster(args[0], args[1],50,50);
 	}
 }
