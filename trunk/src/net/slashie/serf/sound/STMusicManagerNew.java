@@ -6,10 +6,10 @@ import java.util.Map;
 import net.slashie.serf.game.SworeGame;
 import net.slashie.utils.sound.midi.STMidiPlayer;
 import net.slashie.utils.sound.mp3.JLayerMP3Player;
+import net.slashie.utils.sound.mp3.JavaZoomBasicPlayerMP3Player;
 
 public class STMusicManagerNew {
 	private Thread currentMidiThread;
-	private Thread currentMP3Thread;
 	private Map<String, String> musics = new Hashtable<String, String>();
 	private boolean enabled;
 	private String playing = "__nuthin";
@@ -24,19 +24,13 @@ public class STMusicManagerNew {
 	public STMusicManagerNew () {
 		//midiPlayer = new MidisLoader();
 		STMidiPlayer midiPlayer = new STMidiPlayer();
-		JLayerMP3Player mp3Player = new JLayerMP3Player();
 		currentMidiThread = new Thread(midiPlayer);
-		currentMP3Thread = new Thread(mp3Player);
-		currentMP3Thread.start();
 		currentMidiThread.start();
 	}
 	
 	public void stopMusic(){
 		if (playing.endsWith("mp3")) {
-			JLayerMP3Player.setInstruction(JLayerMP3Player.INS_STOP);
-			if (currentMP3Thread != null){
-				currentMP3Thread.interrupt();
-			}
+			JavaZoomBasicPlayerMP3Player.thus.stop();
 		} else {
 			STMidiPlayer.setInstruction(STMidiPlayer.INS_STOP);
 			if (currentMidiThread != null)
@@ -54,10 +48,7 @@ public class STMusicManagerNew {
 		if (currentMidiThread != null){
 			currentMidiThread.interrupt();
 		}
-		JLayerMP3Player.setInstruction(JLayerMP3Player.INS_DIE);
-		if (currentMP3Thread != null){
-			currentMP3Thread.interrupt();
-		}
+		JavaZoomBasicPlayerMP3Player.thus.stop();
 	}
 	
 	public void play(String fileName){
@@ -67,11 +58,7 @@ public class STMusicManagerNew {
 		try {
 			playing = fileName;
 			if (fileName.endsWith("mp3")){
-				JLayerMP3Player.setMP3(fileName);
-				JLayerMP3Player.setInstruction(JLayerMP3Player.INS_LOAD);
-				if (currentMP3Thread != null){
-					currentMP3Thread.interrupt();
-				}
+				JavaZoomBasicPlayerMP3Player.thus.play(fileName);
 			} else {
 				STMidiPlayer.setMidi(fileName);
 				STMidiPlayer.setInstruction(STMidiPlayer.INS_LOAD);
@@ -93,11 +80,7 @@ public class STMusicManagerNew {
 		try {
 			playing = fileName;
 			if (fileName.endsWith("mp3")){
-				JLayerMP3Player.setMP3(fileName);
-				JLayerMP3Player.setInstruction(JLayerMP3Player.INS_LOAD);
-				if (currentMP3Thread != null){
-					currentMP3Thread.interrupt();
-				}
+				JavaZoomBasicPlayerMP3Player.thus.play(fileName);
 			} else {
 				STMidiPlayer.setMidi(fileName);
 				STMidiPlayer.setInstruction(STMidiPlayer.INS_LOAD_ONCE);
