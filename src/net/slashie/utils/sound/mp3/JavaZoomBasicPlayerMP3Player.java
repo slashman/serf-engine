@@ -24,8 +24,9 @@ public class JavaZoomBasicPlayerMP3Player implements BasicPlayerListener{
 		player.addBasicPlayerListener(this);
 		
 	}
-	
+	private String currentFile;
 	public void play(String filename){
+		currentFile = filename;
 		try
 		{			
 			// Open file, or URL or Stream (shoutcast) to play.
@@ -89,6 +90,11 @@ public class JavaZoomBasicPlayerMP3Player implements BasicPlayerListener{
 
 	public void stateUpdated(BasicPlayerEvent arg0) {
 		// TODO Auto-generated method stub
+		// Notification of BasicPlayer states (opened, playing, end of media, ...)
+		if (arg0.getCode()==BasicPlayerEvent.EOM)
+		{
+			play(currentFile);
+		}
 		
 	}
 	
