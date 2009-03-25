@@ -36,6 +36,10 @@ public abstract class AbstractLevel implements FOVMap, Serializable{
 	private List<AbstractFeature> doomedFeatures = new ArrayList<AbstractFeature>();
 	private List<AbstractFeature> lightSources = new ArrayList<AbstractFeature>();
 	
+	public List<AbstractFeature> getFeatures() {
+		return features;
+	}
+
 	public void addExit(Position where, String levelID){
 		exits.put(levelID, where);
 		exitPositions.put(where.toString(), levelID);
