@@ -202,6 +202,14 @@ public abstract class Player extends AwareActor {
 			removeItem(equipment);
 	}
 
+	public void reduceQuantityOf(AbstractItem what, int quantity){
+		String toAddID = what.getFullID();
+		Equipment equipment = inventory.get(toAddID);
+		equipment.reduceQuantity(quantity);
+		if (equipment.isEmpty())
+			removeItem(equipment);
+	}
+
 	public final static int DEATH = 0, WIN = 1;
 
 	public final static int
