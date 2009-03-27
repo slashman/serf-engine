@@ -36,7 +36,7 @@ public abstract class UISelector implements ActionSelector  {
 		return ret;
 	}
 
-	private UserInterface ui;
+	private transient UserInterface ui;
 	
 	public UserInterface getUI(){
 		return ui;
