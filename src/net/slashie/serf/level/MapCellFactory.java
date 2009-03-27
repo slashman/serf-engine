@@ -15,7 +15,10 @@ public class MapCellFactory {
 	public AbstractCell getMapCell (String id) throws SworeException{
 		AbstractCell ret = (AbstractCell) definitions.get(id);
 		if (ret != null)
-			return ret;
+			if (ret.cloneRequired())
+				return ret.clone();
+			else
+				return ret;
 		throw new SworeException("MapCellID " +id +" not found");
 	}
 

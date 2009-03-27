@@ -140,6 +140,7 @@ public abstract class SworeGame implements CommandListener, PlayerEventListener,
 	}
 	
 	public void newGame(int gameType){
+		storedLevels = new Hashtable<String, AbstractLevel>();
 		player = generatePlayer(gameType, this);
 		player.setGameSessionInfo(new GameSessionInfo());
 		player.setSelector(uiSelector);
