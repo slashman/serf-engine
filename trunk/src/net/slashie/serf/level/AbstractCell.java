@@ -5,7 +5,7 @@ import net.slashie.serf.ui.AppearanceFactory;
 import net.slashie.utils.*;
 
 
-public class AbstractCell implements Cloneable, java.io.Serializable{
+public abstract class AbstractCell implements Cloneable, java.io.Serializable{
 	private boolean isStair, isSolid, isWater, isOpaque, shallowWater;
 	private boolean ethereal;
 	private transient Appearance appearance;
@@ -131,5 +131,21 @@ public class AbstractCell implements Cloneable, java.io.Serializable{
 
 	public void setShallowWater(boolean shallowWater) {
 		this.shallowWater = shallowWater;
+	}
+	
+	/** 
+	 * Determines if this mapcell type requires cloning because
+	 * it contains objects unique to it 
+	 */
+	public abstract boolean cloneRequired();
+	
+	@Override
+	public AbstractCell clone(){
+		try {
+			return (AbstractCell) super.clone();
+		} catch (CloneNotSupportedException e) {
+			e.printStackTrace();
+			return null;
+		}
 	}
 }
