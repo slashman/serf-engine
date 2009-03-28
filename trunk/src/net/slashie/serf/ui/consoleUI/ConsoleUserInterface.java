@@ -170,6 +170,7 @@ public abstract class ConsoleUserInterface extends UserInterface implements Comm
 		
 		Position runner = new Position(player.getPosition().x - xrange, player.getPosition().y-yrange, player.getPosition().z);
 		/*
+		 * NOTE! This was harshly disabled for expedition to work, must look for a better workaround
 		for (int x = 0; x < rcells.length; x++){
 			for (int y=0; y<rcells[0].length; y++){
 				if (rcells[x][y] != null && !rcells[x][y].getAppearance().getID().equals("NOTHING")){
