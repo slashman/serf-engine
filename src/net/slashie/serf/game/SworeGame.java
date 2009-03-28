@@ -251,7 +251,7 @@ public abstract class SworeGame implements CommandListener, PlayerEventListener,
 	}
 	
 	public static String getVersion(){
-		return "0.4";
+		return "0.5, rev26";
 	}
 	
 	public void setInterfaces(UserInterface pui, UISelector ps){
@@ -260,14 +260,14 @@ public abstract class SworeGame implements CommandListener, PlayerEventListener,
 	}
 	
 	public static void crash(String message, Throwable exception){
-    	System.out.println("SWORE runtime "+ getVersion()+": Unrecoverable Error");
+    	System.out.println("Serf runtime "+ getVersion()+": Unrecoverable Error");
         System.out.println(exception.getMessage());
         exception.printStackTrace();
         System.exit(-1);
     }
 	
 	public static void crash(String message){
-		System.out.println("SWORE runtime "+ getVersion()+": Unrecoverable Error");
+		System.out.println("Serf runtime "+ getVersion()+": Unrecoverable Error");
         System.out.println(message);
         System.exit(-1);
     }
