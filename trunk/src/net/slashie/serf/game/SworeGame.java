@@ -93,8 +93,8 @@ public abstract class SworeGame implements CommandListener, PlayerEventListener,
             	break;
             if (actor == player)
             	beforePlayerAction();
-			actor.act();
-			if (actor == player)
+			boolean acted = actor.act();
+			if (acted && actor == player)
 				afterPlayerAction();
 			if (endGame)
             	break;

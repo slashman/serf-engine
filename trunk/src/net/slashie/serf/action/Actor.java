@@ -62,26 +62,36 @@ public abstract class Actor implements Cloneable, java.io.Serializable, Priority
 		return "";
 	}
 
-	public void execute(Action x){
+	/**
+	 * Makes the actor try to perform the chosen action. 
+	 * @param x The action to be performed
+	 * @return false if the actor could not perform the action, true otherwise
+	 */
+	public boolean execute(Action x){
 		if (x != null){
         	x.setPerformer(this);
         	if (x.canPerform(this)){
 	        	if (x.getSFX() != null)
 	        		SFXManager.play(x.getSFX());
 				x.execute();
-				//Debug.say("("+x.getCost()+")");
 				setNextTime(x.getCost());
+				updateStatus();
+				return true;
+        	} else {
+        		return false;
         	}
 		} else {
-			setNextTime(50);
+			//Null action, do nothing
+			setNextTime(0);
+			return true;
 		}
-		updateStatus();
+		
 	}
-	public void act(){
+	public boolean act(){
 		if (getSelector() == null)
 			setSelector(new NullSelector());
 		Action x = getSelector().selectAction(this);
-		execute(x);
+		return execute(x);
 	}
 
 	public void setPosition (int x, int y, int z){
