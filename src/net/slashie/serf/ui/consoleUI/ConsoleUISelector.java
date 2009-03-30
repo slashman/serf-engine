@@ -53,7 +53,13 @@ public abstract class ConsoleUISelector extends UISelector {
 				Actor vMonster = player.getLevel().getActorAt(Position.add(player.getPosition(), Action.directionToVariation(direction)));
 				if (vMonster == null){
 					advance.setDirection(direction);
-					return advance;
+					if (advance.canPerform(player)){
+						return advance;
+					} else {
+						level.addMessage(advance.getInvalidationMessage());
+						si.refresh();
+						return null;
+					}
 				} else {
 					switch (onActorStumble(vMonster)){
 					case 1: //Attack the actor

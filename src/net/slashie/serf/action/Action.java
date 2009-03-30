@@ -222,7 +222,7 @@ public abstract class Action implements java.io.Serializable{
 		return Position.add(p, directionToVariation(dir));
 	}
 	
-	protected String invalidationMessage;
+	protected String invalidationMessage = "";
 	
 	public String getInvalidationMessage(){
 		return invalidationMessage;
