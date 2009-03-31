@@ -139,6 +139,7 @@ public abstract class UserInterface implements CommandListener/*, Runnable*/{
 	public abstract void showMessage(String x);
 
 	public abstract void showImportantMessage(String x);
+	
 	/**
      * Shows a message inmediately; useful for system
      * messages. Waits for a key press or something.
@@ -169,6 +170,9 @@ public abstract class UserInterface implements CommandListener/*, Runnable*/{
 			case CommandListener.LOOK:
 				doLook();
 				break;
+			case CommandListener.SHOWINVEN:
+				showInventory();
+				break;
 			case CommandListener.SWITCHMUSIC:
 				boolean enabled = STMusicManagerNew.thus.isEnabled();
 				if (enabled){
@@ -184,10 +188,10 @@ public abstract class UserInterface implements CommandListener/*, Runnable*/{
 		}
 	}
 	
+
 	private boolean gameOver;
 	
 	public void setGameOver(boolean bal){
-		
 		gameOver = bal;
 	}
 	
@@ -207,6 +211,7 @@ public abstract class UserInterface implements CommandListener/*, Runnable*/{
 	
 	public abstract void setTargets(Action a) throws ActionCancelException;
 	public abstract void showMessageHistory();
+	public abstract void showInventory();
 	public abstract int switchChat(String prompt, String... options);
 	public abstract String inputBox(String prompt);
 }
