@@ -46,7 +46,7 @@ public class SimpleAI extends BasicAI{
 		
 		if (directionToTarget == -1) {
 			if (isStationary || waitPlayerRange > 0) {
-				return null;
+				return pass;
 			} else {
 				int direction = Util.rand(0,7);
 		    	Action ret =  mainWalk;
@@ -57,7 +57,7 @@ public class SimpleAI extends BasicAI{
 			}
 		} else {
 			if (waitPlayerRange > 0 && targetDistance > waitPlayerRange){
-				return null;
+				return pass;
 			}
 			
 			
@@ -112,7 +112,7 @@ public class SimpleAI extends BasicAI{
 				}
 				// Couldnt attack the player, so walk to him
 				if (isStationary){
-					return null;
+					return pass;
 				} else {
 					Action ret = mainWalk;
 					OutParameter direction1 = new OutParameter();
