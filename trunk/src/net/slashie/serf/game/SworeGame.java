@@ -251,7 +251,7 @@ public abstract class SworeGame implements CommandListener, PlayerEventListener,
 	}
 	
 	public static String getVersion(){
-		return "0.5, rev26";
+		return "0.6, rev30";
 	}
 	
 	public void setInterfaces(UserInterface pui, UISelector ps){
