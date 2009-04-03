@@ -1,6 +1,7 @@
 package net.slashie.serf.action;
 
 public class NullSelector implements ActionSelector{
+	private PassAction pass = new PassAction();
 
 	@Override
 	protected Object clone() {
@@ -17,11 +18,11 @@ public class NullSelector implements ActionSelector{
 	}
 
 	public String getID() {
-		return "null";
+		return "NullSelector";
 	}
 
 	public Action selectAction(Actor who) {
-		return null;
+		return pass;
 	}
 
 }
