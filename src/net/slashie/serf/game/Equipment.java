@@ -1,10 +1,8 @@
 package net.slashie.serf.game;
 
-import net.slashie.libjcsi.textcomponents.ListItem;
-import net.slashie.libjcsi.textcomponents.MenuItem;
 import net.slashie.serf.baseDomain.AbstractItem;
 
-public class Equipment implements MenuItem, ListItem, Cloneable{
+public class Equipment implements Cloneable{
 	private AbstractItem item;
 	private int quantity;
 
@@ -22,38 +20,13 @@ public class Equipment implements MenuItem, ListItem, Cloneable{
 
  	public String getMenuDescription(){
  		if (quantity == 1){
- 			return item.getMenuDescription();
+ 			return item.getDescription();
  		} else {
- 			return item.getMenuDescription() +" x"+quantity;
+ 			return item.getDescription() +" x"+quantity;
  		}
 // 		if (eqMode)
 // 			return item.getAttributesDescription() +" x"+quantity+ " ["+item.getDefinition().getMenuDescription()+"]";
  	}
-
- 	/*Unsafe, Coupled*/
-	public char getMenuChar() {
-		return item.getMenuChar();
-	}
-	
-	/*Unsafe, Coupled*/
-	public int getMenuColor() {
-		return item.getMenuColor();
-	}
-	
-	// Remove this, somewhen
-	public char getIndex() {
-		return getMenuChar();
-	}
-
-	// Remove this, somewhen
-	public int getIndexColor() {
-		return getMenuColor();
-	}
-
-	// Remove this, somewhen
-	public String getRow() {
-		return getMenuDescription();
-	}
 
 
 	public AbstractItem getItem() {

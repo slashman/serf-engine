@@ -137,7 +137,9 @@ public abstract class AbstractCell implements Cloneable, java.io.Serializable{
 	 * Determines if this mapcell type requires cloning because
 	 * it contains objects unique to it 
 	 */
-	public abstract boolean cloneRequired();
+	public boolean cloneRequired(){
+		return false;
+	}
 	
 	@Override
 	public AbstractCell clone(){

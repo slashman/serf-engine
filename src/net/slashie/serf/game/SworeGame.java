@@ -15,6 +15,7 @@ import net.slashie.serf.action.Actor;
 import net.slashie.serf.fov.FOV;
 import net.slashie.serf.level.AbstractLevel;
 import net.slashie.serf.level.Dispatcher;
+import net.slashie.serf.level.LevelMetaData;
 import net.slashie.serf.ui.CommandListener;
 import net.slashie.serf.ui.UISelector;
 import net.slashie.serf.ui.UserInterface;
@@ -45,6 +46,7 @@ public abstract class SworeGame implements CommandListener, PlayerEventListener,
 	private boolean endGame;
 	
 	private long turns;
+	private Hashtable<String, LevelMetaData> hashMetadata = new Hashtable<String, LevelMetaData>();
 	
 	public void commandSelected (int commandCode){
 		if (commandCode == CommandListener.QUIT){
@@ -61,18 +63,18 @@ public abstract class SworeGame implements CommandListener, PlayerEventListener,
 	public abstract String getFirstMessage(Actor player);
 
 	//Callback
-	public abstract void onGameStart(int gameType);
-	public abstract void beforeGameStart();
-	public abstract void beforePlayerAction();
-	public abstract void afterPlayerAction();
-	public abstract void onGameResume();
-	public abstract void onGameOver();
-	public abstract void onGameWon();
-	public abstract void onLevelLoad(AbstractLevel level);
+	public void onGameStart(int gameType) {};
+	public void beforeGameStart(){};
+	public void beforePlayerAction(){};
+	public void afterPlayerAction(){};
+	public void onGameResume(){};
+	public void onGameOver(){};
+	public void onGameWon(){};
+	public void onLevelLoad(AbstractLevel level){};
 	
 	public abstract String getDeathMessage();
 	public abstract Player generatePlayer(int gameType, SworeGame sworeGame);
-	public abstract AbstractLevel createLevel(String levelID);
+	public abstract AbstractLevel createLevel(LevelMetaData levelMetadata);
 
 	
 	private void run(){
@@ -213,7 +215,7 @@ public abstract class SworeGame implements CommandListener, PlayerEventListener,
 			onLevelLoad(currentLevel);
 		} else {
 			try {
-				currentLevel = createLevel(levelID);
+				currentLevel = createLevel(getMetaData(levelID));
 				currentLevel.setPlayer(player);
 				ui.setPlayer(player);
 				uiSelector.setPlayer(player);
@@ -238,6 +240,14 @@ public abstract class SworeGame implements CommandListener, PlayerEventListener,
 		ui.levelChange();
 	}
 	
+	private LevelMetaData getMetaData(String levelID) {
+		return hashMetadata.get(levelID);
+	}
+	
+	public void addMetaData(String levelId, LevelMetaData metadata){
+		hashMetadata.put(levelId, metadata);
+	}
+
 	public void setLevel(AbstractLevel level){
 		currentLevel = level;
 		player.setLevel(level);
@@ -251,7 +261,7 @@ public abstract class SworeGame implements CommandListener, PlayerEventListener,
 	}
 	
 	public static String getVersion(){
-		return "0.6, rev30";
+		return "0.7, rev30";
 	}
 	
 	public void setInterfaces(UserInterface pui, UISelector ps){

@@ -45,7 +45,7 @@ public class CharAppearance extends Appearance {
 	YELLOW = 14,
 	WHITE = 15;
 	
-	public static  int getColor(String colorName){
+	public static int getColor(String colorName){
 		if (colorName == null) return -1;
 		if (colorName.equals("BLACK")) return BLACK;
 		if (colorName.equals("DARK_BLUE")) return DARK_BLUE;

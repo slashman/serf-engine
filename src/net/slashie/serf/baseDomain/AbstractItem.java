@@ -7,15 +7,25 @@ import java.util.Hashtable;
 import net.slashie.libjcsi.textcomponents.MenuItem;
 import net.slashie.serf.game.Player;
 import net.slashie.serf.ui.Appearance;
+import net.slashie.serf.ui.AppearanceFactory;
 
 
-public abstract class AbstractItem implements Serializable, MenuItem{
+public abstract class AbstractItem implements Serializable {
 
-	public abstract boolean isVisible();
+	public boolean isVisible(){
+		return true;
+	}
 	
 	public abstract String getDescription();
 	
-	public abstract Appearance getAppearance();
+	private Appearance appearance;
+	private String appearanceId;
+	
+	public Appearance getAppearance() {
+		if (appearance == null)
+			appearance = AppearanceFactory.getAppearanceFactory().getAppearance(appearanceId);
+		return appearance;
+	}
 
 	public abstract String getFullID();
 	
@@ -50,10 +60,16 @@ public abstract class AbstractItem implements Serializable, MenuItem{
 		}
 	}
 	
-	public abstract void onItemCounterZeroed(String key);
+	// Callback
+	public void onItemCounterZeroed(String key){
+		//Called when an item counter reached zero
+	}
 	
 	public boolean hasCounters(){
 		return hashCounters.size() > 0;
 	}
 
+	public AbstractItem(String appearanceId) {
+		this.appearanceId = appearanceId;
+	}
 }

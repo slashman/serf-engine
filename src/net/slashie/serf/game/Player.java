@@ -131,15 +131,37 @@ public abstract class Player extends AwareActor {
 	}
 
 	//Callback
-	public abstract void onItemStep(AbstractItem item);
-	public abstract void beforeItemAddition(AbstractItem item);
-	public abstract void onItemsStep(List<AbstractItem> items);
-	public abstract void onNullDestination();
-	public abstract void onSolidDestination();
-	public abstract void onActorStep(Actor aActor);
-	public abstract void onFeatureStep(AbstractFeature destinationFeature);
+	public void onItemStep(AbstractItem item){};
+	public void beforeItemAddition(AbstractItem item){};
+	public void onItemsStep(List<AbstractItem> items){};
+	public void onNullDestination(){};
+	public void onSolidDestination(){};
+	public void onActorStep(Actor aActor){};
+	public void onFeatureStep(AbstractFeature destinationFeature){};
+	public void onCellStep(AbstractCell cell){};
 
-	public abstract Position getFreeSquareAround(Position p);
+	public Position getFreeSquareAround(Position destinationPoint){
+		Position tryP = Position.add(destinationPoint, Action.directionToVariation(Action.UP));
+		if (level.getMapCell(tryP) != null && !level.getMapCell(tryP).isSolid()){
+			return tryP;
+		} 
+		
+		tryP = Position.add(destinationPoint, Action.directionToVariation(Action.DOWN));
+		if (level.getMapCell(tryP) != null && !level.getMapCell(tryP).isSolid()){
+			return tryP;
+		}
+		
+		tryP = Position.add(destinationPoint, Action.directionToVariation(Action.LEFT));
+		if (level.getMapCell(tryP) != null && !level.getMapCell(tryP).isSolid()){
+			return tryP;
+		}
+					
+		tryP = Position.add(destinationPoint, Action.directionToVariation(Action.RIGHT));
+		if (level.getMapCell(tryP) != null && !level.getMapCell(tryP).isSolid()){
+			return tryP;
+		}
+		return null;
+	}
 	
 	public void landOn (Position destinationPoint){
 		AbstractCell destinationCell = level.getMapCell(destinationPoint);
@@ -147,6 +169,7 @@ public abstract class Player extends AwareActor {
        		onNullDestination();
 			return;
        	}
+        onCellStep(destinationCell);
         setPosition(destinationPoint);
         
 		if (destinationCell.isSolid()){
@@ -216,7 +239,9 @@ public abstract class Player extends AwareActor {
 		EVT_CHAT = 11, 
 		EVT_GOTO_LEVEL = 15;
 	
-	public abstract String getStatusString();
+	public String getStatusString(){
+		return "";
+	}
 
 	public abstract int getSightRange();
 	
@@ -304,6 +329,6 @@ public abstract class Player extends AwareActor {
 	
 	public abstract String getSaveFilename();
 	
-	public abstract List<AbstractItem> getEquippedItems();
+	public abstract List<? extends AbstractItem> getEquippedItems();
 	
 }
