@@ -43,7 +43,7 @@ public abstract class Actor implements Cloneable, java.io.Serializable, Priority
 	protected AbstractLevel level;
 
 	//CallBack
-	public abstract void counterFinished(String counterId);
+	public void counterFinished(String counterId) {};
 	
 	public void updateStatus(){
 		Set<String> counters = hashCounters.keySet();
@@ -203,11 +203,15 @@ public abstract class Actor implements Cloneable, java.io.Serializable, Priority
 	 * Determines if the User Interface can show a detailed info view
 	 * @return
 	 */
-	public abstract boolean extendedInfoAvailable();
+	public boolean extendedInfoAvailable(){
+		return false;
+	}
 	
 	/**
 	 * Determines if the player must be shown to the user (May have additional gameplay effects)
 	 * @return
 	 */
-	public abstract boolean isInvisible();
+	public boolean isInvisible() {
+		return false;
+	}
 }

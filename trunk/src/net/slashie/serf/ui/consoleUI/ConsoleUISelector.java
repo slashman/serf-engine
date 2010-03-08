@@ -11,7 +11,7 @@ import net.slashie.serf.ui.UISelector;
 import net.slashie.serf.ui.UserAction;
 import net.slashie.utils.Position;
 
-public abstract class ConsoleUISelector extends UISelector {
+public class ConsoleUISelector extends UISelector {
 	private ConsoleSystemInterface si;
 	public ConsoleUserInterface ui(){
 		return (ConsoleUserInterface) getUI();
@@ -113,6 +113,6 @@ public abstract class ConsoleUISelector extends UISelector {
 	
 	private static final int WEAPONCODE = CharKey.SPACE;
 	
-	public abstract int onActorStumble(Actor actor);
+	public int onActorStumble(Actor actor){return 0;};
 	
 }

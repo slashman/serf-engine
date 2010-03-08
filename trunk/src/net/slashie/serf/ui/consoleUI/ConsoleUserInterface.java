@@ -141,7 +141,8 @@ public abstract class ConsoleUserInterface extends UserInterface implements Comm
 	}
 
     public abstract void showDetailedInfo(Actor a);
-    public abstract void beforeSeenListCompilation();
+    
+    public void beforeSeenListCompilation(){}
     
     // Drawing Methods
     @Override
@@ -169,8 +170,7 @@ public abstract class ConsoleUserInterface extends UserInterface implements Comm
 		AbstractCell[] [] vcells = level.getVisibleCellsAround(player.getPosition().x,player.getPosition().y, player.getPosition().z, xrange,yrange);
 		
 		Position runner = new Position(player.getPosition().x - xrange, player.getPosition().y-yrange, player.getPosition().z);
-		/*
-		 * NOTE! This was harshly disabled for expedition to work, must look for a better workaround
+		
 		for (int x = 0; x < rcells.length; x++){
 			for (int y=0; y<rcells[0].length; y++){
 				if (rcells[x][y] != null && !rcells[x][y].getAppearance().getID().equals("NOTHING")){
@@ -179,12 +179,12 @@ public abstract class ConsoleUserInterface extends UserInterface implements Comm
 					if (vcells[x][y] == null)
 						si.print(PC_POS.x-xrange+x,PC_POS.y-yrange+y, cellChar, ConsoleSystemInterface.GRAY);
 				} else if (vcells[x][y] == null || vcells[x][y].getID().equals("AIR"));
-					//si.print(PC_POS.x-xrange+x,PC_POS.y-yrange+y, CharAppearance.getVoidAppearance().getChar(), CharAppearance.BLACK);
+					si.print(PC_POS.x-xrange+x,PC_POS.y-yrange+y, CharAppearance.getVoidAppearance().getChar(), CharAppearance.BLACK);
 				runner.y++;
 			}
 			runner.y = player.getPosition().y-yrange;
 			runner.x ++;
-		}*/
+		}
 		
 		
 		runner.x = player.getPosition().x - xrange;
@@ -261,6 +261,8 @@ public abstract class ConsoleUserInterface extends UserInterface implements Comm
 					} else {
 						si.print(PC_POS.x,PC_POS.y, ((CharAppearance)AppearanceFactory.getAppearanceFactory().getAppearance("SHADOW")).getChar(), ((CharAppearance)AppearanceFactory.getAppearanceFactory().getAppearance("SHADOW")).getColor());
 					}
+				} else {
+					
 				}
 				runner.y++;
 			}
@@ -463,7 +465,7 @@ public abstract class ConsoleUserInterface extends UserInterface implements Comm
 	}
 
 	private AbstractItem pickEquipedItem(String prompt) throws ActionCancelException{
-		List<AbstractItem> equipped = player.getEquippedItems();
+		List<? extends AbstractItem> equipped = player.getEquippedItems();
   		MenuBox menuBox = new MenuBox(si);
   		//menuBox.setBounds(26,6,30,11);
   		menuBox.setBounds(10,3,60,18);
@@ -829,5 +831,9 @@ public abstract class ConsoleUserInterface extends UserInterface implements Comm
 		String ret = si.input(length);
 		si.restore();
 		return ret;
+	}
+	
+	public String inputBox(String prompt){
+		return inputBox(prompt, 20, 2, 31, 8, 22, 6,20);
 	}
 }

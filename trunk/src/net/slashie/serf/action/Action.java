@@ -11,10 +11,15 @@ import net.slashie.serf.baseDomain.AbstractItem;
 import net.slashie.serf.ui.Effect;
 import net.slashie.serf.ui.UserInterface;
 
-
+/**
+ * Base class for classes representing actions
+ * performable by an actor
+ * @author Slash
+ *
+ */
 public abstract class Action implements java.io.Serializable{
+	
 	protected Actor performer;
-
 	protected int targetDirection;
 	protected AbstractItem targetEquipedItem;
 	protected AbstractItem targetItem;
@@ -31,13 +36,21 @@ public abstract class Action implements java.io.Serializable{
 		DOWNRIGHT = 6,
 		DOWNLEFT = 7,
 		SELF = 8;
-	
+	/**
+	 * 
+	 * @return An unique String representing the action
+	 */
 	public abstract String getID();
 	
+	/**
+	 * This method is intended to be overriden by extending classes 
+	 * @return The cost in time units of performing this action,
+	 */
 	public int getCost(){
 		return 50;
 	}
 
+	
 	public void setPerformer(Actor what){
 		performer = what;
 	}
