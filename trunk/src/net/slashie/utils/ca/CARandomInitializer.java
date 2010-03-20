@@ -4,25 +4,34 @@ import net.slashie.util.Util;
 
 public class CARandomInitializer {
 	private double [] proportions;
-	private boolean border;
-	public CARandomInitializer(double[] proportions, boolean border){
+	private boolean useBorder;
+	private int border = 1;
+	
+	public CARandomInitializer(double[] proportions, boolean useBorder){
 		this.proportions = proportions;
+		this.useBorder =useBorder;
+	}
+	
+	public CARandomInitializer(double[] proportions, int border){
+		this(proportions, true);
 		this.border = border;
 	}
+	
+	
 	
 	public void init(Matrix map){
 		for (int x = 0; x < map.getWidth(); x++)
 			for (int y = 0; y < map.getHeight(); y++)
 				map.setFuture(0, x, y);
 
-		if (border){
+		if (useBorder){
 			for (int x = 0; x < map.getWidth(); x++){
-				map.setFuture(1,x,0);
-				map.setFuture(1,x,map.getHeight()-1);
+				map.setFuture(border,x,0);
+				map.setFuture(border,x,map.getHeight()-1);
 			}
 			for (int y = 0; y < map.getHeight(); y++){
-				map.setFuture(1, 0, y);
-				map.setFuture(1, map.getWidth()-1, y);
+				map.setFuture(border, 0, y);
+				map.setFuture(border, map.getWidth()-1, y);
 			}
 		}
 		

@@ -1,5 +1,8 @@
 package net.slashie.utils.ca;
 
+import net.slashie.utils.Position;
+import net.slashie.utils.Util;
+
 public class Matrix {
 	private int [][] values;
 	private int [][] futureValues;
@@ -88,5 +91,40 @@ public class Matrix {
 	
 	public int[][] getArrays(){
 		return values;
+	}
+	
+	public void addShoweredHotSpot(int value, int shower, int showers, int maxDist){
+		addShoweredHotSpot(new Position(Util.rand(5,getWidth()-5), Util.rand(5,getHeight()-5)), value, shower, showers, maxDist);		
+	}
+	
+	public void addShoweredHotSpot(Position where, int value, int shower, int showers, int maxDist){
+		int xpos = where.x;
+		int ypos = where.y;
+		int xs = showers;
+		for (int i = 0; i < xs; i++){
+			int xdif = maxDist - Util.rand(0,maxDist*2);
+			int ydif = maxDist - Util.rand(0,maxDist*2);
+			if (isValid(xpos+xdif, ypos+ydif))
+				futureValues[xpos+xdif][ypos+ydif] = shower;
+		}
+		futureValues[xpos][ypos] = value;
+	}
+	
+	private boolean isValid(int x,int y){
+		return x>=0 && y >= 0 && x < getWidth() && y < getHeight();
+	}
+	
+	public void addHotSpot(int value){
+		int xpos = Util.rand(5,getWidth()-5);
+		int ypos = Util.rand(5,getHeight()-5);
+		values[xpos][ypos] = value;
+		futureValues[xpos][ypos] = value;
+	}
+	
+	public void addHotSpot(Position where, int value){
+		int xpos = where.x;
+		int ypos = where.y;
+		values[xpos][ypos] = value;
+		futureValues[xpos][ypos] = value;
 	}
 }

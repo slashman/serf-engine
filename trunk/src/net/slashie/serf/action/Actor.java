@@ -58,9 +58,7 @@ public abstract class Actor implements Cloneable, java.io.Serializable, Priority
 		}
 	}
 
-	public String getDescription(){
-		return "";
-	}
+	public abstract String getDescription();
 
 	/**
 	 * Makes the actor try to perform the chosen action. 

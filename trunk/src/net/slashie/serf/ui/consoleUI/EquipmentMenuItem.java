@@ -5,7 +5,8 @@ import net.slashie.libjcsi.textcomponents.MenuItem;
 import net.slashie.serf.game.Equipment;
 
 public class EquipmentMenuItem implements MenuItem, ListItem{
-	private Equipment e;
+	protected Equipment e;
+	
 	public EquipmentMenuItem(Equipment e) {
 		this.e = e;
 	}
@@ -22,9 +23,13 @@ public class EquipmentMenuItem implements MenuItem, ListItem{
 		return getItemAppearance().getColor();
 	}
 	
-	public String getMenuDescription() {
-		return e.getItem().getDescription();
-	}
+	public String getMenuDescription(){
+ 		if (e.getQuantity() == 1){
+ 			return e.getItem().getDescription();
+ 		} else {
+ 			return e.getItem().getDescription() +" x"+e.getQuantity();
+ 		}
+ 	}
 	
 	public char getIndex() {
 		return getMenuChar();
@@ -36,6 +41,10 @@ public class EquipmentMenuItem implements MenuItem, ListItem{
 
 	public String getRow() {
 		return getMenuDescription();
+	}
+
+	public Equipment getEquipment() {
+		return e;
 	}
 	
 }

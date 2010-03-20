@@ -1,8 +1,10 @@
 package net.slashie.serf.game;
 
+import java.io.Serializable;
+
 import net.slashie.serf.baseDomain.AbstractItem;
 
-public class Equipment implements Cloneable{
+public class Equipment implements Cloneable, Serializable{
 	private AbstractItem item;
 	private int quantity;
 
@@ -17,17 +19,6 @@ public class Equipment implements Cloneable{
  	
  	public static boolean eqMode = false;
  	public static boolean menuDetail = false;
-
- 	public String getMenuDescription(){
- 		if (quantity == 1){
- 			return item.getDescription();
- 		} else {
- 			return item.getDescription() +" x"+quantity;
- 		}
-// 		if (eqMode)
-// 			return item.getAttributesDescription() +" x"+quantity+ " ["+item.getDefinition().getMenuDescription()+"]";
- 	}
-
 
 	public AbstractItem getItem() {
 		return item;
