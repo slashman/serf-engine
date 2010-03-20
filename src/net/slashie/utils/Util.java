@@ -63,4 +63,12 @@ public class Util {
 		else
 			return 0;
 	}
+
+	
+	public static String limit(String string, int i) {
+		if (string.length()> i)
+			return string.substring(0, i);
+		else
+			return string;
+	}
 }

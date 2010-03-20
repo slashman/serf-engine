@@ -105,7 +105,9 @@ public class SimpleAI extends BasicAI{
 										);
 							}
 							ret.setPosition(who.getLevel().getPlayer().getPosition());
-							
+							if (ret.needsDirection()){
+								ret.setDirection(directionToTarget);
+							}
 							return ret;
 						}
 					}
@@ -118,11 +120,12 @@ public class SimpleAI extends BasicAI{
 					OutParameter direction1 = new OutParameter();
 					OutParameter direction2 = new OutParameter();
 					fillAlternateDirections(direction1, direction2, directionToTarget);
-					if (canWalkTowards(who, directionToTarget)){
+					boolean canWalkOverActors = isCanWalkOverActors();
+					if (canWalkTowards(who, directionToTarget,canWalkOverActors)){
 						ret.setDirection(directionToTarget);
-					} else if (canWalkTowards(who, direction1.getIntValue())){
+					} else if (canWalkTowards(who, direction1.getIntValue(), canWalkOverActors)){
 						ret.setDirection(direction1.getIntValue());
-					} else if (canWalkTowards(who, direction2.getIntValue())){
+					} else if (canWalkTowards(who, direction2.getIntValue(), canWalkOverActors)){
 						ret.setDirection(direction2.getIntValue());
 					} else {
 						ret.setDirection(Util.rand(0,7));
@@ -133,6 +136,10 @@ public class SimpleAI extends BasicAI{
 		}
 	 }
 	
+	public boolean isCanWalkOverActors() {
+		return false;
+	}
+
 	private void fillAlternateDirections(OutParameter direction1, OutParameter direction2, int generalDirection){
 		Position var = Action.directionToVariation(generalDirection);
 		Position d1 = null;
@@ -151,8 +158,19 @@ public class SimpleAI extends BasicAI{
 		direction2.setIntValue(Action.toIntDirection(d2));
 	}
 	
-	private boolean canWalkTowards(Actor aMonster, int direction){
+	public boolean canWalkTowards(Actor aMonster, int direction){
+		return canWalkTowards(aMonster, direction, false);
+	}
+
+	
+	public boolean canWalkTowards(Actor aMonster, int direction, boolean canWalkOverActors){
 		Position destination = Position.add(aMonster.getPosition(), Action.directionToVariation(direction));
+		if (!canWalkOverActors){
+			Actor a = aMonster.getLevel().getActorAt(destination);
+			if (a != null)
+				return false;
+		}
+		
 		if (!aMonster.getLevel().isWalkable(destination)){
 			return false;
 		} else

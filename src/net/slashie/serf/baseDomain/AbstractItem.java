@@ -18,7 +18,7 @@ public abstract class AbstractItem implements Serializable {
 	
 	public abstract String getDescription();
 	
-	private Appearance appearance;
+	private transient Appearance appearance;
 	private String appearanceId;
 	
 	public Appearance getAppearance() {

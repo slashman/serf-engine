@@ -298,4 +298,16 @@ public abstract class Action implements java.io.Serializable{
 			break;
 		}
 	}
+	
+	public void youMessage(String message){
+		if (performer == performer.getLevel().getPlayer()){
+			performer.getLevel().addMessage(message);
+		}
+	}
+	
+	public void theyMessage(String message){
+		if (targetPosition.equals(performer.getLevel().getPlayer().getPosition())){
+			performer.getLevel().addMessage(message);
+		}
+	}
 }

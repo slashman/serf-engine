@@ -26,6 +26,7 @@ import net.slashie.libjcsi.ConsoleSystemInterface;
 import net.slashie.libjcsi.textcomponents.BasicListItem;
 import net.slashie.libjcsi.textcomponents.ListBox;
 import net.slashie.libjcsi.textcomponents.MenuBox;
+import net.slashie.libjcsi.textcomponents.MenuItem;
 import net.slashie.libjcsi.textcomponents.TextBox;
 import net.slashie.libjcsi.textcomponents.TextInformBox;
 
@@ -38,8 +39,8 @@ import net.slashie.libjcsi.textcomponents.TextInformBox;
 public abstract class ConsoleUserInterface extends UserInterface implements CommandListener, Runnable{
 	
 	//Attributes
-	protected int xrange = 25;
-	protected int yrange = 9;
+	protected int xrange = 8;
+	protected int yrange = 8;
 	
 	public Position
 		VP_START = new Position(1,3),
@@ -75,7 +76,7 @@ public abstract class ConsoleUserInterface extends UserInterface implements Comm
     //Interactive Methods
     public void doLook(){
 		Position offset = new Position (0,0);
-		messageBox.setForeColor(ConsoleSystemInterface.RED);
+		messageBox.setForeColor(ConsoleSystemInterface.WHITE);
 		refresh();
 		si.saveBuffer();
 		Actor lookedActor = null;
@@ -113,7 +114,7 @@ public abstract class ConsoleUserInterface extends UserInterface implements Comm
 			
 			messageBox.setText(looked);
 			messageBox.draw();
-			si.print(PC_POS.x + offset.x, PC_POS.y + offset.y, '_', ConsoleSystemInterface.RED);
+			si.print(PC_POS.x + offset.x, PC_POS.y + offset.y, '_', ConsoleSystemInterface.WHITE);
 			si.refresh();
 			CharKey x = new CharKey(CharKey.NONE);
 			while (x.code != CharKey.SPACE && x.code != CharKey.m && x.code != CharKey.ESC &&
@@ -282,7 +283,7 @@ public abstract class ConsoleUserInterface extends UserInterface implements Comm
 	public void addMessage(Message message){
 		if (eraseOnArrival){
 	 		messageBox.clear();
-	 		messageBox.setForeColor(ConsoleSystemInterface.RED);
+	 		messageBox.setForeColor(ConsoleSystemInterface.WHITE);
 	 		eraseOnArrival = false;
 		}
 		if ((player != null && player.getPosition() != null && message.getLocation().z != player.getPosition().z) || (message.getLocation() != null && !insideViewPort(getAbsolutePosition(message.getLocation())))){
@@ -326,7 +327,7 @@ public abstract class ConsoleUserInterface extends UserInterface implements Comm
 		messageBox.setPosition(1,22);
 		messageBox.setWidth(78);
 		messageBox.setHeight(2);
-		messageBox.setForeColor(ConsoleSystemInterface.RED);
+		messageBox.setForeColor(ConsoleSystemInterface.WHITE);
 		
 		/*monstersList.setPosition(2, 4);
 		monstersList.setWidth(27);
@@ -472,7 +473,7 @@ public abstract class ConsoleUserInterface extends UserInterface implements Comm
   		menuBox.setPromptSize(2);
   		menuBox.setMenuItems(new Vector(equipped));
   		menuBox.setPrompt(prompt);
-  		menuBox.setForeColor(ConsoleSystemInterface.RED);
+  		menuBox.setForeColor(ConsoleSystemInterface.WHITE);
   		menuBox.setBorder(true);
   		si.saveBuffer();
   		menuBox.draw();
@@ -487,17 +488,31 @@ public abstract class ConsoleUserInterface extends UserInterface implements Comm
 	
 	private AbstractItem pickItem(String prompt) throws ActionCancelException{
   		List<Equipment> inventory = player.getInventory();
+  		List<MenuItem> inventoryMenuItems = new ArrayList<MenuItem>();
+  		for (Equipment e: inventory){
+  			inventoryMenuItems.add(getMenuItemForPicking(e));
+  		}
+  		Comparator<MenuItem> comparator = getMenuItemComparator();
+  		if (comparator != null)
+  			Collections.sort(inventoryMenuItems, comparator);
   		MenuBox menuBox = new MenuBox(si);
   		menuBox.setBounds(10,3,60,18);
   		menuBox.setPromptSize(2);
-  		menuBox.setMenuItems(new Vector(inventory));
+  		menuBox.setMenuItems(inventoryMenuItems);
   		menuBox.setPrompt(prompt);
-  		menuBox.setForeColor(ConsoleSystemInterface.RED);
+  		menuBox.setForeColor(ConsoleSystemInterface.WHITE);
   		menuBox.setBorder(true);
   		si.saveBuffer();
   		menuBox.draw();
-		Equipment equipment = (Equipment)menuBox.getSelection();
+  		
+		EquipmentMenuItem equipmentMenuItem = ((EquipmentMenuItem)menuBox.getSelection());
 		si.restore();
+		si.refresh();
+		if (equipmentMenuItem == null){
+			ActionCancelException ret = new ActionCancelException();
+			throw ret;
+		}
+		Equipment equipment = equipmentMenuItem.getEquipment();
 		if (equipment == null){
 			ActionCancelException ret = new ActionCancelException();
 			throw ret;
@@ -505,6 +520,14 @@ public abstract class ConsoleUserInterface extends UserInterface implements Comm
 		return equipment.getItem();
 	}
 	
+	public Comparator<MenuItem> getMenuItemComparator() {
+		return null;
+	}
+
+	public MenuItem getMenuItemForPicking(Equipment e) {
+		return new EquipmentMenuItem(e);
+	}
+
 	private AbstractItem pickUnderlyingItem(String prompt) throws ActionCancelException{
   		List<AbstractItem> items = level.getItemsAt(player.getPosition());
   		if (items == null)
@@ -516,7 +539,7 @@ public abstract class ConsoleUserInterface extends UserInterface implements Comm
   		menuBox.setPromptSize(2);
   		menuBox.setMenuItems(new Vector(items));
   		menuBox.setPrompt(prompt);
-  		menuBox.setForeColor(ConsoleSystemInterface.RED);
+  		menuBox.setForeColor(ConsoleSystemInterface.WHITE);
   		menuBox.setBorder(true);
   		si.saveBuffer();
   		menuBox.draw();
@@ -537,7 +560,7 @@ public abstract class ConsoleUserInterface extends UserInterface implements Comm
   		menuBox.setPromptSize(2);
   		menuBox.setMenuItems(new Vector(inventory));
   		menuBox.setPrompt(prompt);
-  		menuBox.setForeColor(ConsoleSystemInterface.RED);
+  		menuBox.setForeColor(ConsoleSystemInterface.WHITE);
   		menuBox.setBorder(true);
   		Vector ret = new Vector();
   		MenuBox selectedBox = new MenuBox(si);
@@ -545,7 +568,7 @@ public abstract class ConsoleUserInterface extends UserInterface implements Comm
   		selectedBox.setPromptSize(2);
   		selectedBox.setPrompt("Selected Items");
   		selectedBox.setMenuItems(ret);
-  		selectedBox.setForeColor(ConsoleSystemInterface.RED);
+  		selectedBox.setForeColor(ConsoleSystemInterface.WHITE);
   		selectedBox.setBorder(true);
   		
   		si.saveBuffer();
@@ -567,7 +590,7 @@ public abstract class ConsoleUserInterface extends UserInterface implements Comm
 	public abstract String getQuitPrompt();
 	
 	public void processQuit(){
-		messageBox.setForeColor(ConsoleSystemInterface.RED);
+		messageBox.setForeColor(ConsoleSystemInterface.WHITE);
 		messageBox.setText(getQuitPrompt()+" (y/n)");
 		messageBox.draw();
 		si.refresh();
@@ -589,7 +612,7 @@ public abstract class ConsoleUserInterface extends UserInterface implements Comm
 			level.addMessage("You cannot save your game here!");
 			return;
 		}
-		messageBox.setForeColor(ConsoleSystemInterface.RED);
+		messageBox.setForeColor(ConsoleSystemInterface.WHITE);
 		messageBox.setText("Save your game? (y/n)");
 		messageBox.draw();
 		si.refresh();
@@ -617,16 +640,22 @@ public abstract class ConsoleUserInterface extends UserInterface implements Comm
 		drawStatus();
 	 	drawLevel();
 	 	sightListItems.clear();
-		idList.draw();
+	 	if (drawIdList())
+	 		idList.draw();
 		beforeRefresh();
 		si.refresh();
 		messageBox.draw();
-	  	messageBox.setForeColor(ConsoleSystemInterface.DARK_RED);
+	  	messageBox.setForeColor(ConsoleSystemInterface.GRAY);
 	  	if (!player.getFlag("KEEPMESSAGES"))
 	  		eraseOnArrival = true;
 	  	
     }
 	
+	public boolean drawIdList() {
+		return true;
+	}
+	
+
 	@Override
 	public void setTargets(Action a) throws ActionCancelException{
 		if (a.needsItem())
@@ -667,7 +696,7 @@ public abstract class ConsoleUserInterface extends UserInterface implements Comm
      * @param x the message to be shown
      */
 	public void showMessage(String x){
-		messageBox.setForeColor(ConsoleSystemInterface.RED);
+		messageBox.setForeColor(ConsoleSystemInterface.WHITE);
 		messageBox.addText(x);
 		messageBox.draw();
 		si.refresh();
@@ -679,7 +708,7 @@ public abstract class ConsoleUserInterface extends UserInterface implements Comm
 	}
 	
 	public void showSystemMessage(String x){
-		messageBox.setForeColor(ConsoleSystemInterface.RED);
+		messageBox.setForeColor(ConsoleSystemInterface.WHITE);
 		messageBox.setText(x);
 		messageBox.draw();
 		si.refresh();
@@ -690,11 +719,11 @@ public abstract class ConsoleUserInterface extends UserInterface implements Comm
 	public void showMessageHistory(){
 		si.saveBuffer();
 		si.cls();
-		si.print(1, 0, "Message Buffer", CharAppearance.DARK_RED);
+		si.print(1, 0, "Message Buffer", CharAppearance.GRAY);
 		for (int i = 0; i < 22; i++){
 			if (i >= messageHistory.size())
 				break;
-			si.print(1,i+2, (String)messageHistory.elementAt(messageHistory.size()-1-i), CharAppearance.RED);
+			si.print(1,i+2, (String)messageHistory.elementAt(messageHistory.size()-1-i), CharAppearance.WHITE);
 		}
 		
 		si.print(55, 24, "[ Space to Continue ]");
@@ -790,8 +819,7 @@ public abstract class ConsoleUserInterface extends UserInterface implements Comm
 
 	@Override
 	public boolean promptChat(String message) {
-		// TODO Auto-generated method stub
-		return false;
+		return promptChat(message, 20,8,40,5);
 	}
 	
 	public void beforeRefresh(){

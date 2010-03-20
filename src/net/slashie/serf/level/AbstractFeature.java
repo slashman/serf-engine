@@ -26,7 +26,10 @@ public abstract class AbstractFeature extends Actor implements Cloneable, Serial
 	private int currentResistance;
 	
 	
-	public abstract AbstractFeature featureDestroyed(Actor actor);
+	//Feature destroyed by the actor, may spawn another feature
+	public AbstractFeature featureDestroyed(Actor actor){
+		return null;
+	}
 	
 	public AbstractFeature damage(Actor p, int damage){
 		if (!destroyable){
@@ -104,5 +107,6 @@ public abstract class AbstractFeature extends Actor implements Cloneable, Serial
 		return light;
 	}
 	
-	public abstract void onStep(Actor a);
+	// Callback
+	public void onStep(Actor a){}
 }

@@ -202,6 +202,7 @@ public abstract class AbstractLevel implements FOVMap, Serializable{
 
 	public void addFeature(AbstractFeature what){
 		features.add(what);
+		what.setLevel(this);
 		if (what.getFaint() > 0){
 			doomedFeatures.add(what);
 		}

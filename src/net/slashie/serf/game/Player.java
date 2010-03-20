@@ -218,19 +218,18 @@ public abstract class Player extends AwareActor {
 	}
 
 	public void reduceQuantityOf(AbstractItem what){
-		String toAddID = what.getFullID();
-		Equipment equipment = inventory.get(toAddID);
+		reduceQuantityOf(what.getFullID(), 1);
+	}
+	
+	public void reduceQuantityOf(String itemId, int quantity){
+		Equipment equipment = inventory.get(itemId);
 		equipment.reduceQuantity(1);
 		if (equipment.isEmpty())
 			removeItem(equipment);
 	}
 
 	public void reduceQuantityOf(AbstractItem what, int quantity){
-		String toAddID = what.getFullID();
-		Equipment equipment = inventory.get(toAddID);
-		equipment.reduceQuantity(quantity);
-		if (equipment.isEmpty())
-			removeItem(equipment);
+		reduceQuantityOf(what.getFullID(), quantity);
 	}
 
 	public final static int DEATH = 0, WIN = 1;
@@ -330,5 +329,10 @@ public abstract class Player extends AwareActor {
 	public abstract String getSaveFilename();
 	
 	public abstract List<? extends AbstractItem> getEquippedItems();
+	
+	@Override
+	public String getDescription() {
+		return name;
+	}
 	
 }

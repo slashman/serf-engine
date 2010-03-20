@@ -12,6 +12,9 @@ import net.slashie.serf.ui.UserAction;
 import net.slashie.utils.Position;
 
 public class ConsoleUISelector extends UISelector {
+	public static final int STUMBLE_NOTHING = 0;
+	public static final int STUMBLE_ATTACK = 1;
+	public static final int STUMBLE_WALK = 2;
 	private ConsoleSystemInterface si;
 	public ConsoleUserInterface ui(){
 		return (ConsoleUserInterface) getUI();
@@ -62,7 +65,7 @@ public class ConsoleUISelector extends UISelector {
 					}
 				} else {
 					switch (onActorStumble(vMonster)){
-					case 1: //Attack the actor
+					case STUMBLE_ATTACK: //Attack the actor
 						if (attack.canPerform(player)){
 							attack.setDirection(direction);
 							return attack;
@@ -71,7 +74,7 @@ public class ConsoleUISelector extends UISelector {
 							si.refresh();
 						}
 						break;
-					case 2: //Walk into the actor
+					case STUMBLE_WALK: //Walk into the actor
 						advance.setDirection(direction);
 						return advance;
 					}
@@ -113,6 +116,6 @@ public class ConsoleUISelector extends UISelector {
 	
 	private static final int WEAPONCODE = CharKey.SPACE;
 	
-	public int onActorStumble(Actor actor){return 0;};
+	public int onActorStumble(Actor actor){return STUMBLE_WALK;};
 	
 }
