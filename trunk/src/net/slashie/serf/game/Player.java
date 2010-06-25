@@ -49,7 +49,7 @@ public abstract class Player extends AwareActor {
 				level.addMessage("You can't carry anything more");
 			return;
 		}
-		beforeItemAddition(toAdd);
+		beforeItemsAddition(toAdd, quantity);
 		
 		if (canCarry(toAdd, quantity)){
 			String toAddID = toAdd.getFullID();
@@ -132,7 +132,13 @@ public abstract class Player extends AwareActor {
 
 	//Callback
 	public void onItemStep(AbstractItem item){};
+	
+	/**
+	 * 
+	 * @deprecated Use beforeItemsAddition instead
+	 */
 	public void beforeItemAddition(AbstractItem item){};
+	public void beforeItemsAddition(AbstractItem item, int quantity){};
 	public void onItemsStep(List<AbstractItem> items){};
 	public void onNullDestination(){};
 	public void onSolidDestination(){};
@@ -223,7 +229,7 @@ public abstract class Player extends AwareActor {
 	
 	public void reduceQuantityOf(String itemId, int quantity){
 		Equipment equipment = inventory.get(itemId);
-		equipment.reduceQuantity(1);
+		equipment.reduceQuantity(quantity);
 		if (equipment.isEmpty())
 			removeItem(equipment);
 	}
