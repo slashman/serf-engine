@@ -179,8 +179,9 @@ public abstract class ConsoleUserInterface extends UserInterface implements Comm
 					char cellChar = app.getChar();
 					if (vcells[x][y] == null)
 						si.print(PC_POS.x-xrange+x,PC_POS.y-yrange+y, cellChar, ConsoleSystemInterface.GRAY);
-				} else if (vcells[x][y] == null || vcells[x][y].getID().equals("AIR"));
+				} else if (vcells[x][y] == null || vcells[x][y].getID().equals("AIR")){
 					si.print(PC_POS.x-xrange+x,PC_POS.y-yrange+y, CharAppearance.getVoidAppearance().getChar(), CharAppearance.BLACK);
+				}
 				runner.y++;
 			}
 			runner.y = player.getPosition().y-yrange;
