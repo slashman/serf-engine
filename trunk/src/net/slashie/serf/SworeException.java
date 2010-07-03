@@ -9,4 +9,9 @@ public class SworeException extends RuntimeException {
 		return errorMsg;
 	}
 	
+	@Override
+	public String getMessage() {
+		return getErrorMsg();
+	}
+	
 }
