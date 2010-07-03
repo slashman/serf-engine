@@ -229,6 +229,10 @@ public abstract class Player extends AwareActor {
 	
 	public void reduceQuantityOf(String itemId, int quantity){
 		Equipment equipment = inventory.get(itemId);
+		if (equipment == null){
+			//TODO: Throw Business Exception
+			return;
+		}
 		equipment.reduceQuantity(quantity);
 		if (equipment.isEmpty())
 			removeItem(equipment);
