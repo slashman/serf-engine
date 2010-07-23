@@ -17,106 +17,26 @@ import net.slashie.utils.Position;
  * 	Must be listening to a System Interface
  */
 
-public abstract class UserInterface implements CommandListener {
-	//Interface
+public abstract class SimplifiedUserInterface implements CommandListener {
+	// Interactive functionalities
 	public abstract void doLook();
-    public abstract boolean promptChat (String message);
-    public abstract void drawEffect(Effect what);
+    
+	// Game message handling
 	public abstract void addMessage(Message message);
 	public abstract List<Message> getMessageBuffer();
-	public abstract boolean isDisplaying(Actor who); //(?)
-	public abstract void setTargets(Action a) throws ActionCancelException;
-	public abstract void showMessageHistory();
-	public abstract void showInventory();
-	public abstract int switchChat(String prompt, String... options);
-	public abstract String inputBox(String prompt);
 	
-	protected Position getNearestActorPosition(){
-		List<Actor> actors = level.getDispatcher().getActors();
-		Actor nearActor = null;
-		int minDist = 150;
-		int maxDist = 15;
-		for (Actor actor: actors){
-			if (actor.getPosition().z() != level.getPlayer().getPosition().z())
-				continue;
-			int distance = Position.flatDistance(level.getPlayer().getPosition(), actor.getPosition());
-			if (distance < maxDist && distance< minDist && player.sees(actor)){
-				minDist = distance;
-				nearActor = actor;
-			}
-		}
-		if (nearActor != null)
-			return nearActor.getPosition();
-		else
-			return null;
-	}
+	// Simple Input/Output methods
+	public abstract boolean confirm (String message);
+    public abstract int select (String prompt, String... options);
+    public abstract String read(String prompt);
+    public abstract String show(String message);
     
-    /**
-     * Prompts for Yes or NO
-     */
-    public abstract boolean prompt ();
-
-	public abstract void refresh();
-
- 	/**
-     * Shows a message inmediately; useful for system
-     * messages.
-     *  
-     * @param x the message to be shown
-     */
-	public abstract void showMessage(String x);
-
-	public abstract void showImportantMessage(String x);
-	
-	/**
-     * Shows a message inmediately; useful for system
-     * messages. Waits for a key press or something.
-     *  
-     * @param x the message to be shown
-     */
-	public abstract void showSystemMessage(String x);
-	
-	public abstract void processQuit();
-	
-	public abstract void processSave();
-	
-	public abstract void processHelp();
-	
-	public abstract void onMusicOn();
-	
-	//Status
-	protected Vector monstersOnSight = new Vector();
-	protected Vector featuresOnSight = new Vector();
-	protected Vector itemsOnSight = new Vector();
-	protected Action actionSelectedByCommand;
-	
-	protected boolean eraseOnArrival; // Erase the buffer upon the arrival of a new msg
-   	
-	protected String lastMessage; // (?)
-	
-	protected AbstractLevel level;
-
-	// Reference to the player...
-	protected Player player;
-	
-    public Player getPlayer() {
-		return player;
-	}
-    
-    public void setPlayer(Player pPlayer){
-		player = pPlayer;
-		level = player.getLevel();
-	}
-    
-
-    //FOVMask provided as convenience for rendering (?)
+	//FOVMask provided as convenience for rendering (?)
     private boolean [][] FOVMask;
 	public boolean isOnFOVMask(int x, int y){
 		return FOVMask[x][y];
 	}
 	
-	
-
 	public void init(UserCommand[] gameCommands){
 		FOVMask = new boolean[80][25];
 		for (int i = 0; i < gameCommands.length; i++)
@@ -137,10 +57,6 @@ public abstract class UserInterface implements CommandListener {
     	return ret;
 	}
 	
-    public void levelChange(){
-		level = player.getLevel();
-	}
-    
 	protected void informPlayerCommand(int command) {
 	    Debug.enterMethod(this, "informPlayerCommand", command+"");
 	    for (int i =0; i < commandListeners.size(); i++){

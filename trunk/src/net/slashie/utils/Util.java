@@ -38,6 +38,16 @@ public class Util {
 		else
 			return new Vector(source.subList(pageNumber*elementsOnPage, (pageNumber+1) * elementsOnPage));
 	}
+	
+	public static List page(List source, int elementsOnPage, int pageNumber){
+		//System.out.println("elements on page"+elementsOnPage+" page Number"+pageNumber);
+		if (source.size() == 0)
+			return source;
+		if ((pageNumber+1) * elementsOnPage > source.size() )
+			return new Vector(source.subList(pageNumber*elementsOnPage, source.size()));
+		else
+			return new Vector(source.subList(pageNumber*elementsOnPage, (pageNumber+1) * elementsOnPage));
+	}
 
 	public static String randomElementOf(String [] array){
 		return array[rand(0, array.length -1)];

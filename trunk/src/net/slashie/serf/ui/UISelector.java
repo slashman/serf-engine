@@ -1,8 +1,10 @@
 package net.slashie.serf.ui;
 
 import java.util.Hashtable;
+
 import java.util.Map;
 
+import net.slashie.libjcsi.CharKey;
 import net.slashie.serf.action.Action;
 import net.slashie.serf.action.ActionSelector;
 import net.slashie.serf.action.Actor;
@@ -51,5 +53,44 @@ public abstract class UISelector implements ActionSelector  {
 			this.gameActions.put(gameActions[i].getKeyCode()+"", gameActions[i]);
 		}
 	}
+	
+    public boolean isArrow(CharKey input) {
+		return toIntDirection(input) != -1;
+	}
+    
+    public static int toIntDirection(CharKey ck){
+		if (isKey(ck, UP1_KEY, UP2_KEY))
+			return Action.UP;
+		else
+		if (isKey(ck, LEFT1_KEY, LEFT2_KEY))
+			return Action.LEFT;
+		else
+		if (isKey(ck, RIGHT1_KEY, RIGHT2_KEY))
+			return Action.RIGHT;
+		else
+		if (isKey(ck, DOWN1_KEY, DOWN2_KEY))
+			return Action.DOWN;
+		else
+		if (isKey(ck, UPRIGHT1_KEY, UPRIGHT2_KEY))
+			return Action.UPRIGHT;
+		else
+		if (isKey(ck, UPLEFT1_KEY, UPLEFT2_KEY))
+			return Action.UPLEFT;
+		else
+		if (isKey(ck, DOWNLEFT1_KEY, DOWNLEFT2_KEY))
+			return Action.DOWNLEFT;
+		else
+		if (isKey(ck, DOWNRIGHT1_KEY, DOWNRIGHT2_KEY))
+			return Action.DOWNRIGHT;
+		if (isKey(ck, SELF1_KEY, SELF2_KEY))
+			return Action.SELF;
+		return -1;
+	}
+	private static boolean isKey(CharKey ck, int key1, int key2) {
+		return ck.code == key1 || ck.code == key2; 
+	}
+	
+	public static int UP1_KEY, UP2_KEY, LEFT1_KEY, LEFT2_KEY, RIGHT1_KEY, RIGHT2_KEY, DOWN1_KEY, DOWN2_KEY, UPRIGHT1_KEY, UPRIGHT2_KEY,
+	UPLEFT1_KEY, UPLEFT2_KEY, DOWNLEFT1_KEY, DOWNLEFT2_KEY, DOWNRIGHT1_KEY, DOWNRIGHT2_KEY, SELF1_KEY, SELF2_KEY;
 	
 }
