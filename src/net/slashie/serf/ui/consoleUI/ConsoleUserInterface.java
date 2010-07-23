@@ -773,25 +773,7 @@ public abstract class ConsoleUserInterface extends UserInterface implements Comm
 		
 	}
 	
-	private Position getNearestActorPosition(){
-		List<Actor> actors = level.getDispatcher().getActors();
-		Actor nearActor = null;
-		int minDist = 150;
-		int maxDist = 15;
-		for (Actor actor: actors){
-			if (actor.getPosition().z() != level.getPlayer().getPosition().z())
-				continue;
-			int distance = Position.flatDistance(level.getPlayer().getPosition(), actor.getPosition());
-			if (distance < maxDist && distance< minDist && player.sees(actor)){
-				minDist = distance;
-				nearActor = actor;
-			}
-		}
-		if (nearActor != null)
-			return nearActor.getPosition();
-		else
-			return null;
-	}
+
 
 	public Vector getMessageBuffer() {
 		if (messageHistory.size()>20)

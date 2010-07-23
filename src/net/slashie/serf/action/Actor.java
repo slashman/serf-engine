@@ -212,4 +212,8 @@ public abstract class Actor implements Cloneable, java.io.Serializable, Priority
 	public boolean isInvisible() {
 		return false;
 	}
+
+	public boolean isHostile() {
+		return false;
+	}
 }

@@ -41,28 +41,7 @@ public class ImageUtils {
          return copy;*/
 	}
 	
-	/*public static Image crearImagen(String filename) throws Exception{
-    	//Debug.enterStaticMethod("IASImageUtils", "crearImagen "+filename);
-    	//Debug.say("estoy cargando una imagen "+filename);
-    	if (!FileUtil.fileExists(filename)){
-    		Exception e = new Exception("Archivo Inexistente " +filename);
-    		Debug.exitExceptionally(e);
-    		throw e;
-    	}
-        Image image = Toolkit.getDefaultToolkit().getImage(filename);
-        MediaTracker mediaTracker = new MediaTracker(new Container());
-        mediaTracker.addImage(image, 0);
-        try{
-            mediaTracker.waitForID(0);
-        }catch(InterruptedException ex){
-        	System.out.println(ex.getMessage());
-        }
-        //Debug.exitMethod(image);
-        return image;
-    }*/
-	
 	public static Image crearImagen(String filename, Component tracker) throws Exception{
-    	//Debug.enterStaticMethod("IASImageUtils", "crearImagen "+filename);
     	//Debug.say("estoy cargando una imagen "+filename);
     	if (!FileUtil.fileExists(filename)){
     		Exception e = new Exception("Archivo Inexistente " +filename);
