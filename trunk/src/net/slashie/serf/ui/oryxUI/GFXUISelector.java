@@ -23,7 +23,7 @@ public class GFXUISelector extends UISelector implements ActionSelector, MouseLi
 	private transient SwingSystemInterface si;
 	private boolean useMouse = false;
 	
-	private static final int WEAPONCODE = CharKey.SPACE;
+	//private static final int WEAPONCODE = CharKey.SPACE;
 	private static final int DONOTHING1_KEY = CharKey.DOT;
 	private static final int DONOTHING2_KEY = CharKey.DOT;
 
@@ -141,7 +141,7 @@ public class GFXUISelector extends UISelector implements ActionSelector, MouseLi
 					return advance;
 				}
 			} else
-			if (input.code == WEAPONCODE){
+			/*if (input.code == WEAPONCODE){
 				ret = target;
             	try {
             		ret.setPerformer(player);
@@ -159,7 +159,7 @@ public class GFXUISelector extends UISelector implements ActionSelector, MouseLi
 	 				si.refresh();
 					ret = null;
 				}
-			}else{
+			}else */{
             	ret = getRelatedAction(input.code);
             	/*if (ret == target){
             		defaultTarget = player.getNearestMonsterPosition();
