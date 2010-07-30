@@ -508,10 +508,11 @@ public abstract class GFXUserInterface extends UserInterface implements Runnable
 			IMG_ICON = ImageUtils.createImage(p.getProperty("IMG_ICON"));
 			COLOR_BOLD = PropertyFilters.getColor(p.getProperty("COLOR_BOLD"));
 			IMG_BORDERS = PropertyFilters.getImage(p.getProperty("IMG_BORDERS"), p.getProperty("IMG_BORDERS_BOUNDS"));
-			BORDER1 = ImageUtils.crearImagen(IMG_BORDERS, 34,1,tileSize,tileSize);
-			BORDER2 = ImageUtils.crearImagen(IMG_BORDERS, 1,1,tileSize,tileSize);
-			BORDER3 = ImageUtils.crearImagen(IMG_BORDERS, 100, 1, tileSize,tileSize);
-			BORDER4 = ImageUtils.crearImagen(IMG_BORDERS, 67,1,tileSize,tileSize);
+			
+			BORDER1 = ImageUtils.crearImagen(IMG_BORDERS, tileSize,0,tileSize,tileSize);
+			BORDER2 = ImageUtils.crearImagen(IMG_BORDERS, 0,0,tileSize,tileSize);
+			BORDER3 = ImageUtils.crearImagen(IMG_BORDERS, tileSize*3,0,tileSize,tileSize);
+			BORDER4 = ImageUtils.crearImagen(IMG_BORDERS, tileSize*2,0, tileSize,tileSize);
 			
 			FNT_TITLE = PropertyFilters.getFont(p.getProperty("FNT_TITLE"), p.getProperty("FNT_TITLE_SIZE"));
 			FNT_TEXT = PropertyFilters.getFont(p.getProperty("FNT_TEXT"), p.getProperty("FNT_TEXT_SIZE"));
@@ -542,9 +543,11 @@ public abstract class GFXUserInterface extends UserInterface implements Runnable
 					BORDER2,
 					BORDER3,
 					BORDER4,
-					new Color(187,161,80),
-					new Color(92,78,36),
-					tileSize, tileSize);
+					new Color(52,42,20),
+					new Color(164,138,68),
+					new Color(232,253,77),
+					tileSize,
+					6,9,12 );
 		} catch (Exception e){
 			e.printStackTrace();
 		}
@@ -555,6 +558,7 @@ public abstract class GFXUserInterface extends UserInterface implements Runnable
 		addornedTextArea.setBackground(Color.BLACK);
 		addornedTextArea.setFont(FNT_DIALOGUEIN);
 		addornedTextArea.setOpaque(false);
+		addornedTextArea.setForeground(new Color(255,127,39));
 		psi.add(addornedTextArea);
 		
 		/*-- Assign values */
@@ -581,7 +585,12 @@ public abstract class GFXUserInterface extends UserInterface implements Runnable
 		
 		psi.add(messageBox);
 		
-		persistantMessageBox = new AddornedBorderTextArea(BORDER1, BORDER2, BORDER3, BORDER4, COLOR_BORDER_IN, COLOR_BORDER_OUT, tileSize,tileSize);
+		persistantMessageBox = new AddornedBorderTextArea(BORDER1, BORDER2, BORDER3, BORDER4, 
+				new Color(52,42,20),
+				new Color(164,138,68),
+				new Color(232,253,77),
+				tileSize,
+				6,9,12);
 		persistantMessageBox.setBounds(520,90,260,400);
 		persistantMessageBox.setVisible(false);
 		persistantMessageBox.setFont(FNT_PERSISTANTMESSAGEBOX);

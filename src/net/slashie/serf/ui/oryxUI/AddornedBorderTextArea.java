@@ -13,9 +13,9 @@ public class AddornedBorderTextArea extends AddornedBorderPanel{
 	
 	public AddornedBorderTextArea(Image UPRIGHT, 
 			Image UPLEFT, Image DOWNRIGHT, Image DOWNLEFT,
-			Color OUT_COLOR, Color IN_COLOR,
-			int borderWidth, int borderHeight) {
-		super(UPRIGHT, UPLEFT, DOWNRIGHT, DOWNLEFT, OUT_COLOR, IN_COLOR, borderWidth, borderHeight);
+			Color OUT_COLOR, Color IN_COLOR, Color INSIDE_COLOR, int borderWidth, int outsideBound, int inBound, int insideBound
+			) {
+		super(UPRIGHT, UPLEFT, DOWNRIGHT, DOWNLEFT, OUT_COLOR, IN_COLOR, INSIDE_COLOR, borderWidth, outsideBound, inBound, insideBound);
 		textArea = new JTextArea();
 		setLayout(new GridLayout(1,1));
 		textArea.setWrapStyleWord(true);
@@ -24,7 +24,7 @@ public class AddornedBorderTextArea extends AddornedBorderPanel{
 		textArea.setEditable(false);
 		textArea.setOpaque(false);
 		//textArea.setVisible(false);
-		setBorder(new EmptyBorder(32, 32,32,32));
+		setBorder(new EmptyBorder(borderWidth, borderWidth,borderWidth,borderWidth));
 		setOpaque(false);
 		add(textArea);
 	}
@@ -40,9 +40,11 @@ public class AddornedBorderTextArea extends AddornedBorderPanel{
 	public void setForeground(Color fore){
 		if (textArea != null) textArea.setForeground(fore);
 	}
+	
 	public void setBackground(Color fore){
 		if (textArea != null) textArea.setBackground(fore);
 	}
+	
 
 	
 }

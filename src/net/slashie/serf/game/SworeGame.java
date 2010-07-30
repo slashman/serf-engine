@@ -270,7 +270,7 @@ public abstract class SworeGame implements CommandListener, PlayerEventListener,
 	}
 	
 	public static void crash(String message, Throwable exception){
-    	System.out.println("Serf runtime "+ getVersion()+": Unrecoverable Error");
+    	System.out.println("Serf runtime "+ getVersion()+": Unrecoverable Error: "+message);
         System.out.println(exception.getMessage());
         exception.printStackTrace();
         System.exit(-1);
