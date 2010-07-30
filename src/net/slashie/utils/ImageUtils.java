@@ -63,11 +63,8 @@ public class ImageUtils {
 	private static Image tempImage; 
 	
 	public static BufferedImage crearImagen(String filename, int x, int y, int width, int height) throws Exception{
-		//tempImage = crearImagen(filename);
 		BufferedImage tempImage = createImage(filename);
 		return crearImagen(tempImage, x, y, width, height);
-		        
-		//return Toolkit.getDefaultToolkit().createImage(new FilteredImageSource(tempImage.getSource(), new CropImageFilter(x, y, width, height)));
     }
 	
 	public static BufferedImage crearImagen(BufferedImage tempImage, int x, int y, int width, int height) throws Exception{

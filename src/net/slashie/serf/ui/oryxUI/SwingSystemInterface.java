@@ -229,6 +229,10 @@ public class SwingSystemInterface implements Runnable{
 		sip.print(x*10, y*24, text, color);
 	}
 	
+	public void print(int x, int y, String text){
+		sip.print(x*10, y*24, text);
+	}
+	
 	public void waitKey (int keyCode){
 		CharKey x = new CharKey(CharKey.NONE);
 		while (x.code != keyCode)

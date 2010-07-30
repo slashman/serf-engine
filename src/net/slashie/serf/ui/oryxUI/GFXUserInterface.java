@@ -47,7 +47,7 @@ import net.slashie.utils.swing.BorderedMenuBox;
  * 	Must be listening to a System Interface
  */
 
-public class GFXUserInterface extends UserInterface implements Runnable {
+public abstract class GFXUserInterface extends UserInterface implements Runnable {
 	//Attributes
 	private int xrange = 11;
 	private int yrange = 8;
@@ -63,11 +63,11 @@ public class GFXUserInterface extends UserInterface implements Runnable {
 	
 	// Relations
 
- 	private transient SwingSystemInterface si;
+ 	protected transient SwingSystemInterface si;
 
  	private Font FNT_MESSAGEBOX;
  	private Font FNT_PERSISTANTMESSAGEBOX;
- 	
+ 	private int tileSize;
 	private BufferedImage 
 		TILE_LINE_STEPS, 
 		TILE_LINE_AIM,
@@ -78,11 +78,6 @@ public class GFXUserInterface extends UserInterface implements Runnable {
 		BORDER3,
 		BORDER4,
 		IMG_STATUSSCR_BGROUND,
-		IMG_EXIT_BTN,
-		IMG_OK_BTN,
-		IMG_BUY_BTN,
-		IMG_YES_BTN,
-		IMG_NO_BTN,
 		IMG_BORDERS,	
 		IMG_ICON;
 	private int GADGETSIZE;
@@ -110,8 +105,7 @@ public class GFXUserInterface extends UserInterface implements Runnable {
 		return Position.add(PC_POS, relative);
 	}
 
-	public Position
-				VP_START = new Position(0,0),
+	public Position VP_START = new Position(0,0),
 				VP_END = new Position (31,18),
 				PC_POS = new Position (12,9);
 
@@ -129,7 +123,6 @@ public class GFXUserInterface extends UserInterface implements Runnable {
 		messageBox.setVisible(false);
 		isCursorEnabled = false;
 		si.saveBuffer();
-		//si.drawImage(GFXDisplay.IMG_FRAME);
 		int lw = level.getWidth();
 		int lh = level.getHeight();
 		int remnantx = (int)((740 - (lw * 3))/2.0d); 
@@ -255,7 +248,7 @@ public class GFXUserInterface extends UserInterface implements Runnable {
 				}
 			}
 			messageBox.setText(looked);
-			si.drawImage((PC_POS.x + offset.x)*32-2, ((PC_POS.y + offset.y)*32-2)-4*cellHeight, TILE_SCAN);
+			si.drawImage((PC_POS.x + offset.x)*tileSize-2, ((PC_POS.y + offset.y)*tileSize-2)-4*cellHeight, TILE_SCAN);
 			si.refresh();
 			CharKey x = new CharKey(CharKey.NONE);
 			while (x.code != CharKey.SPACE && x.code != CharKey.m && x.code != CharKey.ESC &&
@@ -361,23 +354,23 @@ public class GFXUserInterface extends UserInterface implements Runnable {
 					if (rcells[x][y] != null && !rcells[x][y].getAppearance().getID().equals("NOTHING")){
 						GFXAppearance app = (GFXAppearance)rcells[x][y].getAppearance();
 						try {
-							si.drawImage((PC_POS.x-xrange+x)*32,(PC_POS.y-yrange+y)*32-17-app.getSuperHeight(), app.getDarkImage());
+							si.drawImage((PC_POS.x-xrange+x)*tileSize,(PC_POS.y-yrange+y)*tileSize-app.getSuperHeight(), app.getDarkImage());
 						} catch (NullPointerException npe){
 							Color c = si.getGraphics2D().getColor();
 							si.getGraphics2D().setColor(Color.RED);
-							si.getGraphics2D().fillRect((PC_POS.x-xrange+x)*32,(PC_POS.y-yrange+y)*32-17-app.getSuperHeight(), 32,49);
+							si.getGraphics2D().fillRect((PC_POS.x-xrange+x)*tileSize,(PC_POS.y-yrange+y)*tileSize-app.getSuperHeight(), tileSize,49);
 							si.getGraphics2D().setColor(c);
 						}
 					} else {
 						//Draw nothing
-						//si.drawImage((PC_POS.x-xrange+x)*32,(PC_POS.y-yrange+y)*32-17, "gfx/black.gif");
+						//si.drawImage((PC_POS.x-xrange+x)*tileSize,(PC_POS.y-yrange+y)*tileSize, "gfx/black.gif");
 						//si.print(PC_POS.x-xrange+x,PC_POS.y-yrange+y, CharAppearance.getVoidAppearance().getChar(), CharAppearance.getVoidAppearance().BLACK);
 					}
 				} else {
 					cellHeight = vcells[x][y].getHeight();
 					FOVMask[PC_POS.x-xrange+x][PC_POS.y-yrange+y] = true;
 					GFXAppearance cellApp = (GFXAppearance)vcells[x][y].getAppearance();
-					si.drawImage((PC_POS.x-xrange+x)*32,(PC_POS.y-yrange+y)*32-17-cellApp.getSuperHeight(), cellApp.getImage());
+					si.drawImage((PC_POS.x-xrange+x)*tileSize,(PC_POS.y-yrange+y)*tileSize-cellApp.getSuperHeight(), cellApp.getImage());
 				}
 				runner.x++;
 			}
@@ -390,7 +383,7 @@ public class GFXUserInterface extends UserInterface implements Runnable {
 					if (feat != null){
 						if (feat.isVisible()) {
 							GFXAppearance featApp = (GFXAppearance)feat.getAppearance();
-							si.drawImage((PC_POS.x-xrange+x)*32-featApp.getSuperWidth(),(PC_POS.y-yrange+y)*32-4*cellHeight-featApp.getSuperHeight(), featApp.getImage());
+							si.drawImage((PC_POS.x-xrange+x)*tileSize-featApp.getSuperWidth(),(PC_POS.y-yrange+y)*tileSize-4*cellHeight-featApp.getSuperHeight(), featApp.getImage());
 						}
 					}
 					
@@ -402,13 +395,13 @@ public class GFXUserInterface extends UserInterface implements Runnable {
 					if (item != null){
 						if (item.isVisible()){
 							GFXAppearance itemApp = (GFXAppearance)item.getAppearance();
-							si.drawImage((PC_POS.x-xrange+x)*32-itemApp.getSuperWidth(),(PC_POS.y-yrange+y)*32-4*cellHeight -itemApp.getSuperHeight(), itemApp.getImage());
+							si.drawImage((PC_POS.x-xrange+x)*tileSize-itemApp.getSuperWidth(),(PC_POS.y-yrange+y)*tileSize-4*cellHeight -itemApp.getSuperHeight(), itemApp.getImage());
 						}
 					}
 					
 					if (yrange == y && x == xrange){
 						if (player.isInvisible()){
-							si.drawImage(PC_POS.x*32,PC_POS.y*32-4*cellHeight, ((GFXAppearance)AppearanceFactory.getAppearanceFactory().getAppearance("SHADOW")).getImage());
+							si.drawImage(PC_POS.x*tileSize,PC_POS.y*tileSize-4*cellHeight, ((GFXAppearance)AppearanceFactory.getAppearanceFactory().getAppearance("SHADOW")).getImage());
 						}else{
 							GFXAppearance playerAppearance = (GFXAppearance)player.getAppearance();
 							BufferedImage playerImage = (BufferedImage)playerAppearance.getImage();
@@ -417,18 +410,18 @@ public class GFXUserInterface extends UserInterface implements Runnable {
 								//flipFacing = false;
 							}
 							if (level.getMapCell(player.getPosition())!= null && level.getMapCell(player.getPosition()).isShallowWater())
-								//si.drawImage(PC_POS.x*32-playerAppearance.getSuperWidth(),PC_POS.y*32-4*cellHeight-playerAppearance.getSuperHeight()+16/, playerImage);
-								si.drawImage(PC_POS.x*32-playerAppearance.getSuperWidth(),PC_POS.y*32-playerAppearance.getSuperHeight()+16, playerImage);
+								//si.drawImage(PC_POS.x*tileSize-playerAppearance.getSuperWidth(),PC_POS.y*tileSize-4*cellHeight-playerAppearance.getSuperHeight()+16/, playerImage);
+								si.drawImage(PC_POS.x*tileSize-playerAppearance.getSuperWidth(),PC_POS.y*tileSize-playerAppearance.getSuperHeight()+16, playerImage);
 							else
-								//si.drawImage(PC_POS.x*32-playerAppearance.getSuperWidth(),PC_POS.y*32-4*cellHeight-playerAppearance.getSuperHeight(), playerImage);
-								si.drawImage(PC_POS.x*32-playerAppearance.getSuperWidth(),PC_POS.y*32-playerAppearance.getSuperHeight(), playerImage);
+								//si.drawImage(PC_POS.x*tileSize-playerAppearance.getSuperWidth(),PC_POS.y*tileSize-4*cellHeight-playerAppearance.getSuperHeight(), playerImage);
+								si.drawImage(PC_POS.x*tileSize-playerAppearance.getSuperWidth(),PC_POS.y*tileSize-playerAppearance.getSuperHeight(), playerImage);
 						}
 					}
 					Actor monster = level.getActorAt(runner);
 					
 					if (monster != null && !monster.isInvisible()){
 						GFXAppearance monsterApp = (GFXAppearance) monster.getAppearance();
-						si.drawImage((PC_POS.x-xrange+x)*32-monsterApp.getSuperWidth(),(PC_POS.y-yrange+y)*32-4*cellHeight-monsterApp.getSuperHeight(), monsterApp.getImage());
+						si.drawImage((PC_POS.x-xrange+x)*tileSize-monsterApp.getSuperWidth(),(PC_POS.y-yrange+y)*tileSize-4*cellHeight-monsterApp.getSuperHeight(), monsterApp.getImage());
 					}
 				}
 				//runner.y++;
@@ -466,7 +459,7 @@ public class GFXUserInterface extends UserInterface implements Runnable {
 		/*if (isCursorEnabled){
 			si.restore();
 			Cell underlying = player.getLevel().getMapCell(tempCursorPosition);
-			si.drawImage((PC_POS.x+tempCursorPositionScr.x)*32,(PC_POS.y+tempCursorPositionScr.y)*32-4*underlying.getHeight(), TILE_SCAN);
+			si.drawImage((PC_POS.x+tempCursorPositionScr.x)*tileSize,(PC_POS.y+tempCursorPositionScr.y)*tileSize-4*underlying.getHeight(), TILE_SCAN);
 			si.refresh();
 		}
 	}*/
@@ -476,11 +469,17 @@ public class GFXUserInterface extends UserInterface implements Runnable {
 	private void initProperties(Properties p){
 		xrange = PropertyFilters.inte(p.getProperty("XRANGE"));
 		yrange = PropertyFilters.inte(p.getProperty("YRANGE"));
+		
 		//POS_LEVELDESC_X = PropertyFilters.inte(p.getProperty("POS_LEVELDESC_X"));
 		//POS_LEVELDESC_Y = PropertyFilters.inte(p.getProperty("POS_LEVELDESC_Y"));
 		
 		//UPLEFTBORDER = PropertyFilters.inte(p.getProperty("UPLEFTBORDER"));
 		PC_POS = PropertyFilters.getPosition(p.getProperty("PC_POS"));
+		
+		VP_START = Position.add(PC_POS, new Position (-xrange,-yrange));
+		VP_END = Position.add(PC_POS, new Position (xrange,yrange));
+		
+		
 		/*TILESIZE = PropertyFilters.inte(p.getProperty("TILESIZE"));*/
 		COLOR_WINDOW_BACKGROUND = PropertyFilters.getColor(p.getProperty("COLOR_WINDOW_BACKGROUND"));
 		COLOR_BORDER_IN = PropertyFilters.getColor(p.getProperty("COLOR_BORDER_IN"));
@@ -506,9 +505,14 @@ public class GFXUserInterface extends UserInterface implements Runnable {
 			TILE_SCAN  = ImageUtils.crearImagen(IMG_GADGETS, GADGETSIZE, 0, GADGETSIZE, GADGETSIZE);
 			TILE_LINE_STEPS  = ImageUtils.crearImagen(IMG_GADGETS, GADGETSIZE*2, 0, GADGETSIZE, GADGETSIZE);
 			
-			//IMG_ICON = ImageUtils.createImage("res/crl_icon.png");
+			IMG_ICON = ImageUtils.createImage(p.getProperty("IMG_ICON"));
 			COLOR_BOLD = PropertyFilters.getColor(p.getProperty("COLOR_BOLD"));
 			IMG_BORDERS = PropertyFilters.getImage(p.getProperty("IMG_BORDERS"), p.getProperty("IMG_BORDERS_BOUNDS"));
+			BORDER1 = ImageUtils.crearImagen(IMG_BORDERS, 34,1,tileSize,tileSize);
+			BORDER2 = ImageUtils.crearImagen(IMG_BORDERS, 1,1,tileSize,tileSize);
+			BORDER3 = ImageUtils.crearImagen(IMG_BORDERS, 100, 1, tileSize,tileSize);
+			BORDER4 = ImageUtils.crearImagen(IMG_BORDERS, 67,1,tileSize,tileSize);
+			
 			FNT_TITLE = PropertyFilters.getFont(p.getProperty("FNT_TITLE"), p.getProperty("FNT_TITLE_SIZE"));
 			FNT_TEXT = PropertyFilters.getFont(p.getProperty("FNT_TEXT"), p.getProperty("FNT_TEXT_SIZE"));
 			FNT_DIALOGUEIN  = FNT_TEXT;
@@ -527,23 +531,20 @@ public class GFXUserInterface extends UserInterface implements Runnable {
 		Debug.enterMethod(this, "init");
 		super.init(gameCommands);
 		this.target = target;
-		
+		tileSize = PropertyFilters.inte(UIProperties.getProperty("TILE_SIZE"));
+
 		initProperties(UIProperties);
 		//GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice().setDisplayMode(new DisplayMode(800,600,8, DisplayMode.REFRESH_RATE_UNKNOWN));
 		
 		try {
-			BufferedImage b1 = ImageUtils.crearImagen(IMG_BORDERS, 34,1,32,32);
-			BufferedImage b2 = ImageUtils.crearImagen(IMG_BORDERS, 1,1,32,32);
-			BufferedImage b3 = ImageUtils.crearImagen(IMG_BORDERS, 100, 1, 32,32);
-			BufferedImage b4 = ImageUtils.crearImagen(IMG_BORDERS, 67,1,32,32);
 			addornedTextArea = new AddornedBorderTextArea(
-					b1,
-					b2,
-					b3,
-					b4,
+					BORDER1,
+					BORDER2,
+					BORDER3,
+					BORDER4,
 					new Color(187,161,80),
 					new Color(92,78,36),
-					32, 32);
+					tileSize, tileSize);
 		} catch (Exception e){
 			e.printStackTrace();
 		}
@@ -554,6 +555,7 @@ public class GFXUserInterface extends UserInterface implements Runnable {
 		addornedTextArea.setBackground(Color.BLACK);
 		addornedTextArea.setFont(FNT_DIALOGUEIN);
 		addornedTextArea.setOpaque(false);
+		psi.add(addornedTextArea);
 		
 		/*-- Assign values */
 		si = psi;
@@ -561,40 +563,6 @@ public class GFXUserInterface extends UserInterface implements Runnable {
 		si.getGraphics2D().setColor(Color.BLACK);
 		si.getGraphics2D().fillRect(0,0,800,600);
 		si.refresh();
-		
-		/*-- Load Fonts */
-		try {
-			FNT_MESSAGEBOX = Font.createFont(Font.TRUETYPE_FONT, new FileInputStream(new File("res/v5easter.ttf"))).deriveFont(Font.PLAIN, 15);
-		} catch (FontFormatException ffe){
-			SworeGame.crash("Error loading the font", ffe);
-		} catch (IOException ioe){
-			SworeGame.crash("Error loading the font", ioe);
-		}
-		
-		/*-- Load UI Images */
-		try {
-			TILE_LINE_STEPS  = ImageUtils.crearImagen("gfx/barrett-interface.gif", 280, 25, 6, 5);
-			TILE_LINE_AIM  = ImageUtils.crearImagen("gfx/barrett-interface.gif", 265, 37, 36, 36);
-			TILE_SCAN  = ImageUtils.crearImagen("gfx/barrett-interface.gif", 302, 37, 36, 36);
-			
-			IMG_STATUSSCR_BGROUND = ImageUtils.createImage("gfx/barrett-moon.gif");
-			
-			BORDER1 = ImageUtils.crearImagen("gfx/barrett-interface.gif", 34,1,32,32);
-			BORDER2 = ImageUtils.crearImagen("gfx/barrett-interface.gif", 1,1,32,32);
-			BORDER3 = ImageUtils.crearImagen("gfx/barrett-interface.gif", 100, 1, 32,32);
-			BORDER4 = ImageUtils.crearImagen("gfx/barrett-interface.gif", 67,1,32,32);
-			
-			IMG_EXIT_BTN = ImageUtils.crearImagen("gfx/barrett-interface.gif", 65,81,60,26);
-			IMG_OK_BTN = ImageUtils.crearImagen("gfx/barrett-interface.gif", 2,81,60,26);
-			IMG_BUY_BTN = ImageUtils.crearImagen("gfx/barrett-interface.gif", 128,81,60,26);
-			IMG_YES_BTN = ImageUtils.crearImagen("gfx/barrett-interface.gif", 191,81,60,26);
-			IMG_NO_BTN = ImageUtils.crearImagen("gfx/barrett-interface.gif", 254,81,60,26);
-			
-			IMG_ICON = ImageUtils.createImage("res/crl_icon.png");
-		} catch (Exception e){
-			e.printStackTrace();
-			Debug.byebye(e.getMessage());
-		}
 		
 		si.setIcon(IMG_ICON);
 		si.setTitle(title);
@@ -613,7 +581,7 @@ public class GFXUserInterface extends UserInterface implements Runnable {
 		
 		psi.add(messageBox);
 		
-		persistantMessageBox = new AddornedBorderTextArea(BORDER1, BORDER2, BORDER3, BORDER4, COLOR_BORDER_IN, COLOR_BORDER_OUT, 32,32);
+		persistantMessageBox = new AddornedBorderTextArea(BORDER1, BORDER2, BORDER3, BORDER4, COLOR_BORDER_IN, COLOR_BORDER_OUT, tileSize,tileSize);
 		persistantMessageBox.setBounds(520,90,260,400);
 		persistantMessageBox.setVisible(false);
 		persistantMessageBox.setFont(FNT_PERSISTANTMESSAGEBOX);
@@ -709,7 +677,7 @@ public class GFXUserInterface extends UserInterface implements Runnable {
 			//si.print(PC_POS.x + offset.x, PC_POS.y + offset.y, '_', ConsoleSystemInterface.RED);
 			drawStepsTo(PC_POS.x + offset.x, (PC_POS.y + offset.y), TILE_LINE_STEPS, cellHeight);
 			
-			si.drawImage((PC_POS.x + offset.x)*32-2, ((PC_POS.y + offset.y)*32-2) -4*cellHeight, TILE_LINE_AIM);
+			si.drawImage((PC_POS.x + offset.x)*tileSize-2, ((PC_POS.y + offset.y)*tileSize-2) -4*cellHeight, TILE_LINE_AIM);
 			si.refresh();
 			CharKey x = new CharKey(CharKey.NONE);
 			while (x.code != CharKey.SPACE && x.code != CharKey.ESC && x.code != fireKeyCode &&
@@ -770,7 +738,7 @@ public class GFXUserInterface extends UserInterface implements Runnable {
 			throw ret;
   		}
   		
-  		BorderedMenuBox menuBox = new BorderedMenuBox(BORDER1, BORDER2, BORDER3, BORDER4, si, COLOR_WINDOW_BACKGROUND, COLOR_BORDER_IN, COLOR_BORDER_OUT, 32, null);
+  		BorderedMenuBox menuBox = new BorderedMenuBox(BORDER1, BORDER2, BORDER3, BORDER4, si, COLOR_WINDOW_BACKGROUND, COLOR_BORDER_IN, COLOR_BORDER_OUT, tileSize, null);
   		menuBox.setGap(35);
   		
   		//menuBox.setBounds(26,6,30,11);
@@ -796,7 +764,7 @@ public class GFXUserInterface extends UserInterface implements Runnable {
 	private AbstractItem pickItem(String prompt) throws ActionCancelException{
 		enterScreen();
   		List inventory = player.getInventory();
-  		BorderedMenuBox menuBox = new BorderedMenuBox(BORDER1, BORDER2, BORDER3, BORDER4, si, COLOR_WINDOW_BACKGROUND, COLOR_BORDER_IN, COLOR_BORDER_OUT, 32, null);
+  		BorderedMenuBox menuBox = new BorderedMenuBox(BORDER1, BORDER2, BORDER3, BORDER4, si, COLOR_WINDOW_BACKGROUND, COLOR_BORDER_IN, COLOR_BORDER_OUT, tileSize, null);
   		menuBox.setGap(35);
   		menuBox.setPosition(6,4);
   		menuBox.setWidth(70);
@@ -825,7 +793,7 @@ public class GFXUserInterface extends UserInterface implements Runnable {
 	private Vector pickMultiItems(String prompt) throws ActionCancelException{
 		//Equipment.eqMode = true;
 		List inventory = player.getInventory();
-		BorderedMenuBox menuBox = new BorderedMenuBox(BORDER1, BORDER2, BORDER3, BORDER4, si, COLOR_WINDOW_BACKGROUND, COLOR_BORDER_IN, COLOR_BORDER_OUT, 32, null);
+		BorderedMenuBox menuBox = new BorderedMenuBox(BORDER1, BORDER2, BORDER3, BORDER4, si, COLOR_WINDOW_BACKGROUND, COLOR_BORDER_IN, COLOR_BORDER_OUT, tileSize, null);
   		menuBox.setBounds(25,3,40,18);
   		//menuBox.setPromptSize(2);
   		menuBox.setMenuItems(inventory);
@@ -833,7 +801,7 @@ public class GFXUserInterface extends UserInterface implements Runnable {
   		//menuBox.setForeColor(ConsoleSystemInterface.RED);
   		//menuBox.setBorder(true);
   		Vector ret = new Vector();
-  		BorderedMenuBox selectedBox = new BorderedMenuBox(BORDER1, BORDER2, BORDER3, BORDER4, si, COLOR_WINDOW_BACKGROUND, COLOR_BORDER_IN, COLOR_BORDER_OUT, 32, null);
+  		BorderedMenuBox selectedBox = new BorderedMenuBox(BORDER1, BORDER2, BORDER3, BORDER4, si, COLOR_WINDOW_BACKGROUND, COLOR_BORDER_IN, COLOR_BORDER_OUT, tileSize, null);
   		selectedBox.setBounds(5,3,20,18);
   		//selectedBox.setPromptSize(2);
   		selectedBox.setTitle("Selected Items");
@@ -860,12 +828,9 @@ public class GFXUserInterface extends UserInterface implements Runnable {
 
 	public void processQuit(){
 		messageBox.setForeground(COLOR_LAST_MESSAGE);
-		messageBox.setText(getQuitPrompt()+" (y/n)");
+		messageBox.setText(getQuitMessage()+" (y/n)");
 		si.refresh();
 		if (prompt()){
-			messageBox.setText("Go away, and let the world flood in darkness... [Press Space to continue]");
-			si.refresh();
-			si.waitKey(CharKey.SPACE);
 			enterScreen();
 			//si.refresh();
 			player.getGameSessionInfo().setDeathCause(GameSessionInfo.QUIT);
@@ -874,9 +839,6 @@ public class GFXUserInterface extends UserInterface implements Runnable {
 		messageBox.clear();
 		si.refresh();
 	}
-	
-	public abstract String getQuitPrompt();
-
 	
 	public void processSave(){
 		if (!player.getGame().canSave()){
@@ -956,7 +918,7 @@ public class GFXUserInterface extends UserInterface implements Runnable {
   			return null;
   		if (items.size() == 1)
   			return (AbstractItem) items.get(0);
-  		BorderedMenuBox menuBox = new BorderedMenuBox(BORDER1, BORDER2, BORDER3, BORDER4, si, COLOR_WINDOW_BACKGROUND, COLOR_BORDER_IN, COLOR_BORDER_OUT, 32, null);
+  		BorderedMenuBox menuBox = new BorderedMenuBox(BORDER1, BORDER2, BORDER3, BORDER4, si, COLOR_WINDOW_BACKGROUND, COLOR_BORDER_IN, COLOR_BORDER_OUT, tileSize, null);
   		menuBox.setGap(35);
   		menuBox.setBounds(6,4,70,12);
   		menuBox.setMenuItems(items);
@@ -1063,7 +1025,7 @@ public class GFXUserInterface extends UserInterface implements Runnable {
 		Position tmp = line.next();
 		while (!tmp.equals(target)){
 			tmp = line.next();
-			si.drawImage(tmp.x*32+13, (tmp.y*32+13)-4*cellHeight, tile);
+			si.drawImage(tmp.x*tileSize+13, (tmp.y*tileSize+13)-4*cellHeight, tile);
 		}
 		
 	}
@@ -1090,15 +1052,11 @@ public class GFXUserInterface extends UserInterface implements Runnable {
 		return ret;
 	}
 
-	@Override
-	public String getQuitMessage() {
-		// TODO Auto-generated method stub
-		return null;
-	}
+	public abstract String getQuitMessage();
 
 	@Override
 	public boolean promptChat(String message) {
-		return promptChat(message, );
+		return promptChat(message, 20,20,200,100);
 	}
 
 	@Override

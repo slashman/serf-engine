@@ -277,7 +277,7 @@ public class RunGame {
 		case JCURSES_CONSOLE: case SWING_CONSOLE:
 			((CharSimpleRLUserInterface)ui).init((ConsoleSystemInterface)si, userCommands, null);
 			uiSelector = new ConsoleUISelector();
-			((ConsoleUISelector)uiSelector).init((ConsoleSystemInterface)si, userActions, walkAction, null, null, (ConsoleUserInterface)ui);
+			((ConsoleUISelector)uiSelector).init((ConsoleSystemInterface)si, userActions, walkAction, null, null, (ConsoleUserInterface)ui, null);
 			break;
 		}
 	}
