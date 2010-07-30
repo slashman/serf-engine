@@ -29,7 +29,7 @@ public class GFXUISelector extends UISelector implements ActionSelector, MouseLi
 
 	public void init(SwingSystemInterface psi, UserAction[] gameActions, Properties UIProperties,
 			Action advance, Action target, Action attack, GFXUserInterface ui, Properties keyBindings){
-		super.init(gameActions, advance, target, attack, ui);
+		super.init(gameActions, advance, target, attack, ui,keyBindings);
 		this.si = psi;
 		if (UIProperties.getProperty("useMouse").equals("true")){
 			psi.addMouseListener(this);

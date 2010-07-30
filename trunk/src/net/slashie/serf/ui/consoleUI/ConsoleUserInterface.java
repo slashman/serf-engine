@@ -782,13 +782,11 @@ public abstract class ConsoleUserInterface extends UserInterface implements Comm
 			return messageHistory;
 	}
 	
-	@Override
 	public void chat(String message) {
 		// TODO Auto-generated method stub
 		
 	}
 
-	@Override
 	public String getQuitMessage() {
 		// TODO Auto-generated method stub
 		return null;

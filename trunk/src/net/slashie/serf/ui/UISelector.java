@@ -1,6 +1,7 @@
 package net.slashie.serf.ui;
 
 import java.util.Hashtable;
+import java.util.Properties;
 
 import java.util.Map;
 
@@ -44,7 +45,7 @@ public abstract class UISelector implements ActionSelector  {
 		return ui;
 	}
 	
-	protected void init(UserAction[] gameActions, Action advance, Action target, Action attack, UserInterface ui){
+	protected void init(UserAction[] gameActions, Action advance, Action target, Action attack, UserInterface ui, Properties keyBindings){
 		this.ui = ui;
 		this.advance = advance;
 		this.target = target;
@@ -52,6 +53,24 @@ public abstract class UISelector implements ActionSelector  {
 		for (int i = 0; i < gameActions.length; i++){
 			this.gameActions.put(gameActions[i].getKeyCode()+"", gameActions[i]);
 		}
+		UP1_KEY = Integer.parseInt(keyBindings.getProperty("UP1_KEY"));
+		UP2_KEY = Integer.parseInt(keyBindings.getProperty("UP2_KEY"));
+		LEFT1_KEY = Integer.parseInt(keyBindings.getProperty("LEFT1_KEY"));
+		LEFT2_KEY = Integer.parseInt(keyBindings.getProperty("LEFT2_KEY"));
+		RIGHT1_KEY = Integer.parseInt(keyBindings.getProperty("RIGHT1_KEY"));
+		RIGHT2_KEY = Integer.parseInt(keyBindings.getProperty("RIGHT2_KEY"));
+		DOWN1_KEY = Integer.parseInt(keyBindings.getProperty("DOWN1_KEY"));
+		DOWN2_KEY = Integer.parseInt(keyBindings.getProperty("DOWN2_KEY"));
+		UPRIGHT1_KEY = Integer.parseInt(keyBindings.getProperty("UPRIGHT1_KEY"));
+		UPRIGHT2_KEY  = Integer.parseInt(keyBindings.getProperty("UPRIGHT2_KEY"));
+		UPLEFT1_KEY = Integer.parseInt(keyBindings.getProperty("UPLEFT1_KEY"));
+		UPLEFT2_KEY = Integer.parseInt(keyBindings.getProperty("UPLEFT2_KEY"));
+		DOWNLEFT1_KEY = Integer.parseInt(keyBindings.getProperty("DOWNLEFT1_KEY"));
+		DOWNLEFT2_KEY = Integer.parseInt(keyBindings.getProperty("DOWNLEFT2_KEY"));
+		DOWNRIGHT1_KEY = Integer.parseInt(keyBindings.getProperty("DOWNRIGHT1_KEY"));
+		DOWNRIGHT2_KEY = Integer.parseInt(keyBindings.getProperty("DOWNRIGHT2_KEY"));
+		SELF1_KEY = Integer.parseInt(keyBindings.getProperty("SELF1_KEY"));
+		SELF2_KEY  = Integer.parseInt(keyBindings.getProperty("SELF2_KEY"));
 	}
 	
     public boolean isArrow(CharKey input) {

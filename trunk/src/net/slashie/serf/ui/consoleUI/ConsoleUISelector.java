@@ -1,5 +1,7 @@
 package net.slashie.serf.ui.consoleUI;
 
+import java.util.Properties;
+
 import net.slashie.libjcsi.CharKey;
 import net.slashie.libjcsi.ConsoleSystemInterface;
 import net.slashie.serf.action.Action;
@@ -20,8 +22,8 @@ public class ConsoleUISelector extends UISelector {
 		return (ConsoleUserInterface) getUI();
 	}
 	
-	public void init(ConsoleSystemInterface csi, UserAction[] gameActions, Action advance, Action target, Action attack, ConsoleUserInterface ui){
-		super.init(gameActions, advance, target, attack, ui);
+	public void init(ConsoleSystemInterface csi, UserAction[] gameActions, Action advance, Action target, Action attack, ConsoleUserInterface ui, Properties keybindings){
+		super.init(gameActions, advance, target, attack, ui, keybindings);
 		this.si = csi;
 	}
 	
