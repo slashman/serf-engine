@@ -67,22 +67,14 @@ public abstract class GFXUserInterface extends UserInterface implements Runnable
 
  	private Font FNT_MESSAGEBOX;
  	private Font FNT_PERSISTANTMESSAGEBOX;
- 	private int tileSize;
+ 	protected int tileSize;
 	private BufferedImage 
 		TILE_LINE_STEPS, 
 		TILE_LINE_AIM,
-		TILE_SCAN,
-		
-		BORDER1,
-		BORDER2,
-		BORDER3,
-		BORDER4,
-		IMG_STATUSSCR_BGROUND,
-		IMG_BORDERS,	
-		IMG_ICON;
+		TILE_SCAN;
+	protected BufferedImage BORDER1, BORDER2, BORDER3, BORDER4, IMG_STATUSSCR_BGROUND, IMG_BORDERS, IMG_ICON;
 	private int GADGETSIZE;
-	private Color 
-		COLOR_BORDER_OUT, COLOR_BORDER_IN, COLOR_WINDOW_BACKGROUND, COLOR_BOLD;
+	protected Color COLOR_BORDER_OUT, COLOR_BORDER_IN, COLOR_WINDOW_BACKGROUND, COLOR_BOLD;
 	private Color
 		COLOR_LAST_MESSAGE = Color.WHITE,
 		COLOR_OLD_MESSAGE = Color.GRAY;
