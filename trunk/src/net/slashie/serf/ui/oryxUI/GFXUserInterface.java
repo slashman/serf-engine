@@ -240,7 +240,7 @@ public abstract class GFXUserInterface extends UserInterface implements Runnable
 				}
 			}
 			messageBox.setText(looked);
-			si.drawImage((PC_POS.x + offset.x)*tileSize-2, ((PC_POS.y + offset.y)*tileSize-2)-4*cellHeight, TILE_SCAN);
+			si.drawImage((PC_POS.x + offset.x)*tileSize, ((PC_POS.y + offset.y)*tileSize), TILE_SCAN);
 			si.refresh();
 			CharKey x = new CharKey(CharKey.NONE);
 			while (x.code != CharKey.SPACE && x.code != CharKey.m && x.code != CharKey.ESC &&
@@ -281,14 +281,14 @@ public abstract class GFXUserInterface extends UserInterface implements Runnable
 	   si.restore();
 	}
    
-	public void showTextBox(String text, int consoleX, int consoleY, int consoleW, int consoleH){
-		addornedTextArea.setBounds(consoleX, consoleY, consoleW, consoleH);
+	public void showTextBox(String text, int x, int y, int w, int h){
+		addornedTextArea.setBounds(x, y, w, h);
 		addornedTextArea.setText(text);
 		addornedTextArea.setVisible(true);
 		si.waitKey(CharKey.SPACE);
 		addornedTextArea.setVisible(false);
 	}
-	private AddornedBorderTextArea addornedTextArea;
+	protected AddornedBorderTextArea addornedTextArea;
 
 	public boolean showTextBoxPrompt(String text, int consoleX, int consoleY, int consoleW, int consoleH){
 		addornedTextArea.setBounds(consoleX, consoleY, consoleW, consoleH);
@@ -535,9 +535,9 @@ public abstract class GFXUserInterface extends UserInterface implements Runnable
 					BORDER2,
 					BORDER3,
 					BORDER4,
-					new Color(52,42,20),
-					new Color(164,138,68),
-					new Color(232,253,77),
+					COLOR_BORDER_OUT,
+					COLOR_BORDER_IN,
+					COLOR_WINDOW_BACKGROUND,
 					tileSize,
 					6,9,12 );
 		} catch (Exception e){
@@ -739,8 +739,7 @@ public abstract class GFXUserInterface extends UserInterface implements Runnable
 			throw ret;
   		}
   		
-  		BorderedMenuBox menuBox = new BorderedMenuBox(BORDER1, BORDER2, BORDER3, BORDER4, si, COLOR_WINDOW_BACKGROUND, COLOR_BORDER_IN, COLOR_BORDER_OUT, tileSize, null);
-  		menuBox.setGap(35);
+  		BorderedMenuBox menuBox = new BorderedMenuBox(BORDER1, BORDER2, BORDER3, BORDER4, si, COLOR_WINDOW_BACKGROUND, COLOR_BORDER_IN, COLOR_BORDER_OUT, tileSize, 6,9,12,tileSize,null);
   		
   		//menuBox.setBounds(26,6,30,11);
   		menuBox.setBounds(6,4,70,12);
@@ -765,10 +764,9 @@ public abstract class GFXUserInterface extends UserInterface implements Runnable
 	private AbstractItem pickItem(String prompt) throws ActionCancelException{
 		enterScreen();
   		List inventory = player.getInventory();
-  		BorderedMenuBox menuBox = new BorderedMenuBox(BORDER1, BORDER2, BORDER3, BORDER4, si, COLOR_WINDOW_BACKGROUND, COLOR_BORDER_IN, COLOR_BORDER_OUT, tileSize, null);
-  		menuBox.setGap(35);
-  		menuBox.setPosition(6,4);
-  		menuBox.setWidth(70);
+  		BorderedMenuBox menuBox = new BorderedMenuBox(BORDER1, BORDER2, BORDER3, BORDER4, si, COLOR_WINDOW_BACKGROUND, COLOR_BORDER_IN, COLOR_BORDER_OUT, tileSize, 6,9,12,tileSize,null);
+  		
+  		menuBox.setBounds(20,20,400,500);
   		menuBox.setItemsPerPage(12);
   		menuBox.setMenuItems(inventory);
   		menuBox.setTitle(prompt);
@@ -794,7 +792,7 @@ public abstract class GFXUserInterface extends UserInterface implements Runnable
 	private Vector pickMultiItems(String prompt) throws ActionCancelException{
 		//Equipment.eqMode = true;
 		List inventory = player.getInventory();
-		BorderedMenuBox menuBox = new BorderedMenuBox(BORDER1, BORDER2, BORDER3, BORDER4, si, COLOR_WINDOW_BACKGROUND, COLOR_BORDER_IN, COLOR_BORDER_OUT, tileSize, null);
+		BorderedMenuBox menuBox = new BorderedMenuBox(BORDER1, BORDER2, BORDER3, BORDER4, si, COLOR_WINDOW_BACKGROUND, COLOR_BORDER_IN, COLOR_BORDER_OUT, tileSize, 6,9,12,tileSize+3,null);
   		menuBox.setBounds(25,3,40,18);
   		//menuBox.setPromptSize(2);
   		menuBox.setMenuItems(inventory);
@@ -802,7 +800,7 @@ public abstract class GFXUserInterface extends UserInterface implements Runnable
   		//menuBox.setForeColor(ConsoleSystemInterface.RED);
   		//menuBox.setBorder(true);
   		Vector ret = new Vector();
-  		BorderedMenuBox selectedBox = new BorderedMenuBox(BORDER1, BORDER2, BORDER3, BORDER4, si, COLOR_WINDOW_BACKGROUND, COLOR_BORDER_IN, COLOR_BORDER_OUT, tileSize, null);
+  		BorderedMenuBox selectedBox = new BorderedMenuBox(BORDER1, BORDER2, BORDER3, BORDER4, si, COLOR_WINDOW_BACKGROUND, COLOR_BORDER_IN, COLOR_BORDER_OUT, tileSize, 6,9,12,tileSize, null);
   		selectedBox.setBounds(5,3,20,18);
   		//selectedBox.setPromptSize(2);
   		selectedBox.setTitle("Selected Items");
@@ -919,8 +917,7 @@ public abstract class GFXUserInterface extends UserInterface implements Runnable
   			return null;
   		if (items.size() == 1)
   			return (AbstractItem) items.get(0);
-  		BorderedMenuBox menuBox = new BorderedMenuBox(BORDER1, BORDER2, BORDER3, BORDER4, si, COLOR_WINDOW_BACKGROUND, COLOR_BORDER_IN, COLOR_BORDER_OUT, tileSize, null);
-  		menuBox.setGap(35);
+  		BorderedMenuBox menuBox = new BorderedMenuBox(BORDER1, BORDER2, BORDER3, BORDER4, si, COLOR_WINDOW_BACKGROUND, COLOR_BORDER_IN, COLOR_BORDER_OUT, tileSize, 6,9,12,tileSize, null);
   		menuBox.setBounds(6,4,70,12);
   		menuBox.setMenuItems(items);
   		menuBox.setTitle(prompt);
@@ -987,25 +984,7 @@ public abstract class GFXUserInterface extends UserInterface implements Runnable
 	
     
 	
-	public void commandSelected (int commandCode){
-		switch (commandCode){
-			case CommandListener.PROMPTQUIT:
-				processQuit();
-				break;
-			case CommandListener.PROMPTSAVE:
-				processSave();
-				break;
-			case CommandListener.LOOK:
-				doLook();
-				break;
-			case CommandListener.SHOWMESSAGEHISTORY:
-				showMessageHistory();
-				break;
-			case CommandListener.EXAMINELEVELMAP:
-				examineLevelMap();
-				break;
-		}
-	}
+	
 	
 	
 

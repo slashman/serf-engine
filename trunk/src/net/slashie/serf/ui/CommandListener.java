@@ -1,6 +1,7 @@
 package net.slashie.serf.ui;
 
 public interface CommandListener {
+	
  	public final static int
 		QUIT = 0,
 		SAVE = 1,
@@ -21,4 +22,5 @@ public interface CommandListener {
 		EXAMINELEVELMAP = 16,
 		CHARDUMP = 17;
 	public void commandSelected(int pCommand);
+	
 }
