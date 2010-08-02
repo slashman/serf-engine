@@ -752,15 +752,6 @@ public abstract class ConsoleUserInterface extends UserInterface implements Comm
 			x = si.inkey();
 	}
 
-	private void cleanViewPort(){
-    	String spaces = "";
-    	for (int i= 0; i<= VP_END.x - VP_START.x; i++){
-    		spaces+=" ";
-    	}
-    	for (int i= VP_START.y; i<= VP_END.y; i++){
-    		si.print(VP_START.x, i,spaces);
-    	}
-	}
 
 	private void drawLineTo(int x, int y, char icon, int color){
 		Position target = new Position(x,y);

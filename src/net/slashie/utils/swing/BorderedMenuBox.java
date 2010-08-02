@@ -5,136 +5,79 @@ import java.awt.image.BufferedImage;
 import java.util.*;
 
 import net.slashie.libjcsi.CharKey;
+import net.slashie.serf.ui.oryxUI.AddornedBorderPanel;
 import net.slashie.serf.ui.oryxUI.SwingSystemInterface;
 import net.slashie.utils.Util;
 
 
-public class BorderedMenuBox {
+public class BorderedMenuBox extends AddornedBorderPanel {
 	
-	private List items;
+	//Configurable properties
 	private String title = "";
-
+	private BufferedImage box;
+	private Color foreColor = Color.WHITE;
+	private int itemHeight;
+	
 	//State Attributes
+	private List items;
 	private int currentPage;
 	private int pages;
-	
-	//Components
-	private int xpos, ypos, width, itemsPerPage;;
+	private int itemsPerPage;
 	private SwingSystemInterface si;
-	private BufferedImage border1, border2, border3, border4, box;
+	
+	
 	/*UPLEFT, UPRIGHT, DOWNLEFT, DOWNRIGHT*/
-	public BorderedMenuBox(BufferedImage border1, BufferedImage border2,BufferedImage border3,BufferedImage border4, SwingSystemInterface g, Color backgroundColor, Color borderIn, Color borderOut, int inset, BufferedImage box){
-		this.backgroundColor = backgroundColor;
-		this.borderIn = borderIn;
-		this.borderOut = borderOut;
-		this.border1 = border1;
-		this.border2 = border2;
-		this.border3 = border3;
-		this.border4 = border4;
-		this.inset = inset;
+	public BorderedMenuBox(BufferedImage border1, BufferedImage border2,BufferedImage border3,BufferedImage border4, SwingSystemInterface g, Color backgroundColor, Color borderIn, Color borderOut, int borderWidth, int outsideBound, int inBound, int insideBound, int itemHeight, BufferedImage box){
+		super (border1, border2, border3, border4, borderOut, borderIn, backgroundColor, borderWidth, outsideBound, inBound, insideBound );
 		this.si = g;
 		this.box = box;
-	}
-	
-	public void setPosition(int x, int y){
-		xpos = x;
-		ypos = y;
-	}
-	
-	
-	public void setWidth(int width){
-		this.width = width;
+		this.itemHeight = itemHeight;
 	}
 	
 	public void setItemsPerPage(int ipp){
 		itemsPerPage = ipp;
+		setSize(getWidth(), (itemsPerPage+1)*itemHeight);
 	}
 	public void setMenuItems(List items){
 		this.items = items;
 	}
-
-	/*private static Color TRANSPARENT_BLUE = new Color(0,0,0,250);
-	private static Color COLOR_BORDER_IN = new Color(160,160,160);
-	private static Color COLOR_BORDER_OUT = new Color(80,80,255);*/
-	
-	private Color backgroundColor;
-	private Color borderIn;
-	private Color borderOut;
-	private int inset;
-	
-	private int gap = 24;
-	
-	public void setGap(int val){
-		gap = val;
-	}
-	
 	
 	
 	public void draw(){
-		int realW = width * 10 +20;
-		int realH = (itemsPerPage+1)*gap+20;
-		int realPosX = xpos*10 - 20;
-		int realPosY = ypos*24 - 30;
-		
-		si.getGraphics2D().setColor(backgroundColor);
-		si.getGraphics2D().fillRect(realPosX+6, realPosY+6, realW-14, realH-14);
-		si.getGraphics2D().setColor(borderOut);
-		si.getGraphics2D().drawRect(realPosX+6,realPosY+6,realW-14,realH-14);
-		si.getGraphics2D().setColor(borderIn);
-		si.getGraphics2D().drawRect(realPosX+8,realPosY+8,realW-18,realH-18);
-		/*si.getGraphics2D().drawImage(borders[0], 0,0, null);
-		si.getGraphics2D().drawImage(borders[1], realW-inset,0, null);
-		si.getGraphics2D().drawImage(borders[2], 0, realH - inset,null);
-		si.getGraphics2D().drawImage(borders[3], realW -inset, realH - inset,null);*/
-		si.drawImage(realPosX,realPosY, border2);
-		si.drawImage(realPosX+realW-inset,realPosY, border1);
-		si.drawImage(realPosX+0, realPosY+realH - inset,border4);
-		si.drawImage(realPosX+realW -inset, realPosY+realH - inset,border3);
-		
-		//pages = (int)(Math.floor((items.size()-1) / inHeight) +1);
+		int xpos = (int)getLocation().getX();
+		int ypos = (int)getLocation().getY();
+		int fontSize = getFont().getSize();
+		super.paintAt(si.getGraphics2D(), xpos, ypos);
+		xpos+=getBorderWidth();
+		ypos+=getBorderWidth();
 		pages = (int)(Math.floor((items.size()-1) / (double)(itemsPerPage)) +1);
-		/*System.out.println("items.size() "+items.size());
-		System.out.println("inHeight "+inHeight);*/
-		si.print(xpos, ypos, title, Color.BLUE);
+		si.printAtPixel(xpos, ypos+fontSize, title, foreColor);
 		List shownItems = Util.page(items, itemsPerPage, currentPage);
+		
+		ypos+=itemHeight;
 		
 		int i = 0;
 		for (; i < shownItems.size(); i++){
 			
 			GFXMenuItem item = (GFXMenuItem) shownItems.get(i);
-			si.printAtPixel(xpos*10, (ypos+1)*24+i*gap, ((char) (97 + i))+"." , Color.BLUE);
+			si.printAtPixel(xpos, ypos+i*itemHeight+fontSize, ((char) (97 + i))+"." , foreColor );
 			if (box != null){
-				si.drawImage((xpos+2)*10+1, ypos*24+ i * gap + (int)(gap * 0.3D)-4, box);
+				si.drawImage(xpos + itemHeight, ypos+ i * itemHeight, box);
 			}
 			if (item.getMenuImage() != null)
-				si.drawImage((xpos+2)*10+5, ypos*24+ i * gap + (int)(gap * 0.3D), item.getMenuImage());
+				si.drawImage(xpos+itemHeight, ypos+ i * itemHeight, item.getMenuImage());
 			String description = item.getMenuDescription();
-			if (description.length() > width-2){
-				description = description.substring(0,width-4);
-			}
+			
 			String detail = item.getMenuDetail();
-			if (detail != null && detail.length() > width-2){
-				detail = detail.substring(0,width-4);
-			}
-			si.printAtPixel((xpos+6)*10, (ypos+1)*24 + i*gap, description, Color.WHITE);
+			
+			si.printAtPixel(xpos + 2*itemHeight, ypos+ i*itemHeight+fontSize, description, foreColor);
 			if (detail != null && !detail.equals("")){
-				si.printAtPixel((xpos+6)*10, (ypos+1)*24 + i*gap+18, detail, Color.WHITE);
+				si.printAtPixel(xpos+2*itemHeight, (int) (ypos+ i* itemHeight + Math.round(itemHeight/2d))+fontSize, detail, foreColor);
 			}
 		}
-		//si.print(inPosition.x, inPosition.y, inHeight+" "+pageElements+" "+pages);
-		/*for (; i < inHeight-promptSize; i++){
-			si.print(inPosition.x, inPosition.y+i+promptSize+1, spaces);
-		}*/
 		si.refresh();
 	}
 
-	public void setBounds(int x, int y, int width, int height){
-		this.xpos = x;
-		this.ypos = y;
-		this.width = width;
-		this.itemsPerPage = height;
-	}
-	
 	public Object getSelection (){
 		int pageElements = itemsPerPage;
 		while (true){
@@ -220,4 +163,15 @@ public class BorderedMenuBox {
 		}
 		return false;
 	}
+
+	
+	public void setForeColor(Color color) {
+		foreColor = color;
+	}
+
+	public int getItemsPerPage() {
+		return itemsPerPage;
+	}
+
+
 }

@@ -1,11 +1,8 @@
 package net.slashie.serf.ui.oryxUI;
 
-import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Graphics;
-import java.awt.Graphics2D;
 import java.awt.Image;
-import java.awt.Stroke;
 
 import javax.swing.JPanel;
 
@@ -47,16 +44,24 @@ public class AddornedBorderPanel extends JPanel {
 	}
 	
 	public void paintAt(Graphics g, int x, int y){
-		g.setColor(INSIDE_COLOR);
-		g.fillRect(outsideBound,outsideBound,getWidth()-outsideBound*2,getHeight()-outsideBound*2);
 		g.setColor(OUT_COLOR);
-		g.drawRect(outsideBound,outsideBound,getWidth()-outsideBound*2,getHeight()-outsideBound*2);
+		g.fillRoundRect(x+outsideBound,y+outsideBound,getWidth()-outsideBound*2,getHeight()-outsideBound*2, 1, 1);
 		g.setColor(IN_COLOR);
-		g.drawRect(insideBound,insideBound,getWidth()-insideBound*2,getHeight()-insideBound*2);
+		g.fillRect(x+inBound,y+inBound,getWidth()-inBound*2,getHeight()-inBound*2);
+		g.setColor(INSIDE_COLOR);
+		g.fillRect(x+insideBound,y+insideBound,getWidth()-insideBound*2,getHeight()-insideBound*2);
 		g.drawImage(UPLEFT, x,y, this);
 		g.drawImage(UPRIGHT, x+getWidth()-borderWidth,y, this);
 		g.drawImage(DOWNLEFT, x, y+getHeight()-borderWidth,this);
 		g.drawImage(DOWNRIGHT, x+getWidth()-borderWidth, y+getHeight()-borderWidth,this);
+	}
+
+	public int getInsideBound() {
+		return insideBound;
+	}
+
+	public int getBorderWidth() {
+		return borderWidth;
 	}
 
 }
