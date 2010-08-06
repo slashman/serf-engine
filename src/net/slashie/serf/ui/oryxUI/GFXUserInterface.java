@@ -100,9 +100,11 @@ public abstract class GFXUserInterface extends UserInterface implements Runnable
 	public Position VP_START = new Position(0,0),
 				VP_END = new Position (31,18),
 				PC_POS = new Position (12,9);
-
+	private boolean flipEnabled = true;
+	
     public void setFlipFacing(boolean val){
-    	flipFacing = val;
+    	if (flipEnabled)
+    		flipFacing = val;
     }
 
     private boolean [][] FOVMask;
@@ -397,7 +399,7 @@ public abstract class GFXUserInterface extends UserInterface implements Runnable
 						}else{
 							GFXAppearance playerAppearance = (GFXAppearance)player.getAppearance();
 							BufferedImage playerImage = (BufferedImage)playerAppearance.getImage();
-							if (flipFacing){
+							if (flipEnabled && flipFacing){
 								playerImage = ImageUtils.vFlip(playerImage);
 								//flipFacing = false;
 							}
@@ -869,6 +871,7 @@ public abstract class GFXUserInterface extends UserInterface implements Runnable
 	private int dimMsg = 0;
 	public void refresh(){
 		si.cls();
+		beforeDrawLevel();
 	 	drawLevel();
 		beforeRefresh();
 		si.refresh();
@@ -883,6 +886,10 @@ public abstract class GFXUserInterface extends UserInterface implements Runnable
 	  	si.saveBuffer(); //sz040507
 	  	
     }
+	
+	public void beforeDrawLevel(){
+		
+	}
 	
 	public void beforeRefresh(){
 		
@@ -1059,6 +1066,10 @@ public abstract class GFXUserInterface extends UserInterface implements Runnable
 	@Override
 	public void onMusicOn() {
 		// TODO Auto-generated method stub
+	}
+
+	public void setFlipEnabled(boolean flipEnabled) {
+		this.flipEnabled = flipEnabled;
 	}
 }
 
