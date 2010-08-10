@@ -24,6 +24,7 @@ public abstract class AbstractFeature extends Actor implements Cloneable, Serial
 	private int faint;
 	private int light;
 	private int currentResistance;
+	private boolean isOpaque;
 	
 	
 	//Feature destroyed by the actor, may spawn another feature
@@ -109,4 +110,12 @@ public abstract class AbstractFeature extends Actor implements Cloneable, Serial
 	
 	// Callback
 	public void onStep(Actor a){}
+
+	public boolean isOpaque() {
+		return isOpaque;
+	}
+
+	public void setOpaque(boolean isOpaque) {
+		this.isOpaque = isOpaque;
+	}
 }

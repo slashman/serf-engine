@@ -436,6 +436,9 @@ public abstract class AbstractLevel implements FOVMap, Serializable{
 	public boolean blockLOS(int x, int y) {
 		if (!isValidCoordinate(x,y))
 			return true;
+		AbstractFeature feat = getFeatureAt(x, y, player.getPosition().z);
+		if (feat != null && feat.isOpaque())
+			return true;
 		AbstractCell cell = getMapCell(x, y, player.getPosition().z);
 		if (cell == null)
 			return false;
