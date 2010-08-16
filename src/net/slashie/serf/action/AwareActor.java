@@ -1,5 +1,6 @@
 package net.slashie.serf.action;
 
+import net.slashie.serf.level.AbstractFeature;
 import net.slashie.utils.Line;
 import net.slashie.utils.Position;
 
@@ -43,20 +44,30 @@ public abstract class AwareActor extends Actor{
 
 	public boolean seesActor(Actor mainTarget) {
 		if (wasSeen()){
-			Line sight = new Line(getPosition(), level.getPlayer().getPosition());
-			Position point = sight.next();
-			while(!point.equals(level.getPlayer().getPosition())){
-				if (level.getMapCell(point)!= null && level.getMapCell(point).isOpaque()){
-					return false;
-				}
-				point = sight.next();
-				if (!level.isValidCoordinate(point))
-					return false;
-			}
-			return true;
+			return isActorInLOS(mainTarget);
 		} else {
 			return false;
 		}
+	}
+	
+	public boolean isActorInLOS(Actor mainTarget) {
+		/* Due to discrepances between shadowcasting and raycasting, this can't be relied upon
+		Line sight = new Line(getPosition(), mainTarget.getPosition());
+		Position point = sight.next();
+		while(!point.equals(mainTarget.getPosition())){
+			if (level.getMapCell(point)!= null && level.getMapCell(point).isOpaque()){
+				return false;
+			}
+			AbstractFeature feat = level.getFeatureAt(point);
+			if (feat != null && feat.isOpaque())
+				return false;
+			point = sight.next();
+			if (!level.isValidCoordinate(point))
+				return false;
+		}
+		return true;*/
+		
+		return wasSeen() && Position.distance(mainTarget.getPosition(), getPosition()) <= getSightRange();
 	}
 
 }
