@@ -46,6 +46,7 @@ public abstract class Actor implements Cloneable, java.io.Serializable, Priority
 	public void counterFinished(String counterId) {};
 	
 	public void updateStatus(){
+		wasSeen = false;
 		Set<String> counters = hashCounters.keySet();
 		for (String key: counters){
 			Integer counter = (Integer)hashCounters.get(key);
