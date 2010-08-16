@@ -210,6 +210,9 @@ public abstract class AbstractLevel implements FOVMap, Serializable{
 			lightSources.add(what);
 			lightAt(what.getPosition(), what.getLight(), true);
 		}
+		if (what.getSelector() != null){
+			addActor(what);
+		}
 	}
 	
 	public void addFeature(AbstractFeature what, boolean doom){
@@ -439,6 +442,8 @@ public abstract class AbstractLevel implements FOVMap, Serializable{
 		AbstractFeature feat = getFeatureAt(x, y, player.getPosition().z);
 		if (feat != null && feat.isOpaque())
 			return true;
+		if (feat != null)
+			feat.onSeenByPlayer();
 		AbstractCell cell = getMapCell(x, y, player.getPosition().z);
 		if (cell == null)
 			return false;
