@@ -114,15 +114,10 @@ public class GFXUISelector extends UISelector implements ActionSelector, MouseLi
 				
 				
 				Actor vMonster = player.getLevel().getActorAt(Position.add(player.getPosition(), Action.directionToVariation(direction)));
-				if (vMonster != null && vMonster.isHostile()){
-					if (attack.canPerform(player)){
-						attack.setDirection(direction);
-						Debug.exitMethod(attack);
-						return attack;
-					} else {
-						level.addMessage(attack.getInvalidationMessage());
-						si.refresh();
-					}
+				if (vMonster != null && vMonster.isHostile() && attack.canPerform(player)){
+					attack.setDirection(direction);
+					Debug.exitMethod(attack);
+					return attack;
 				} else {
 					advance.setDirection(direction);
 					Debug.exitMethod(advance);

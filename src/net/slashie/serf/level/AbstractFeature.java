@@ -110,6 +110,8 @@ public abstract class AbstractFeature extends Actor implements Cloneable, Serial
 	
 	// Callback
 	public void onStep(Actor a){}
+	
+	public void onSeenByPlayer(){}
 
 	public boolean isOpaque() {
 		return isOpaque;

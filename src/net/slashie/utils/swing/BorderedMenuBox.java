@@ -14,6 +14,7 @@ public class BorderedMenuBox extends AddornedBorderPanel {
 	
 	//Configurable properties
 	private String title = "";
+	private String legend;
 	private BufferedImage box;
 	private Color foreColor = Color.WHITE;
 	private int itemHeight;
@@ -52,27 +53,36 @@ public class BorderedMenuBox extends AddornedBorderPanel {
 		ypos+=getBorderWidth();
 		pages = (int)(Math.floor((items.size()-1) / (double)(itemsPerPage)) +1);
 		si.printAtPixel(xpos, ypos+fontSize, title, foreColor);
+		if (legend == null)
+			legend = title;
+		String[] legends = legend.split("XXX");
+		int legendLines = legends.length;
+		for (int i = 0; i < legends.length; i++){
+			si.printAtPixel(xpos, ypos+fontSize+(i+1)*itemHeight, legends[i], foreColor);
+		}
+		
 		List shownItems = Util.page(items, itemsPerPage, currentPage);
 		
 		ypos+=itemHeight;
+		
 		
 		int i = 0;
 		for (; i < shownItems.size(); i++){
 			
 			GFXMenuItem item = (GFXMenuItem) shownItems.get(i);
-			si.printAtPixel(xpos, ypos+i*itemHeight+fontSize, ((char) (97 + i))+"." , foreColor );
+			si.printAtPixel(xpos, ypos+(i+legendLines)*itemHeight+fontSize, ((char) (97 + i))+"." , foreColor );
 			if (box != null){
-				si.drawImage(xpos + itemHeight, ypos+ i * itemHeight, box);
+				si.drawImage(xpos + itemHeight, ypos+ (i+legendLines) * itemHeight, box);
 			}
 			if (item.getMenuImage() != null)
-				si.drawImage(xpos+itemHeight, ypos+ i * itemHeight, item.getMenuImage());
+				si.drawImage(xpos+itemHeight, ypos+ (i+legendLines) * itemHeight, item.getMenuImage());
 			String description = item.getMenuDescription();
 			
 			String detail = item.getMenuDetail();
 			
-			si.printAtPixel(xpos + 2*itemHeight, ypos+ i*itemHeight+fontSize, description, foreColor);
+			si.printAtPixel(xpos + 2*itemHeight, ypos+ (i+legendLines)*itemHeight+fontSize, description, foreColor);
 			if (detail != null && !detail.equals("")){
-				si.printAtPixel(xpos+2*itemHeight, (int) (ypos+ i* itemHeight + Math.round(itemHeight/2d))+fontSize, detail, foreColor);
+				si.printAtPixel(xpos+2*itemHeight, (int) (ypos+ (i+legendLines)* itemHeight + Math.round(itemHeight/2d))+fontSize, detail, foreColor);
 			}
 		}
 		si.refresh();
@@ -171,6 +181,10 @@ public class BorderedMenuBox extends AddornedBorderPanel {
 
 	public int getItemsPerPage() {
 		return itemsPerPage;
+	}
+
+	public void setLegend(String legend) {
+		this.legend = legend;
 	}
 
 
