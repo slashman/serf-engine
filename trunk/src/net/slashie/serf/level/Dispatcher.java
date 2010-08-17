@@ -54,13 +54,21 @@ public class Dispatcher implements java.io.Serializable{
 	}
 
 	public void addActor(Actor what, boolean high, Object classObj){
-		if (!actors.contains(what))
-			actors.forceToFront(what, classObj);
+		if (high){
+			if (!actors.contains(what))
+				actors.forceToFront(what, classObj);
+		} else {
+			addActor(what);
+
+		}
 	}
 
 	public void addActor(Actor what, boolean high){
-		if (!actors.contains(what))
-			actors.forceToFront(what);
+		if (high){
+			if (!actors.contains(what))
+				actors.forceToFront(what);
+		} else
+			addActor(what);
 	}
 
 	public void removeActor(Actor what){
