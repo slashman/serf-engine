@@ -116,6 +116,7 @@ public abstract class AbstractLevel implements FOVMap, Serializable{
 
 	private List<AbstractFeature> temp = new ArrayList<AbstractFeature>();
 	public List<AbstractFeature> getFeaturesAt(Position p){
+		//TODO: Implement a Map of Lists!
 		temp.clear();
 		for (int i=0; i<features.size(); i++){
 			if (features.get(i).getPosition().equals(p)){
