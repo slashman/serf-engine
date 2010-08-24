@@ -599,7 +599,7 @@ public abstract class ConsoleUserInterface extends UserInterface implements Comm
 			messageBox.setText("[Press Space to continue]");
 			messageBox.draw();
 			si.refresh();
-			si.waitKey(CharKey.SPACE);
+			si.waitKeys(CharKey.SPACE, CharKey.ESC);
 			player.getGameSessionInfo().setDeathCause(GameSessionInfo.QUIT);
 			informPlayerCommand(CommandListener.QUIT);
 		}
@@ -621,7 +621,7 @@ public abstract class ConsoleUserInterface extends UserInterface implements Comm
 			messageBox.setText("Saving... [Press Space to continue]");
 			messageBox.draw();
 			si.refresh();
-			si.waitKey(CharKey.SPACE);
+			si.waitKeys(CharKey.SPACE, CharKey.ESC);
 			informPlayerCommand(CommandListener.SAVE);
 		}
 		messageBox.draw();
@@ -705,7 +705,8 @@ public abstract class ConsoleUserInterface extends UserInterface implements Comm
 	
 	public void showImportantMessage(String x){
 		showMessage(x);
-		si.waitKey(CharKey.SPACE);
+		si.waitKeys(CharKey.SPACE, CharKey.ESC);
+
 	}
 	
 	public void showSystemMessage(String x){
@@ -713,7 +714,8 @@ public abstract class ConsoleUserInterface extends UserInterface implements Comm
 		messageBox.setText(x);
 		messageBox.draw();
 		si.refresh();
-		si.waitKey(CharKey.SPACE);
+		si.waitKeys(CharKey.SPACE, CharKey.ESC);
+
 	}
 	
 	
@@ -728,7 +730,8 @@ public abstract class ConsoleUserInterface extends UserInterface implements Comm
 		}
 		
 		si.print(55, 24, "[ Space to Continue ]");
-		si.waitKey(CharKey.SPACE);
+		si.waitKeys(CharKey.SPACE, CharKey.ESC);
+
 		si.restore();
 	}
 
