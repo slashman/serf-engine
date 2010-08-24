@@ -167,7 +167,7 @@ public abstract class GFXUserInterface extends UserInterface implements Runnable
 			si.refresh();	
 		
 		
-		si.waitKey(CharKey.SPACE);
+		si.waitKeys(CharKey.SPACE, CharKey.ESC);
 		messageBox.setVisible(true);
 		isCursorEnabled = true;
 		si.restore();
@@ -198,7 +198,7 @@ public abstract class GFXUserInterface extends UserInterface implements Runnable
 		
 		si.print(55, 24, "[ Space to Continue ]", Color.WHITE);
 		si.refresh();
-		si.waitKey(CharKey.SPACE);
+		si.waitKeys(CharKey.SPACE, CharKey.ESC);
 		si.restore();
 		si.refresh();
 		leaveScreen();
@@ -287,7 +287,7 @@ public abstract class GFXUserInterface extends UserInterface implements Runnable
 		addornedTextArea.setBounds(x, y, w, h);
 		addornedTextArea.setText(text);
 		addornedTextArea.setVisible(true);
-		si.waitKey(CharKey.SPACE);
+		si.waitKeys(CharKey.SPACE, CharKey.ESC);
 		addornedTextArea.setVisible(false);
 	}
 	protected AddornedBorderTextArea addornedTextArea;
@@ -852,7 +852,7 @@ public abstract class GFXUserInterface extends UserInterface implements Runnable
 		if (prompt()){
 			messageBox.setText("Saving... I will await your return.. [Press Space to continue]");
 			si.refresh();
-			si.waitKey(CharKey.SPACE);
+			si.waitKeys(CharKey.SPACE, CharKey.ESC);
 			enterScreen();
 			informPlayerCommand(CommandListener.SAVE);
 		}
@@ -972,14 +972,14 @@ public abstract class GFXUserInterface extends UserInterface implements Runnable
 	
 	public void showImportantMessage(String x){
 		showMessage(x);
-		si.waitKey(CharKey.SPACE);
+		si.waitKeys(CharKey.SPACE, CharKey.ESC);
 	}
 	
 	public void showSystemMessage(String x){
 		messageBox.setForeground(COLOR_LAST_MESSAGE);
 		messageBox.setText(x);
 		//si.refresh();
-		si.waitKey(CharKey.SPACE);
+		si.waitKeys(CharKey.SPACE, CharKey.ESC);
 	}
 	
 	
