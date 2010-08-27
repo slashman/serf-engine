@@ -81,11 +81,15 @@ public abstract class Actor implements Cloneable, java.io.Serializable, Priority
         	}
 		} else {
 			//Null action, do nothing
-			setNextTime(0);
+			doNothing();
 			return true;
 		}
-		
 	}
+	
+	public void doNothing() {
+		setNextTime(0);
+	}
+	
 	public boolean act(){
 		if (getSelector() == null)
 			setSelector(new NullSelector());
