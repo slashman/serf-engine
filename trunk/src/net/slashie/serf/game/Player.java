@@ -12,6 +12,7 @@ import net.slashie.serf.baseDomain.AbstractItem;
 import net.slashie.serf.fov.FOV;
 import net.slashie.serf.level.AbstractCell;
 import net.slashie.serf.level.AbstractFeature;
+import net.slashie.serf.ui.ActionCancelException;
 import net.slashie.utils.Position;
 
 public abstract class Player extends AwareActor {
@@ -169,7 +170,9 @@ public abstract class Player extends AwareActor {
 		return null;
 	}
 	
-	public void landOn (Position destinationPoint){
+
+	public void landOn (Position destinationPoint) throws ActionCancelException {
+		
 		AbstractCell destinationCell = level.getMapCell(destinationPoint);
         if (destinationCell == null){
        		onNullDestination();

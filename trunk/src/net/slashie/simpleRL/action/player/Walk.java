@@ -2,6 +2,7 @@ package net.slashie.simpleRL.action.player;
 
 import net.slashie.serf.action.Action;
 import net.slashie.serf.action.Actor;
+import net.slashie.serf.ui.ActionCancelException;
 import net.slashie.simpleRL.domain.entities.Adventurer;
 import net.slashie.simpleRL.domain.world.LevelCell;
 import net.slashie.utils.Position;
@@ -53,7 +54,11 @@ public class Walk extends Action{
 		
         Position var = directionToVariation(targetDirection);
         Position destinationPoint = Position.add(performer.getPosition(), var);
-	    p.landOn(destinationPoint);
+	    try {
+			p.landOn(destinationPoint);
+		} catch (ActionCancelException e) {
+			actionCancelled = true;
+		}
 	}
 	
 
