@@ -567,6 +567,8 @@ class StrokeInformer implements KeyListener{
 				return CharKey.N8;
 			case KeyEvent.VK_NUMPAD9:
 				return CharKey.N9;
+			case KeyEvent.VK_0:
+				return CharKey.N0;
 			case KeyEvent.VK_1:
 				return CharKey.N1;
 			case KeyEvent.VK_2:
