@@ -19,6 +19,7 @@ public class SimpleAI extends BasicAI{
 	private int chargeCounter = 0;
 	private int lastDirection = -1;
 	private boolean changeDirection;
+	private boolean bumpEnemy;
 	
 	private Actor mainTarget;
 	private Action mainWalk;
@@ -111,7 +112,17 @@ public class SimpleAI extends BasicAI{
 							return ret;
 						}
 					}
+				} 
+				if (bumpEnemy){
+					Position destination = Position.add(who.getPosition(), Action.directionToVariation(directionToTarget));
+					Actor a = who.getLevel().getActorAt(destination);
+					if (a == mainTarget){
+						Action ret = mainWalk;
+						ret.setDirection(directionToTarget);
+						return ret;
+					}
 				}
+				
 				// Couldnt attack the player, so walk to him
 				if (isStationary){
 					return pass;
@@ -211,6 +222,10 @@ public class SimpleAI extends BasicAI{
 
 	public void setChangeDirection(boolean value) {
 		changeDirection = value;
+	}
+	
+	public void setBumpEnemy(boolean bumpEnemy) {
+		this.bumpEnemy = bumpEnemy;
 	}
 	 
 }
