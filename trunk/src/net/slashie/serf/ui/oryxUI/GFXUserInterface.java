@@ -552,7 +552,7 @@ public abstract class GFXUserInterface extends UserInterface implements Runnable
 		addornedTextArea.setBackground(Color.BLACK);
 		addornedTextArea.setFont(FNT_DIALOGUEIN);
 		addornedTextArea.setOpaque(false);
-		addornedTextArea.setForeground(new Color(255,127,39));
+		addornedTextArea.setForeground(new Color(244,226,108));
 		psi.add(addornedTextArea);
 		
 		/*-- Assign values */
