@@ -107,6 +107,11 @@ public abstract class Actor implements Cloneable, java.io.Serializable, Priority
 		/** Request to be removed from any dispatcher or structure */
 		aWannaDie = true;
 	}
+	
+	public void resurrect(){
+		/** Request to be removed from any dispatcher or structure */
+		aWannaDie = false;
+	}
 
 	public boolean wannaDie(){
 		return aWannaDie;
