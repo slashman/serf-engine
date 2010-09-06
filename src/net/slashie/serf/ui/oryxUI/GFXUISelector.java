@@ -133,32 +133,15 @@ public class GFXUISelector extends UISelector implements ActionSelector, MouseLi
 						ui().setFlipFacing(false);
 						break;
 					}
-					return advance;
+					if (advance.canPerform(player)){
+						return advance;
+					} else {
+						ui().addMessage(new Message(advance.getInvalidationMessage(), player.getPosition()));
+						ret = null;
+					}
 				}
-			} else
-			/*if (input.code == WEAPONCODE){
-				ret = target;
-            	try {
-            		ret.setPerformer(player);
-            		if (ret.canPerform(player))
-            			ui().setTargets(ret);
-            		else {
-            			level.addMessage(ret.getInvalidationMessage());
-            			throw new ActionCancelException();
-            		}
-                 	Debug.exitMethod(ret);
-                	return ret;
-				}
-				catch (ActionCancelException ace){
-	 				ui().addMessage(new Message("- Cancelled", player.getPosition()));
-	 				si.refresh();
-					ret = null;
-				}
-			}else */{
+			} else {
             	ret = getRelatedAction(input.code);
-            	/*if (ret == target){
-            		defaultTarget = player.getNearestMonsterPosition();
-            	}*/
             	try {
 	            	if (ret != null){
 	            		ret.setPerformer(player);
