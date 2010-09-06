@@ -21,6 +21,7 @@ import net.slashie.serf.ui.consoleUI.effects.CharEffect;
 import net.slashie.utils.Line;
 import net.slashie.utils.Position;
 
+import net.slashie.libjcsi.CSIColor;
 import net.slashie.libjcsi.CharKey;
 import net.slashie.libjcsi.ConsoleSystemInterface;
 import net.slashie.libjcsi.textcomponents.BasicListItem;
@@ -838,5 +839,20 @@ public abstract class ConsoleUserInterface extends UserInterface implements Comm
 	
 	public String inputBox(String prompt){
 		return inputBox(prompt, 20, 2, 31, 8, 22, 6,20);
+	}
+	
+	public void showTextBox(String text, int x, int y, int w, int h, CSIColor borderColor){
+		si.saveBuffer();
+		TextBox chatBox = new TextBox(si);
+		chatBox.setHeight(h);
+		chatBox.setWidth(w);
+		chatBox.setPosition(x, y);
+		chatBox.setBorder(true);
+		chatBox.setForeColor(ConsoleSystemInterface.WHITE);
+		chatBox.setBorderColor(borderColor);
+		chatBox.setText(text);
+		chatBox.draw();
+		si.refresh();
+		si.waitKeys(CharKey.SPACE, CharKey.ESC);
 	}
 }
