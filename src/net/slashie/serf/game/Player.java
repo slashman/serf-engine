@@ -14,6 +14,7 @@ import net.slashie.serf.level.AbstractCell;
 import net.slashie.serf.level.AbstractFeature;
 import net.slashie.serf.ui.ActionCancelException;
 import net.slashie.utils.Position;
+import net.slashie.utils.Util;
 
 public abstract class Player extends AwareActor {
 	private SworeGame game;
@@ -43,6 +44,7 @@ public abstract class Player extends AwareActor {
 
 
 	private Hashtable<String, Equipment> inventory = new Hashtable<String, Equipment>();
+	protected boolean HANDLE_FEATURES = true;
 
 	public void addItem(AbstractItem toAdd, int quantity){
 		if (!canCarry(toAdd, quantity)){
@@ -204,15 +206,14 @@ public abstract class Player extends AwareActor {
 		if (aActor != null)
 			onActorStep(aActor);
 		
-		AbstractFeature destinationFeature = level.getFeatureAt(destinationPoint);
-		
-		while (destinationFeature != null){
-			onFeatureStep(destinationFeature);
-			AbstractFeature previousFeature = destinationFeature;
-			destinationFeature = level.getFeatureAt(destinationPoint);
-			destinationFeature.onStep(this);
-			if (previousFeature == destinationFeature)
-				break;
+		if (HANDLE_FEATURES ){
+			List<AbstractFeature> destinationFeatures = level.getFeaturesAt(destinationPoint);
+			if (destinationFeatures != null)
+				for (AbstractFeature destinationFeature: destinationFeatures){
+					onFeatureStep(destinationFeature);
+					destinationFeature.onStep(this);
+					//landOnFeature(destinationFeature, destinationFeatures);
+				}
 		}
 			
 		if (level.isExit(getPosition())){
@@ -223,6 +224,18 @@ public abstract class Player extends AwareActor {
 				informPlayerEvent(Player.EVT_GOTO_LEVEL, exit);
 			}
 			
+		}
+	}
+
+	private void landOnFeature(AbstractFeature destinationFeature, List<AbstractFeature> featureGroup) {
+		onFeatureStep(destinationFeature);
+		destinationFeature.onStep(this);
+		// Check if there are new features in this same spot (i.e., the world changed) and step again
+		List<AbstractFeature> newDestinationFeatures = level.getFeaturesAt(destinationFeature.getPosition());
+		if (newDestinationFeatures != null && !Util.sameLists(newDestinationFeatures, featureGroup)){
+			for (AbstractFeature newDestinationFeature: newDestinationFeatures){
+				landOnFeature(newDestinationFeature, newDestinationFeatures);
+			}
 		}
 	}
 

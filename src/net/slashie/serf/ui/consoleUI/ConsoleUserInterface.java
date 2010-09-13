@@ -86,7 +86,7 @@ public abstract class ConsoleUserInterface extends UserInterface implements Comm
 			String looked = "";
 			if (FOVMask[PC_POS.x + offset.x][PC_POS.y + offset.y]){
 				AbstractCell choosen = level.getMapCell(browser);
-				AbstractFeature feat = level.getFeatureAt(browser);
+				List<AbstractFeature> feats = level.getFeaturesAt(browser);
 				List<AbstractItem> items = level.getItemsAt(browser);
 				AbstractItem item = null;
 				if (items != null) {
@@ -95,8 +95,12 @@ public abstract class ConsoleUserInterface extends UserInterface implements Comm
 				Actor actor = level.getActorAt(browser);
 				if (choosen != null)
 					looked += choosen.getDescription();
-				if (feat != null)
-					looked += ", "+ feat.getDescription();
+				if (feats != null){
+					for (AbstractFeature feat: feats){
+						looked += ", "+ feat.getDescription();
+					}
+				}
+					
 				if (item != null)
 					if (items.size() == 1)
 						looked += ", "+ item.getDescription();
@@ -208,18 +212,20 @@ public abstract class ConsoleUserInterface extends UserInterface implements Comm
 					
 					if (player.isInvisible() || x!=xrange || y != yrange)
 						si.print(PC_POS.x-xrange+x,PC_POS.y-yrange+y, cellChar, cellColor);
-					AbstractFeature feat = level.getFeatureAt(runner);
-					if (feat != null){
-						if (feat.isVisible()) {
-							BasicListItem li = sightListItems.get(feat.getClassifierID());
-							if (li == null){
-								sightListItems.put(feat.getClassifierID(), new BasicListItem(((CharAppearance)feat.getAppearance()).getChar(), ((CharAppearance)feat.getAppearance()).getColor(), feat.getDescription()));
-								li = (BasicListItem)sightListItems.get(feat.getClassifierID());
-							}
-							if (feat.isRelevant() && !featuresOnSight.contains(li)) 
+					List<AbstractFeature> feats = level.getFeaturesAt(runner);
+					if (feats != null){
+						for (AbstractFeature feat: feats){
+							if (feat.isVisible()) {
+								BasicListItem li = sightListItems.get(feat.getClassifierID());
+								if (li == null){
+									sightListItems.put(feat.getClassifierID(), new BasicListItem(((CharAppearance)feat.getAppearance()).getChar(), ((CharAppearance)feat.getAppearance()).getColor(), feat.getDescription()));
+									li = (BasicListItem)sightListItems.get(feat.getClassifierID());
+								}
+								if (feat.isRelevant() && !featuresOnSight.contains(li)) 
 									featuresOnSight.add(li);
-							CharAppearance featApp = (CharAppearance)feat.getAppearance();
-							si.print(PC_POS.x-xrange+x,PC_POS.y-yrange+y, featApp.getChar(), featApp.getColor());
+								CharAppearance featApp = (CharAppearance)feat.getAppearance();
+								si.print(PC_POS.x-xrange+x,PC_POS.y-yrange+y, featApp.getChar(), featApp.getColor());
+							}
 						}
 					}
 					
@@ -399,7 +405,7 @@ public abstract class ConsoleUserInterface extends UserInterface implements Comm
 				
 			if (FOVMask[PC_POS.x + offset.x][PC_POS.y + offset.y]){
 				AbstractCell choosen = level.getMapCell(browser);
-				AbstractFeature feat = level.getFeatureAt(browser);
+				List<AbstractFeature> feats = level.getFeaturesAt(browser);
 				List<AbstractItem>items = level.getItemsAt(browser);
 				AbstractItem item = null;
 				if (items != null) {
@@ -410,8 +416,11 @@ public abstract class ConsoleUserInterface extends UserInterface implements Comm
 				
 				if (choosen != null)
 					looked += choosen.getDescription();
-				if (feat != null)
-					looked += ", "+ feat.getDescription();
+				if (feats != null){
+					for (AbstractFeature feat: feats){
+						looked += ", "+ feat.getDescription();
+					}
+				}
 				if (actor != null)
 					looked += ", "+ actor.getDescription();
 				if (item != null)
@@ -854,5 +863,11 @@ public abstract class ConsoleUserInterface extends UserInterface implements Comm
 		chatBox.draw();
 		si.refresh();
 		si.waitKeys(CharKey.SPACE, CharKey.ESC);
+	}
+	
+	@Override
+	public void reset() {
+		messageBox.setText("");
+		messageHistory.clear();
 	}
 }

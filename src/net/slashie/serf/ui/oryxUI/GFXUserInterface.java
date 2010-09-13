@@ -134,14 +134,13 @@ public abstract class GFXUserInterface extends UserInterface implements Runnable
 					continue;
 				else {
 					AbstractCell current = level.getMapCell(runner);
-					AbstractFeature currentF = level.getFeatureAt(runner);
 					if (level.isVisible(x,y,runner.z)){
 						if (current == null)
 							//cellColor = Color.BLACK;
 							continue;
 						else if (level.getExitOn(runner) != null)
 							cellColor = Color.RED;
-						else if (current.isSolid() || (currentF != null && currentF.isSolid()))
+						else if (current.isSolid())
 							cellColor = MAP_SOLID;
 						else 
 							cellColor = MAP_NOSOLID_LOS;
@@ -152,7 +151,7 @@ public abstract class GFXUserInterface extends UserInterface implements Runnable
 							continue;
 						else if (level.getExitOn(runner) != null)
 							cellColor = Color.RED;
-						else if (current.isSolid()|| (currentF != null && currentF.isSolid()))
+						else if (current.isSolid())
 							cellColor = MAP_SOLID;
 						else  
 							cellColor = MAP_NOSOLID;
@@ -220,7 +219,7 @@ public abstract class GFXUserInterface extends UserInterface implements Runnable
 				AbstractCell choosen = level.getMapCell(browser);
 				if (choosen != null)
 					cellHeight = choosen.getHeight();
-				AbstractFeature feat = level.getFeatureAt(browser);
+				List<AbstractFeature> feats = level.getFeaturesAt(browser);
 				List<AbstractItem> items = level.getItemsAt(browser);
 				AbstractItem item = null;
 				if (items != null) {
@@ -230,8 +229,11 @@ public abstract class GFXUserInterface extends UserInterface implements Runnable
 				Actor actor = level.getActorAt(browser);
 				if (choosen != null)
 					looked += choosen.getDescription();
-				if (feat != null)
-					looked += ", "+ feat.getDescription();
+				if (feats != null){
+					for (AbstractFeature feat: feats){
+						looked += ", "+ feat.getDescription();
+					}
+				}
 				if (item != null)
 					if (items.size() == 1)
 						looked += ", "+ item.getDescription();
@@ -373,13 +375,16 @@ public abstract class GFXUserInterface extends UserInterface implements Runnable
 				int cellHeight = 0;
 				if (vcells[x][y] != null){
 					cellHeight = vcells[x][y].getHeight();
-					AbstractFeature feat = level.getFeatureAt(runner);
-					if (feat != null){
-						if (feat.isVisible()) {
-							GFXAppearance featApp = (GFXAppearance)feat.getAppearance();
-							si.drawImage((PC_POS.x-xrange+x)*tileSize-featApp.getSuperWidth(),(PC_POS.y-yrange+y)*tileSize-4*cellHeight-featApp.getSuperHeight(), featApp.getImage());
+					List<AbstractFeature> feats = level.getFeaturesAt(runner);
+					if (feats != null){
+						for (AbstractFeature feat: feats){
+							if (feat.isVisible()) {
+								GFXAppearance featApp = (GFXAppearance)feat.getAppearance();
+								si.drawImage((PC_POS.x-xrange+x)*tileSize-featApp.getSuperWidth(),(PC_POS.y-yrange+y)*tileSize-4*cellHeight-featApp.getSuperHeight(), featApp.getImage());
+							}
 						}
 					}
+					
 					
 					List<AbstractItem> items = level.getItemsAt(runner);
 					AbstractItem item = null;
@@ -658,7 +663,7 @@ public abstract class GFXUserInterface extends UserInterface implements Runnable
 			
 			if (FOVMask[PC_POS.x + offset.x][PC_POS.y + offset.y]){
 				AbstractCell choosen = level.getMapCell(browser);
-				AbstractFeature feat = level.getFeatureAt(browser);
+				List<AbstractFeature> feats = level.getFeaturesAt(browser);
 				List<AbstractItem> items = level.getItemsAt(browser);
 				if (choosen != null)
 					cellHeight = choosen.getHeight();
@@ -669,8 +674,11 @@ public abstract class GFXUserInterface extends UserInterface implements Runnable
 				Actor actor = level.getActorAt(browser);
 				if (choosen != null)
 					looked += choosen.getDescription();
-				if (feat != null)
-					looked += ", "+ feat.getDescription();
+				if (feats != null){
+					for (AbstractFeature feat: feats){
+						looked += ", "+ feat.getDescription();
+					}
+				}
 				if (actor != null)
 					looked += ", "+ actor.getDescription();
 				if (item != null)
@@ -1070,6 +1078,12 @@ public abstract class GFXUserInterface extends UserInterface implements Runnable
 
 	public void setFlipEnabled(boolean flipEnabled) {
 		this.flipEnabled = flipEnabled;
+	}
+	
+	@Override
+	public void reset() {
+		messageBox.setText("");
+		messageHistory.clear();
 	}
 }
 
