@@ -3,6 +3,7 @@ package net.slashie.serf.level;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
@@ -25,6 +26,7 @@ public abstract class AbstractLevel implements FOVMap, Serializable{
 	private String ID;
 	private Unleasher[] unleashers = new Unleasher[]{};
 	private List<AbstractFeature> features;
+	private Map<String, List<AbstractFeature>> featuresMap = new HashMap<String, List<AbstractFeature>>();
 	private Player player;
 	private SZQueue messagesneffects;
 	private Dispatcher dispatcher;
@@ -114,22 +116,17 @@ public abstract class AbstractLevel implements FOVMap, Serializable{
 
 	public abstract AbstractCell getMapCell(int x, int y, int z);
 
-	private List<AbstractFeature> temp = new ArrayList<AbstractFeature>();
+	
 	public List<AbstractFeature> getFeaturesAt(Position p){
-		//TODO: Implement a Map of Lists!
-		temp.clear();
-		for (int i=0; i<features.size(); i++){
-			if (features.get(i).getPosition().equals(p)){
-				temp.add(features.get(i));
-			}
-		}
-		if (temp.size() == 0){
-			return null;
-		} else {
-			return temp;
-		}
+		return featuresMap.get(p.toString());
+		//return featuresMap.get(p.toString()) != null ? featuresMap.get(p.toString()).subList(0, 1) : null;
 	}
 	
+	/**
+	 * @deprecated Using only the first feature is unreliable, use getFeaturesAt instead
+	 * @param p
+	 * @return
+	 */
 	public AbstractFeature getFeatureAt(Position p){
 		for (int i=0; i<features.size(); i++){
 			if (features.get(i).getPosition().equals(p)){
@@ -141,6 +138,7 @@ public abstract class AbstractLevel implements FOVMap, Serializable{
 	
 	
 	Position tempFeaturePosition = new Position(0,0);
+	@Deprecated
 	public AbstractFeature getFeatureAt(int x, int y, int z){
 		tempFeaturePosition.x = x;
 		tempFeaturePosition.y = y;
@@ -170,6 +168,7 @@ public abstract class AbstractLevel implements FOVMap, Serializable{
 			}
 		}
 		features.remove(what);
+		featuresMap.get(what.getPosition().toString()).remove(what); 
 	}
 
 	public AbstractCell getMapCell(Position where){
@@ -201,10 +200,16 @@ public abstract class AbstractLevel implements FOVMap, Serializable{
 	public abstract int getDepth();
 
 
-	public void addFeature(AbstractFeature what){
+	public void addFeature(AbstractFeature what, boolean doom){
 		features.add(what);
+		List<AbstractFeature> positionList = featuresMap.get(what.getPosition().toString());
+		if (positionList == null){
+			positionList = new ArrayList<AbstractFeature>();
+			featuresMap.put(what.getPosition().toString(), positionList);
+		}
+		positionList.add(what);
 		what.setLevel(this);
-		if (what.getFaint() > 0){
+		if (doom && what.getFaint() > 0){
 			doomedFeatures.add(what);
 		}
 		if (what.getLight()>0){
@@ -216,16 +221,8 @@ public abstract class AbstractLevel implements FOVMap, Serializable{
 		}
 	}
 	
-	public void addFeature(AbstractFeature what, boolean doom){
-		features.add(what);
-		if (doom && what.getFaint() > 0){
-			doomedFeatures.add(what);
-		}
-		
-		if (what.getLight()>0){
-			lightSources.add(what);
-			lightAt(what.getPosition(), what.getLight(), true);
-		}
+	public void addFeature(AbstractFeature what){
+		addFeature(what, false);
 	}
 	
 	private Position lightRunner = new Position(0,0);
@@ -254,17 +251,6 @@ public abstract class AbstractLevel implements FOVMap, Serializable{
 		AbstractFeature x = FeatureFactory.getFactory().buildFeature(featureID);
 		x.setPosition(location.x, location.y, location.z);
 		addFeature(x);
-		if (x.getFaint() > 0){
-			doomedFeatures.add(x);
-		}
-		if (x.getLight()>0){
-			lightSources.add(x);
-			lightAt(x.getPosition(), x.getLight(), true);
-		}
-		if (x.getSelector() != null){
-			addActor(x, location);
-		}
-		
 	}
 
 	public void setPlayer(Player what){
@@ -436,15 +422,21 @@ public abstract class AbstractLevel implements FOVMap, Serializable{
 
 
 	//Line of Sight and Player Memory handling
-	
+	private Position LOSPosition= new Position(0,0,0);
 	public boolean blockLOS(int x, int y) {
+		LOSPosition.x = x;
+		LOSPosition.y = y;
+		LOSPosition.z = 0;
 		if (!isValidCoordinate(x,y))
 			return true;
-		AbstractFeature feat = getFeatureAt(x, y, player.getPosition().z);
-		if (feat != null && feat.isOpaque())
-			return true;
-		if (feat != null)
-			feat.onSeenByPlayer();
+		List<AbstractFeature> feats = getFeaturesAt(LOSPosition);
+		if (feats != null)
+			for (AbstractFeature feat: feats){
+				if (feat != null && feat.isOpaque())
+					return true;
+				if (feat != null)
+					feat.onSeenByPlayer();
+			}
 		AbstractCell cell = getMapCell(x, y, player.getPosition().z);
 		if (cell == null)
 			return false;
@@ -569,10 +561,23 @@ public abstract class AbstractLevel implements FOVMap, Serializable{
 	public boolean isSolid(Position where){
 		return getMapCell(where) == null ||
 			getMapCell (where).isSolid() ||
-			(getFeatureAt(where) != null && getFeatureAt(where).isSolid() );
+			areSolidFeaturesAt(where);
 	}
 
 	
+	private boolean areSolidFeaturesAt(Position where) {
+		List<AbstractFeature> features = getFeaturesAt(where);
+		if (features == null)
+			return false;
+		else {
+			for (AbstractFeature feature: features){
+				if (feature.isSolid())
+					return true;
+			}
+			return false;
+		}
+	}
+
 	public void lightLights(){
 		for (AbstractFeature feature: lightSources){
 			lightAt(feature.getPosition(), feature.getLight(), true);
