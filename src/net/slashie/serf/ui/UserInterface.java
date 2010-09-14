@@ -215,4 +215,6 @@ public abstract class UserInterface implements CommandListener {
 	public static UserInterface getUI (){
 		return singleton;
 	}
+	
+	public abstract void reset();
 }

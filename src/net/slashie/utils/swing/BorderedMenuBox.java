@@ -17,6 +17,8 @@ public class BorderedMenuBox extends AddornedBorderPanel {
 	private String legend;
 	private BufferedImage box;
 	private Color foreColor = Color.WHITE;
+	private Color titleColor = Color.WHITE;
+
 	private int itemHeight;
 	
 	//State Attributes
@@ -52,7 +54,7 @@ public class BorderedMenuBox extends AddornedBorderPanel {
 		xpos+=getBorderWidth();
 		ypos+=getBorderWidth();
 		pages = (int)(Math.floor((items.size()-1) / (double)(itemsPerPage)) +1);
-		si.printAtPixel(xpos, ypos+fontSize, title, foreColor);
+		si.printAtPixel(xpos, ypos+fontSize, title, titleColor);
 		if (legend == null)
 			legend = title;
 		String[] legends = legend.split("XXX");
@@ -124,6 +126,25 @@ public class BorderedMenuBox extends AddornedBorderPanel {
 		}
 	}
 	
+	public Object getSelection(CharKey key) {
+		List shownItems = Util.page(items, itemsPerPage, currentPage);
+		if (key.code == CharKey.SPACE || key.code == CharKey.ESC)
+			return null;
+		if (key.code == CharKey.UARROW || key.code == CharKey.N8)
+			if (currentPage > 0)
+				currentPage --;
+		if (key.code == CharKey.DARROW || key.code == CharKey.N2)
+			if (currentPage < pages-1)
+				currentPage ++;
+		
+		if (key.code >= CharKey.A && key.code <= CharKey.A + shownItems.size()-1)
+			return shownItems.get(key.code - CharKey.A);
+		else
+		if (key.code >= CharKey.a && key.code <= CharKey.a + shownItems.size()-1)
+			return shownItems.get(key.code - CharKey.a);
+		return null;
+	}
+	
 	public Object getSelectionAKS (int[] keys) throws AdditionalKeysSignal{
 		int pageElements = itemsPerPage;
 		while (true){
@@ -188,6 +209,13 @@ public class BorderedMenuBox extends AddornedBorderPanel {
 	public void setLegend(String legend) {
 		this.legend = legend;
 	}
+
+	public void setTitleColor(Color titleColor) {
+		this.titleColor = titleColor;
+	}
+
+
+	
 
 
 }

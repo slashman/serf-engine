@@ -62,7 +62,7 @@ public class Position implements java.io.Serializable {
 				return true;
 			}
 		} catch (ClassCastException cce){
-			Debug.byebye("Error comparing points "+this+" "+o);
+			throw new RuntimeException("Error comparing points "+this+" "+o, cce);
 		}
 		return false;
 	}

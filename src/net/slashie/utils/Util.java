@@ -2,6 +2,8 @@ package net.slashie.utils;
 
 import java.util.*;
 
+import net.slashie.serf.level.AbstractFeature;
+
 public class Util {
 	private static Random rand = new Random(System.currentTimeMillis());
 
@@ -80,5 +82,21 @@ public class Util {
 			return string.substring(0, i);
 		else
 			return string;
+	}
+
+
+	public static boolean sameLists(
+			List<? extends Object> listA,
+			List<? extends Object> listB) {
+		if (listA == null && listB == null)
+			return true;
+		if (listA == null || listB == null){
+			return false;
+		}
+		if (listA.size() != listB.size()){
+			return false;
+		}
+	
+		return false;
 	}
 }
