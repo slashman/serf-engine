@@ -79,7 +79,8 @@ public abstract class SworeGame implements CommandListener, PlayerEventListener,
 	
 	private void run(){
 		player.setFOV(new FOV());
-		player.getLevel().addMessage(getFirstMessage(player));
+		UserInterface.getUI().reset();
+		UserInterface.getUI().showMessage(getFirstMessage(player));
 		ui.refresh();
 		beforeGameStart();
 		while (!endGame){
