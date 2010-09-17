@@ -99,4 +99,17 @@ public class Util {
 	
 		return false;
 	}
+
+	/** Returns an aproximation using i digits of detail
+	 * 
+	 * @param d
+	 * @param range
+	 * @param i
+	 * @return
+	 */
+	public static double rand(double start, double end, int i) {
+		int iStart = (int)(Math.round(start * (i*10)));
+		int iEnd = (int)(Math.round(end * (i*10)));
+		return rand(iStart, iEnd) / (i*10);
+	}
 }
