@@ -56,7 +56,7 @@ public class ConsoleUISelector extends UISelector {
 			if (input.isArrow()){
 				int direction = Action.toIntDirection(input);
 				Actor vMonster = player.getLevel().getActorAt(Position.add(player.getPosition(), Action.directionToVariation(direction)));
-				if (vMonster != null && vMonster.isHostile() && attack.canPerform(player)){
+				if (vMonster == null || !vMonster.isHostile() || !attack.canPerform(player)){
 					advance.setDirection(direction);
 					if (advance.canPerform(player)){
 						return advance;
