@@ -858,9 +858,8 @@ public abstract class GFXUserInterface extends UserInterface implements Runnable
 		messageBox.setText("Save your game? (y/n)");
 		si.refresh();
 		if (prompt()){
-			messageBox.setText("Saving... I will await your return.. [Press Space to continue]");
+			messageBox.setText("Saving... ");
 			si.refresh();
-			si.waitKeys(CharKey.SPACE, CharKey.ESC);
 			enterScreen();
 			informPlayerCommand(CommandListener.SAVE);
 		}
