@@ -1,11 +1,8 @@
 package net.slashie.utils;
 
 import java.awt.Component;
-import java.awt.Container;
-import java.awt.DisplayMode;
 import java.awt.Graphics2D;
 import java.awt.GraphicsConfiguration;
-import java.awt.GraphicsDevice;
 import java.awt.GraphicsEnvironment;
 import java.awt.Image;
 import java.awt.MediaTracker;
@@ -13,32 +10,15 @@ import java.awt.Toolkit;
 import java.awt.geom.AffineTransform;
 import java.awt.image.AffineTransformOp;
 import java.awt.image.BufferedImage;
-import java.awt.image.CropImageFilter;
-import java.awt.image.FilteredImageSource;
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 
 import javax.imageio.ImageIO;
-import javax.imageio.stream.ImageInputStream;
-import javax.imageio.stream.ImageInputStreamImpl;
 
 public class ImageUtils {
 	public static  BufferedImage createImage (String filename) throws IOException  {
-         /*BufferedImage im =  ImageIO.read(
-                   ImageUtils.class.getResource(filename) );*/
 		BufferedImage im =  ImageIO.read(new File(filename));
-         return im;
-         
-         /*int transparency = im.getColorModel( ).getTransparency( );
-         BufferedImage copy =  gc.createCompatibleImage(
-                                  im.getWidth( ), im.getHeight( ),
-                                  transparency );
-
-         Graphics2D g2d = copy.createGraphics( );
-         g2d.drawImage(im,0,0,null);
-         g2d.dispose();
-         return copy;*/
+	    return im;
 	}
 	
 	public static Image crearImagen(String filename, Component tracker) throws Exception{

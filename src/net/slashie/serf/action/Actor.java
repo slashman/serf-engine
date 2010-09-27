@@ -226,4 +226,6 @@ public abstract class Actor implements Cloneable, java.io.Serializable, Priority
 	public boolean isHostile() {
 		return false;
 	}
+
+	public void onPlayerBump() {}
 }

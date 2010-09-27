@@ -336,11 +336,11 @@ public class SwingSystemInterface implements Runnable{
 				//print(caretPosition.x, caretPosition.y, " ");
             }
 			else {
-				if (ret.length() >= 50){
+				if (ret.length() >= maxLength){
 					read.code = CharKey.NONE;
 					continue;
 				}
-				if (!read.isAlphaNumeric()){
+				if (!read.isAlphaNumeric() && read.code != CharKey.SPACE){
 					read.code = CharKey.NONE;
 					continue;
 				}

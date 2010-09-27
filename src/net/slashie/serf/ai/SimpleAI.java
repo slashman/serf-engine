@@ -32,9 +32,12 @@ public class SimpleAI extends BasicAI{
 	public Action selectAction(Actor who){
 		AwareActor aware = (AwareActor) who;
 		
-		
-		int directionToTarget = aware.stare(mainTarget);
-		int targetDistance = Position.flatDistance(who.getPosition(), mainTarget.getPosition());
+		int directionToTarget = -1;
+		int targetDistance = 500;
+		if (mainTarget != null){
+			directionToTarget = aware.stare(mainTarget);
+			targetDistance = Position.flatDistance(who.getPosition(), mainTarget.getPosition());
+		}
 		if (patrolRange >0 && targetDistance > patrolRange){
 			if (lastDirection == -1 || changeDirection){
 				lastDirection = Util.rand(0,7);
