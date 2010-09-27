@@ -147,6 +147,7 @@ public abstract class AbstractLevel implements FOVMap, Serializable{
 	}
 
 	public Actor getActorAt(Position x){
+		//TODO: Implement map by position
 		List<Actor> actors = dispatcher.getActors();
 		for (Actor a: actors){
 			if (a.getPosition().equals(x))

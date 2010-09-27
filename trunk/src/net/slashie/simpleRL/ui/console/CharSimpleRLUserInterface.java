@@ -104,7 +104,7 @@ public class CharSimpleRLUserInterface extends ConsoleUserInterface implements S
 	}
 	
 	@Override
-	public int switchChat(String prompt, String... options) {
+	public int switchChat(String title, String prompt, String... options) {
 		MenuBox selectionBox = new MenuBox(csi);
 		selectionBox.setPosition(20,2);
 		selectionBox.setWidth(31);
@@ -119,6 +119,7 @@ public class CharSimpleRLUserInterface extends ConsoleUserInterface implements S
   		selectionBox.setPromptSize(2);
   		selectionBox.setBorder(true);
   		selectionBox.setPrompt(prompt);
+  		selectionBox.setTitle(title);
   		selectionBox.draw();
   		
 		while (true) {

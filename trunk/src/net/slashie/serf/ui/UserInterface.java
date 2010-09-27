@@ -28,7 +28,7 @@ public abstract class UserInterface implements CommandListener {
 	public abstract void setTargets(Action a) throws ActionCancelException;
 	public abstract void showMessageHistory();
 	public abstract void showInventory();
-	public abstract int switchChat(String prompt, String... options);
+	public abstract int switchChat(String title, String prompt, String... options);
 	public abstract String inputBox(String prompt);
 	
 	protected Position getNearestActorPosition(){

@@ -308,7 +308,7 @@ public abstract class GFXUserInterface extends UserInterface implements Runnable
    
    public boolean promptChat (String text, int x, int y, int w, int h){
 	   si.saveBuffer();
-	   boolean ret = showTextBoxPrompt(text, 280, 30, 330, 170);
+	   boolean ret = showTextBoxPrompt(text, x, y, w, h);
 	   si.refresh();
 	   //waitKey();
 	   si.restore();
@@ -1054,8 +1054,7 @@ public abstract class GFXUserInterface extends UserInterface implements Runnable
 	}
 
 	@Override
-	public int switchChat(String prompt, String... options) {
-		// TODO Auto-generated method stub
+	public int switchChat(String title, String prompt, String... options) {
 		return 0;
 	}
 

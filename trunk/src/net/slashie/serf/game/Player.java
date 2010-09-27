@@ -48,8 +48,9 @@ public abstract class Player extends AwareActor {
 
 	public void addItem(AbstractItem toAdd, int quantity){
 		if (!canCarry(toAdd, quantity)){
-			if (level != null)
+			if (level != null){
 				level.addMessage("You can't carry anything more");
+			}
 			return;
 		}
 		beforeItemsAddition(toAdd, quantity);
