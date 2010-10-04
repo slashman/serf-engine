@@ -11,4 +11,17 @@ public class EnglishGrammar {
 			return "A";
 		}
 	}
+
+	public static String plural(String text, Integer quantity) {
+		if (quantity == 1){
+			return text;
+		} 
+		if (text.endsWith("i")){
+			return text+"es";
+		}
+		if (text.endsWith("y") && text.length() > 1){
+			return text.substring(0, text.length()-1)+"ies";
+		}
+		return text+"s";
+	}
 }
