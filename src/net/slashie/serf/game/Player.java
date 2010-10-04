@@ -48,8 +48,8 @@ public abstract class Player extends AwareActor {
 
 	public void addItem(AbstractItem toAdd, int quantity){
 		if (!canCarry(toAdd, quantity)){
-			if (level != null){
-				level.addMessage("You can't carry anything more");
+			if (getLevel() != null){
+				getLevel().addMessage("You can't carry anything more");
 			}
 			return;
 		}
@@ -152,22 +152,22 @@ public abstract class Player extends AwareActor {
 
 	public Position getFreeSquareAround(Position destinationPoint){
 		Position tryP = Position.add(destinationPoint, Action.directionToVariation(Action.UP));
-		if (level.getMapCell(tryP) != null && !level.getMapCell(tryP).isSolid()){
+		if (getLevel().getMapCell(tryP) != null && !getLevel().getMapCell(tryP).isSolid()){
 			return tryP;
 		} 
 		
 		tryP = Position.add(destinationPoint, Action.directionToVariation(Action.DOWN));
-		if (level.getMapCell(tryP) != null && !level.getMapCell(tryP).isSolid()){
+		if (getLevel().getMapCell(tryP) != null && !getLevel().getMapCell(tryP).isSolid()){
 			return tryP;
 		}
 		
 		tryP = Position.add(destinationPoint, Action.directionToVariation(Action.LEFT));
-		if (level.getMapCell(tryP) != null && !level.getMapCell(tryP).isSolid()){
+		if (getLevel().getMapCell(tryP) != null && !getLevel().getMapCell(tryP).isSolid()){
 			return tryP;
 		}
 					
 		tryP = Position.add(destinationPoint, Action.directionToVariation(Action.RIGHT));
-		if (level.getMapCell(tryP) != null && !level.getMapCell(tryP).isSolid()){
+		if (getLevel().getMapCell(tryP) != null && !getLevel().getMapCell(tryP).isSolid()){
 			return tryP;
 		}
 		return null;
@@ -176,7 +176,7 @@ public abstract class Player extends AwareActor {
 
 	public void landOn (Position destinationPoint) throws ActionCancelException {
 		
-		AbstractCell destinationCell = level.getMapCell(destinationPoint);
+		AbstractCell destinationCell = getLevel().getMapCell(destinationPoint);
         if (destinationCell == null){
        		onNullDestination();
 			return;
@@ -195,7 +195,7 @@ public abstract class Player extends AwareActor {
 			}
 		}
 
-		List<AbstractItem> destinationItems = level.getItemsAt(destinationPoint);
+		List<AbstractItem> destinationItems = getLevel().getItemsAt(destinationPoint);
 		if (destinationItems != null){
 			if (destinationItems.size() == 1)
 				onItemStep(destinationItems.get(0));
@@ -203,12 +203,12 @@ public abstract class Player extends AwareActor {
 				onItemsStep(destinationItems);
 		}
 		
-		Actor aActor = level.getActorAt(destinationPoint);
+		Actor aActor = getLevel().getActorAt(destinationPoint);
 		if (aActor != null)
 			onActorStep(aActor);
 		
 		if (HANDLE_FEATURES ){
-			List<AbstractFeature> destinationFeatures = level.getFeaturesAt(destinationPoint);
+			List<AbstractFeature> destinationFeatures = getLevel().getFeaturesAt(destinationPoint);
 			if (destinationFeatures != null)
 				for (AbstractFeature destinationFeature: destinationFeatures){
 					onFeatureStep(destinationFeature);
@@ -217,8 +217,8 @@ public abstract class Player extends AwareActor {
 				}
 		}
 			
-		if (level.isExit(getPosition())){
-			String exit = level.getExitOn(getPosition());
+		if (getLevel().isExit(getPosition())){
+			String exit = getLevel().getExitOn(getPosition());
 			if (exit.equals("_START") || exit.startsWith("#")){
 				
 			} else {
@@ -232,7 +232,7 @@ public abstract class Player extends AwareActor {
 		onFeatureStep(destinationFeature);
 		destinationFeature.onStep(this);
 		// Check if there are new features in this same spot (i.e., the world changed) and step again
-		List<AbstractFeature> newDestinationFeatures = level.getFeaturesAt(destinationFeature.getPosition());
+		List<AbstractFeature> newDestinationFeatures = getLevel().getFeaturesAt(destinationFeature.getPosition());
 		if (newDestinationFeatures != null && !Util.sameLists(newDestinationFeatures, featureGroup)){
 			for (AbstractFeature newDestinationFeature: newDestinationFeatures){
 				landOnFeature(newDestinationFeature, newDestinationFeatures);
@@ -284,11 +284,11 @@ public abstract class Player extends AwareActor {
 	}
 	
 	public void darken(){
-		level.darken();
+		getLevel().darken();
 	}
 	
 	 public boolean sees(Position p){
-		 return level.isVisible(p.x, p.y, p.z);
+		 return getLevel().isVisible(p.x, p.y, p.z);
 	 }
 	 
 	 public boolean sees(Actor m){

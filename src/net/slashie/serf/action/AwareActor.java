@@ -12,7 +12,7 @@ public abstract class AwareActor extends Actor{
 		if (target == null || target.isInvisible() || target.getPosition().z != getPosition().z)
 			return -1;
 		if (Position.flatDistance(target.getPosition(), getPosition()) <= getSightRange()){
-			Position pp = level.getPlayer().getPosition();
+			Position pp = getLevel().getPlayer().getPosition();
 			if (pp.x == getPosition().x){
 				if (pp.y > getPosition().y){
 					return Action.DOWN;
