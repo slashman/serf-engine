@@ -851,6 +851,12 @@ public abstract class ConsoleUserInterface extends UserInterface implements Comm
 	}
 	
 	public void showTextBox(String text, int x, int y, int w, int h, CSIColor borderColor){
+		printTextBox(text, x, y, w, h, borderColor);
+		si.waitKeys(CharKey.SPACE, CharKey.ESC);
+		si.restore();
+	}
+	
+	public void printTextBox(String text, int x, int y, int w, int h, CSIColor borderColor){
 		si.saveBuffer();
 		TextBox chatBox = new TextBox(si);
 		chatBox.setHeight(h);
@@ -862,7 +868,6 @@ public abstract class ConsoleUserInterface extends UserInterface implements Comm
 		chatBox.setText(text);
 		chatBox.draw();
 		si.refresh();
-		si.waitKeys(CharKey.SPACE, CharKey.ESC);
 	}
 	
 	@Override
