@@ -83,4 +83,14 @@ public class Dispatcher implements java.io.Serializable{
 	public void removeAll(){
 		actors.removeAll();
 	}
+
+
+	/**
+	 * Calls an actor to be the next to be executed
+	 * @param actor
+	 */
+	public void callActor(Actor actor) {
+		actors.remove(actor);
+		actors.forceToFront(actor);
+	}
 }

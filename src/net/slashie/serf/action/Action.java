@@ -310,4 +310,17 @@ public abstract class Action implements java.io.Serializable{
 			performer.getLevel().addMessage(message);
 		}
 	}
+
+	/**
+	 * This is executed "after" the actor is bound to act again; that is, after the
+	 * cost of executing the action has elapsed, and only if he was not interrupted.
+	 * 
+	 * Useful for actions that take a lot of time, and may be interrupted in-between. 
+	 */
+	public void executeDisplaced(){
+	}
+
+	public void executionInterrupted() {
+		
+	}
 }
