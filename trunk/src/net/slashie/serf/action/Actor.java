@@ -13,7 +13,9 @@ import net.slashie.utils.Position;
 import net.slashie.utils.PriorityEnqueable;
 
 public abstract class Actor implements Cloneable, java.io.Serializable, PriorityEnqueable{
-	static final long serialVersionUID = 1L; 
+	static final long serialVersionUID = 1L;
+
+	private static final int INTERRUPT_REINSERTION = 5; 
 	
 	protected /*transient*/ int positionx, positiony, positionz;
 	private transient Appearance appearance;
@@ -26,12 +28,12 @@ public abstract class Actor implements Cloneable, java.io.Serializable, Priority
 	private boolean wasSeen;
 	
 	public int getCost(){
-		//Debug.say("Cost of "+getDescription()+" "+ nextTime);
 		return nextTime;
 	}
 	
+	private Action previousAction;
+	
 	public void reduceCost(int value){
-		//Debug.say("Reducing cost of "+getDescription()+"by"+value+" (from "+nextTime+")");
 		nextTime = nextTime - value;
 	}
 	
@@ -40,7 +42,7 @@ public abstract class Actor implements Cloneable, java.io.Serializable, Priority
 		nextTime = value;
 	}
 
-	protected AbstractLevel level;
+	private AbstractLevel level;
 
 	//CallBack
 	public void counterFinished(String counterId) {};
@@ -93,7 +95,23 @@ public abstract class Actor implements Cloneable, java.io.Serializable, Priority
 	public boolean act(){
 		if (getSelector() == null)
 			setSelector(new NullSelector());
-		Action x = getSelector().selectAction(this);
+		// Finish executing previous action
+		if (previousAction != null){
+			if (wasInterrupted()){
+				previousAction.executionInterrupted();
+			} else {
+				previousAction.executeDisplaced();
+			}
+		}
+		wasInterrupted = false;
+		Action x = null;
+		if (nextAction != null){
+			x = nextAction;
+			nextAction = null;
+		} else {
+			x = getSelector().selectAction(this);
+		}
+		previousAction = x;
 		return execute(x);
 	}
 
@@ -228,4 +246,29 @@ public abstract class Actor implements Cloneable, java.io.Serializable, Priority
 	}
 
 	public void onPlayerBump() {}
+	
+	private boolean wasInterrupted;
+
+	private Action nextAction;
+	
+	/**
+	 * Defines if this actor was interrupted while executing a long action
+	 * @return
+	 */
+	public boolean wasInterrupted(){
+		return wasInterrupted;
+	}
+	
+	public void setInterrupted(){
+		wasInterrupted = true;
+		nextTime = INTERRUPT_REINSERTION;
+	}
+	
+	/**
+	 * Forces this action to be selected next by the action selector 
+	 * @param a
+	 */
+	public void setNextAction(Action a){
+		nextAction = a;
+	}
 }
