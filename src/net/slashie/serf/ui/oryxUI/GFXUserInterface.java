@@ -286,12 +286,21 @@ public abstract class GFXUserInterface extends UserInterface implements Runnable
 	}
    
 	public void showTextBox(String text, int x, int y, int w, int h){
+		printTextBox(text, x, y, w, h);
+		si.waitKeys(CharKey.SPACE, CharKey.ESC);
+		clearTextBox();
+	}
+	
+	public void printTextBox(String text, int x, int y, int w, int h){
 		addornedTextArea.setBounds(x, y, w, h);
 		addornedTextArea.setText(text);
 		addornedTextArea.setVisible(true);
-		si.waitKeys(CharKey.SPACE, CharKey.ESC);
+	}
+	
+	public void clearTextBox(){
 		addornedTextArea.setVisible(false);
 	}
+	
 	protected AddornedBorderTextArea addornedTextArea;
 
 	public boolean showTextBoxPrompt(String text, int consoleX, int consoleY, int consoleW, int consoleH){

@@ -84,7 +84,7 @@ public class BorderedMenuBox extends AddornedBorderPanel {
 			
 			si.printAtPixel(xpos + 2*itemHeight, ypos+ (i+legendLines)*itemHeight+fontSize, description, foreColor);
 			if (detail != null && !detail.equals("")){
-				si.printAtPixel(xpos+2*itemHeight, (int) (ypos+ (i+legendLines)* itemHeight + Math.round(itemHeight/2d))+fontSize, detail, foreColor);
+				si.printAtPixel(xpos+2*itemHeight, ypos+ (i+legendLines)*itemHeight+ 2* fontSize + 2, detail, foreColor);
 			}
 		}
 		si.refresh();
