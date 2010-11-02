@@ -86,4 +86,14 @@ public class ImageUtils {
 	    AffineTransformOp op = new AffineTransformOp(tx, AffineTransformOp.TYPE_BILINEAR);
 	    return op.filter(bufferedImage, null);
 	}
+	
+	public static BufferedImage overlay(BufferedImage base, BufferedImage overlay, int offsetx, int offsety){
+		BufferedImage ret = new BufferedImage(base.getWidth(),base.getHeight(), BufferedImage.TYPE_INT_ARGB);
+        Graphics2D retGC = ret.createGraphics();
+        //retGC.drawImage(base,offsetx, offsety, null);
+        retGC.drawImage(base,0, 0, null);
+        retGC.drawImage(overlay,offsetx, offsety, null);
+        retGC.dispose();
+        return ret;
+	}
 }
