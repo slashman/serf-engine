@@ -1,6 +1,8 @@
 package net.slashie.serf.action;
 
+import java.util.ArrayList;
 import java.util.Hashtable;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -47,17 +49,22 @@ public abstract class Actor implements Cloneable, java.io.Serializable, Priority
 	//CallBack
 	public void counterFinished(String counterId) {};
 	
+	private List<String> removeable = new ArrayList<String>();
 	public void updateStatus(){
 		wasSeen = false;
 		Set<String> counters = hashCounters.keySet();
+		removeable.clear();
 		for (String key: counters){
 			Integer counter = (Integer)hashCounters.get(key);
 			if (counter.intValue() == 0){
 				counterFinished(key);
-				hashCounters.remove(key);
+				removeable.add(key);
 			} else {
 				hashCounters.put(key, new Integer(counter.intValue()-1));
 			}
+		}
+		for (String key: removeable){
+			hashCounters.remove(key);
 		}
 	}
 
@@ -186,6 +193,7 @@ public abstract class Actor implements Cloneable, java.io.Serializable, Priority
 
 
 	public void message(String mess){
+		getLevel().addMessage(mess, getPosition());
 	}
 	
 	protected Map<String, Integer> hashCounters = new Hashtable<String, Integer>();
