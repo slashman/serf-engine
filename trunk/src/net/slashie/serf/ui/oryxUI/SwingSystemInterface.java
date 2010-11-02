@@ -7,6 +7,7 @@ import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.DisplayMode;
 import java.awt.Font;
+import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.GraphicsDevice;
@@ -223,6 +224,11 @@ public class SwingSystemInterface implements Runnable{
 	
 	public void printAtPixel(int x, int y, String text, Color color){
 		sip.print(x, y, text, color);
+	}
+	
+	public void printCentered(int y, String text, Color color){
+		FontMetrics metrics = getGraphics2D().getFontMetrics(sip.getFont());
+		printAtPixel((int)(sip.getWidth()/2.0d)-(int)(metrics.stringWidth(text)), y, text, color);
 	}
 
 	public void print(int x, int y, String text, Color color){
