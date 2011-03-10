@@ -279,4 +279,10 @@ public abstract class Actor implements Cloneable, java.io.Serializable, Priority
 	public void setNextAction(Action a){
 		nextAction = a;
 	}
+
+	
+	public void beforeActing() {}
+
+	public void afterActing() {}
+	
 }

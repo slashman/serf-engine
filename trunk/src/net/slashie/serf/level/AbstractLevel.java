@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Map;
 
 import net.slashie.serf.action.Actor;
+import net.slashie.serf.action.AwareActor;
 import net.slashie.serf.action.Message;
 import net.slashie.serf.baseDomain.AbstractItem;
 import net.slashie.serf.fov.FOVMap;
@@ -81,11 +82,27 @@ public abstract class AbstractLevel implements FOVMap, Serializable{
 		UserInterface.getUI().addMessage(what);
 	}
 
+	private String lastMessage;
+	private int sameMessageCount = 1;
 	public void addMessage(String what){
+		if (what.equals(lastMessage)) {
+			sameMessageCount++;
+			what = "(x"+sameMessageCount+")";
+		} else {
+			sameMessageCount = 1;
+			lastMessage = what;
+		}
 		addMessage(new Message(what, player.getPosition()));
 	}
 
 	public void addMessage(String what, Position where){
+		if (what.equals(lastMessage)) {
+			sameMessageCount++;
+			what = "(x"+sameMessageCount+")";
+		} else {
+			sameMessageCount = 1;
+			lastMessage = what;
+		}
 		addMessage(new Message(what, where));
 	}
 
@@ -261,7 +278,7 @@ public abstract class AbstractLevel implements FOVMap, Serializable{
 		player.setLevel(this);
 	}
 
-	public AbstractCell[][] getVisibleCellsAround(int x, int y, int z, int xspan, int yspan){
+	public AbstractCell[][] getVisibleCellsAround(AwareActor watcher, int x, int y, int z, int xspan, int yspan){
 		int xstart = x - xspan;
 		int ystart = y - yspan;
 		int xend = x + xspan;
@@ -273,6 +290,7 @@ public abstract class AbstractLevel implements FOVMap, Serializable{
 			for (int iy =  ystart ; iy <= yend; iy++){
 				if (ix >= 0 && ix < getWidth() && iy >= 0 && iy < getHeight() && isVisible(ix, iy, z)){
 					ret[px][py] = getMapCell(ix, iy, z);
+					watcher.seeMapCell(ret[px][py]);
 					/* Look to the cells behind
 					 */
 					if (isValidCoordinate(ix,iy,z) && (ret[px][py] == null || ret[px][py].getID().equals("AIR"))){
@@ -282,6 +300,7 @@ public abstract class AbstractLevel implements FOVMap, Serializable{
 								pz++;
 							} else {
 								ret[px][py] = getMapCell(ix, iy, pz+1);
+								watcher.seeMapCell(ret[px][py]);
 								break;
 							}
 						}

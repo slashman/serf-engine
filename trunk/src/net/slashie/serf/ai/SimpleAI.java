@@ -18,9 +18,14 @@ public class SimpleAI extends BasicAI{
 	private int patrolRange = 0;
 	private int chargeCounter = 0;
 	private int lastDirection = -1;
+	/**
+	 * Determines the chance of aiming correctly at the newest target position,
+	 * if the chance fails, the attack is aimed to the latest known target position.
+	 */
+	private int accuracy = 30;
 	private boolean changeDirection;
 	private boolean bumpEnemy;
-	
+	private Position lastKnowTargetPosition;
 	private Actor mainTarget;
 	private Action mainWalk;
 	public SimpleAI(Actor mainTarget, Action mainWalk) {
@@ -37,6 +42,9 @@ public class SimpleAI extends BasicAI{
 		if (mainTarget != null){
 			directionToTarget = aware.stare(mainTarget);
 			targetDistance = Position.flatDistance(who.getPosition(), mainTarget.getPosition());
+			if (lastKnowTargetPosition == null){
+				lastKnowTargetPosition = mainTarget.getPosition();
+			}
 		}
 		if (patrolRange >0 && targetDistance > patrolRange){
 			if (lastDirection == -1 || changeDirection){
@@ -45,22 +53,24 @@ public class SimpleAI extends BasicAI{
 			}
 			Action ret = mainWalk;
 	     	ret.setDirection(lastDirection);
+	     	lastKnowTargetPosition = null;
 	     	return ret;
 		}
 		
 		if (directionToTarget == -1) {
 			if (isStationary || waitPlayerRange > 0) {
+				lastKnowTargetPosition = null;
 				return pass;
 			} else {
 				int direction = Util.rand(0,7);
 		    	Action ret =  mainWalk;
 	            ret.setDirection(direction);
+	            lastKnowTargetPosition = null;
 	            return ret;
-				
-		     	
 			}
 		} else {
 			if (waitPlayerRange > 0 && targetDistance > waitPlayerRange){
+				lastKnowTargetPosition = null;
 				return pass;
 			}
 			
@@ -70,6 +80,7 @@ public class SimpleAI extends BasicAI{
 				int direction = Action.toIntDirection(Position.mul(Action.directionToVariation(targetDistance), -1));
 				Action ret = mainWalk;
 	            ret.setDirection(direction);
+	            lastKnowTargetPosition = mainTarget.getPosition();
 	            return ret;
 				
 			} else {
@@ -108,10 +119,15 @@ public class SimpleAI extends BasicAI{
 										element.getEffectWav()
 										);
 							}
-							ret.setPosition(who.getLevel().getPlayer().getPosition());
+							
 							if (ret.needsDirection()){
 								ret.setDirection(directionToTarget);
+							} else if (ret.needsPosition()){
+								if (Util.chance(accuracy)) 
+									lastKnowTargetPosition = mainTarget.getPosition();
+								ret.setPosition(lastKnowTargetPosition);
 							}
+							lastKnowTargetPosition = mainTarget.getPosition();
 							return ret;
 						}
 					}
@@ -122,12 +138,14 @@ public class SimpleAI extends BasicAI{
 					if (a == mainTarget){
 						Action ret = mainWalk;
 						ret.setDirection(directionToTarget);
+						lastKnowTargetPosition = mainTarget.getPosition();
 						return ret;
 					}
 				}
 				
 				// Couldnt attack the player, so walk to him
 				if (isStationary){
+					lastKnowTargetPosition = mainTarget.getPosition();
 					return pass;
 				} else {
 					Action ret = mainWalk;
@@ -144,6 +162,7 @@ public class SimpleAI extends BasicAI{
 					} else {
 						ret.setDirection(Util.rand(0,7));
 					}
+					lastKnowTargetPosition = mainTarget.getPosition();
 		            return ret;
 				}
 			}
@@ -229,6 +248,10 @@ public class SimpleAI extends BasicAI{
 	
 	public void setBumpEnemy(boolean bumpEnemy) {
 		this.bumpEnemy = bumpEnemy;
+	}
+
+	public void setAccuracy(int accuracy) {
+		this.accuracy = accuracy;
 	}
 	 
 }

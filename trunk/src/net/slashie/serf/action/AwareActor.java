@@ -1,7 +1,7 @@
 package net.slashie.serf.action;
 
-import net.slashie.serf.level.AbstractFeature;
-import net.slashie.utils.Line;
+import net.slashie.serf.level.AbstractCell;
+import net.slashie.serf.ui.ActionCancelException;
 import net.slashie.utils.Position;
 
 public abstract class AwareActor extends Actor{
@@ -70,4 +70,13 @@ public abstract class AwareActor extends Actor{
 		return wasSeen() && Position.distance(mainTarget.getPosition(), getPosition()) <= getSightRange();
 	}
 
+	public void seeMapCell(AbstractCell abstractCell) {}
+
+	public AbstractCell [][] getVisibleCellsAround(int xrange, int yrange){
+		return getLevel().getVisibleCellsAround(this, getPosition().x, getPosition().y, getPosition().z, xrange, yrange);
+	}
+	
+	public void landOn (Position destinationPoint) throws ActionCancelException {
+		setPosition(destinationPoint);
+	}
 }
