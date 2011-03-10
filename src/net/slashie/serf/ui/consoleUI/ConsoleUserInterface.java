@@ -173,7 +173,7 @@ public abstract class ConsoleUserInterface extends UserInterface implements Comm
 	private void drawLevel(){
 		//Cell[] [] cells = level.getCellsAround(player.getPosition().x,player.getPosition().y, player.getPosition().z, range);
 		AbstractCell[] [] rcells = level.getMemoryCellsAround(player.getPosition().x,player.getPosition().y, player.getPosition().z, xrange,yrange);
-		AbstractCell[] [] vcells = level.getVisibleCellsAround(player.getPosition().x,player.getPosition().y, player.getPosition().z, xrange,yrange);
+		AbstractCell[] [] vcells = level.getVisibleCellsAround(player, player.getPosition().x,player.getPosition().y, player.getPosition().z, xrange,yrange);
 		
 		Position runner = new Position(player.getPosition().x - xrange, player.getPosition().y-yrange, player.getPosition().z);
 		
@@ -206,6 +206,7 @@ public abstract class ConsoleUserInterface extends UserInterface implements Comm
 				FOVMask[PC_POS.x-xrange+x][PC_POS.y-yrange+y] = false;
 				if (vcells[x][y] != null){
 					FOVMask[PC_POS.x-xrange+x][PC_POS.y-yrange+y] = true;
+					
 					CharAppearance cellApp = (CharAppearance)vcells[x][y].getAppearance();
 					int cellColor = cellApp.getColor();
 					char cellChar = cellApp.getChar();
@@ -228,6 +229,8 @@ public abstract class ConsoleUserInterface extends UserInterface implements Comm
 							}
 						}
 					}
+					
+					drawAfterCells(runner,PC_POS.x-xrange+x,PC_POS.y-yrange+y);
 					
 					List<AbstractItem> items = level.getItemsAt(runner);
 					AbstractItem item = null;
@@ -286,6 +289,14 @@ public abstract class ConsoleUserInterface extends UserInterface implements Comm
 		idList.addElements(featuresOnSight);
 	}
 	
+	public void drawAfterCells(Position runner, int x, int y) {
+		
+	}
+
+	public void resetMessages(){
+ 		messageBox.clear();
+	}
+
 	private Vector messageHistory = new Vector(20,10);
 	@Override
 	public void addMessage(Message message){
@@ -367,8 +378,11 @@ public abstract class ConsoleUserInterface extends UserInterface implements Comm
     	return insideViewPort(getAbsolutePosition(who.getPosition()));
     }
 
+	protected int POSITION_PICKER_TEXT_COLOR = ConsoleSystemInterface.BLUE; 
+	protected int POSITION_PICKER_COLOR = ConsoleSystemInterface.DARK_BLUE;
+	protected int POSITION_PICKER_TIP_COLOR = ConsoleSystemInterface.BLUE;
     private Position pickPosition(String prompt, int fireKeyCode) throws ActionCancelException{
-    	messageBox.setForeColor(ConsoleSystemInterface.BLUE);
+    	messageBox.setForeColor(POSITION_PICKER_TEXT_COLOR);
     	messageBox.setText(prompt);
 		messageBox.draw();
 		si.refresh();
@@ -429,8 +443,8 @@ public abstract class ConsoleUserInterface extends UserInterface implements Comm
 			messageBox.setText(prompt+" "+looked);
 			messageBox.draw();
 			//si.print(PC_POS.x + offset.x, PC_POS.y + offset.y, '_', ConsoleSystemInterface.BLUE);
-			drawLineTo(PC_POS.x + offset.x, PC_POS.y + offset.y, '*', ConsoleSystemInterface.DARK_BLUE);
-			si.print(PC_POS.x + offset.x, PC_POS.y + offset.y, 'X', ConsoleSystemInterface.BLUE);
+			drawLineTo(PC_POS.x + offset.x, PC_POS.y + offset.y, '*', POSITION_PICKER_COLOR);
+			si.print(PC_POS.x + offset.x, PC_POS.y + offset.y, 'X', POSITION_PICKER_TIP_COLOR);
 			si.refresh();
 			CharKey x = new CharKey(CharKey.NONE);
 			while (x.code != CharKey.SPACE && x.code != CharKey.ESC && x.code != fireKeyCode &&
@@ -648,6 +662,7 @@ public abstract class ConsoleUserInterface extends UserInterface implements Comm
 
 	public void refresh(){
 		//cleanViewPort();
+		beforeDrawStatus();
 		drawStatus();
 	 	drawLevel();
 	 	sightListItems.clear();
@@ -662,6 +677,10 @@ public abstract class ConsoleUserInterface extends UserInterface implements Comm
 	  	
     }
 	
+	protected void beforeDrawStatus() {
+		
+	}
+
 	public boolean drawIdList() {
 		return true;
 	}
@@ -720,6 +739,7 @@ public abstract class ConsoleUserInterface extends UserInterface implements Comm
 	}
 	
 	public void showSystemMessage(String x){
+		si.waitKeys(CharKey.SPACE, CharKey.ESC);
 		messageBox.setForeColor(ConsoleSystemInterface.WHITE);
 		messageBox.setText(x);
 		messageBox.draw();

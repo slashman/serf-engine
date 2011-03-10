@@ -11,6 +11,7 @@ public class GameSessionInfo implements Serializable{
 	private int turns;
 	private String deathLevelDescription;
 	private int deathCause;
+	private Actor killerActor;
 	
 	private List<String>history = new ArrayList<String>();
 	
@@ -101,6 +102,14 @@ public class GameSessionInfo implements Serializable{
 
 	public void setDeathCause(int deathCause) {
 		this.deathCause = deathCause;
+	}
+
+	public Actor getKillerActor() {
+		return killerActor;
+	}
+
+	public void setKillerActor(Actor killerActor) {
+		this.killerActor = killerActor;
 	}
 
 }

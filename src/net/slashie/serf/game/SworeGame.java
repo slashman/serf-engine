@@ -96,7 +96,9 @@ public abstract class SworeGame implements CommandListener, PlayerEventListener,
             	break;
             if (actor == player)
             	beforePlayerAction();
-			boolean acted = actor.act();
+            actor.beforeActing();
+            boolean acted = actor.act();
+			actor.afterActing();
 			if (acted && actor == player)
 				afterPlayerAction();
 			if (endGame)
@@ -262,7 +264,7 @@ public abstract class SworeGame implements CommandListener, PlayerEventListener,
 	}
 	
 	public static String getVersion(){
-		return "0.11, rev83";
+		return "0.12";
 	}
 	
 	public void setInterfaces(UserInterface pui, UISelector ps){

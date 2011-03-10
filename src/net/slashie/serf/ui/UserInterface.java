@@ -217,4 +217,8 @@ public abstract class UserInterface implements CommandListener {
 	}
 	
 	public abstract void reset();
+	public void resetMessages() {
+		// TODO Auto-generated method stub
+		
+	}
 }
