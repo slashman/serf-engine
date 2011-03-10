@@ -2,7 +2,16 @@
 <classpath>
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/libjcsi"/>
 	<classpathentry kind="lib" path="lib/jl1.0.jar"/>
+	<classpathentry kind="lib" path="lib/basicPlayer/commons-logging-api.jar"/>
+	<classpathentry kind="lib" path="lib/basicPlayer/jl1.0.jar"/>
+	<classpathentry kind="lib" path="lib/basicPlayer/jogg-0.0.7.jar"/>
+	<classpathentry kind="lib" path="lib/basicPlayer/jorbis-0.0.15.jar"/>
+	<classpathentry kind="lib" path="lib/basicPlayer/jspeex0.9.7.jar"/>
+	<classpathentry kind="lib" path="lib/basicPlayer/mp3spi1.9.4.jar"/>
+	<classpathentry kind="lib" path="lib/basicPlayer/tritonus_share.jar"/>
+	<classpathentry kind="lib" path="lib/basicPlayer/vorbisspi1.0.2.jar"/>
+	<classpathentry kind="lib" path="lib/basicPlayer/basicplayer3.0.jar"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/libjcsi"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
