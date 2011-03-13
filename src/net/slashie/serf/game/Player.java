@@ -215,6 +215,7 @@ public abstract class Player extends AwareActor {
 					destinationFeature.onStep(this);
 					//landOnFeature(destinationFeature, destinationFeatures);
 				}
+			getLevel().scheduledTasks();
 		}
 			
 		if (getLevel().isExit(getPosition())){
