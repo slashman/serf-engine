@@ -82,7 +82,14 @@ public class ConsoleUISelector extends UISelector {
 					}
 				}
 			} else if (input.code == WEAPONCODE){
-				//Not clear what to do here...
+    			try {
+    				target.setPerformer(player);
+					ui().setTargets(target);
+				} catch (ActionCancelException e) {
+					ui().addMessage(new Message("Cancelled", player.getPosition()));
+					return null;
+				}
+				return target;
 			}else{
             	ret = getRelatedAction(input.code);
             	try {
