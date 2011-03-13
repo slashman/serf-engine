@@ -574,10 +574,6 @@ public abstract class AbstractLevel implements FOVMap, Serializable{
 		exits.remove(exitID);
 	}
 	
-
-
-
-	
 	public boolean isSolid(Position where){
 		return getMapCell(where) == null ||
 			getMapCell (where).isSolid() ||
@@ -601,6 +597,17 @@ public abstract class AbstractLevel implements FOVMap, Serializable{
 	public void lightLights(){
 		for (AbstractFeature feature: lightSources){
 			lightAt(feature.getPosition(), feature.getLight(), true);
+		}
+	}
+	
+	private List<AbstractFeature> featureDestructionSchedule = new ArrayList<AbstractFeature>();
+	public void scheduleFeatureDestruction(AbstractFeature feature){
+		featureDestructionSchedule.add(feature);
+	}
+	
+	public void scheduledTasks() {
+		for (AbstractFeature feature: featureDestructionSchedule){
+			destroyFeature(feature);
 		}
 	}
 }

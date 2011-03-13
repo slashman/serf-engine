@@ -21,6 +21,11 @@ public class BufferedLevel extends AbstractLevel{
 		remembered= new boolean[what.length][what[0].length][what[0][0].length];
 	}
 	
+	public void initializeCells(int depth, int width, int height){
+		map = new AbstractCell[depth][width][height];
+		setCells(map);
+	}
+	
 	@Override
 	public int getWidth(){
 		return map[0].length;
