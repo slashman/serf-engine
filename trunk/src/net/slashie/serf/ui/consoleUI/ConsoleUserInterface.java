@@ -311,7 +311,7 @@ public abstract class ConsoleUserInterface extends UserInterface implements Comm
 		messageHistory.add(message.getText());
 		if (messageHistory.size()>100)
 			messageHistory.removeElementAt(0);
-		messageBox.addText(message.getText());
+		messageBox.addText(message.getText()+" / ");
 		
 		messageBox.draw();
 	}
