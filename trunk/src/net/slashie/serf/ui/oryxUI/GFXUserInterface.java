@@ -336,6 +336,14 @@ public abstract class GFXUserInterface extends UserInterface implements Runnable
 	public boolean isOnFOVMask(int x, int y){
 		return FOVMask[x][y];
 	}
+	
+	public int getXScale(){
+		return 1;
+	}
+	
+	public int getYScale(){
+		return 1;
+	}
 
 	private void drawLevel(){
 		Debug.enterMethod(this, "drawLevel");
@@ -343,12 +351,15 @@ public abstract class GFXUserInterface extends UserInterface implements Runnable
 		AbstractCell[] [] rcells = level.getMemoryCellsAround(player.getPosition().x,player.getPosition().y, player.getPosition().z, xrange,yrange);
 		//AbstractCell[] [] vcells = level.getVisibleCellsAround(player.getPosition().x,player.getPosition().y, player.getPosition().z, xrange,yrange);
 		AbstractCell[] [] vcells = player.getVisibleCellsAround(xrange,yrange);
-		
-		Position runner = new Position(player.getPosition().x - xrange, player.getPosition().y-yrange, player.getPosition().z);
+
+		int xScale = getXScale();
+		int yScale = getYScale();
+		Position runner = new Position(player.getPosition().x - xrange * xScale, player.getPosition().y-yrange*yScale, player.getPosition().z);
 		
 		monstersOnSight.removeAllElements();
 		featuresOnSight.removeAllElements();
 		itemsOnSight.removeAllElements();
+		
 		
 		/*for (int x = 0; x < vcells.length; x++){
 			for (int y=0; y<vcells[0].length; y++){*/
@@ -378,9 +389,8 @@ public abstract class GFXUserInterface extends UserInterface implements Runnable
 					GFXAppearance cellApp = (GFXAppearance)vcells[x][y].getAppearance();
 					si.drawImage((PC_POS.x-xrange+x)*tileSize,(PC_POS.y-yrange+y)*tileSize-cellApp.getSuperHeight(), cellApp.getImage());
 				}
-				runner.x++;
 			}
-			runner.x = player.getPosition().x-xrange;
+			runner.x = player.getPosition().x-xrange*xScale;
 			for (int x=0; x<vcells.length; x++){
 				int cellHeight = 0;
 				if (vcells[x][y] != null){
@@ -434,12 +444,12 @@ public abstract class GFXUserInterface extends UserInterface implements Runnable
 					}
 				}
 				//runner.y++;
-				runner.x++;
+				runner.x+=xScale;
 			} 
 			/*runner.y = player.getPosition().y-yrange;
 			runner.x ++;*/
-			runner.x = player.getPosition().x-xrange;
-			runner.y ++;
+			runner.x = player.getPosition().x-xrange*xScale;
+			runner.y += yScale;
 		}
 		
 		Debug.exitMethod();

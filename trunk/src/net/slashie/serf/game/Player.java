@@ -278,7 +278,7 @@ public abstract class Player extends AwareActor {
 		this.fov = fov;
 	}
 	
-	private transient FOV fov;
+	protected transient FOV fov;
 	
 	public void see(){
 		fov.startCircle(getLevel(), getPosition().x, getPosition().y, getDarkSightRange());

@@ -394,6 +394,10 @@ public class SwingSystemInterface implements Runnable{
 	public void recoverFocus(){
 		frameMain.requestFocus();
 	}
+
+	public void removeMouseMotionListener(MouseMotionListener listener) {
+		frameMain.removeMouseMotionListener(listener);
+	}
 }
 
 class SwingInterfacePanel extends JPanel{
