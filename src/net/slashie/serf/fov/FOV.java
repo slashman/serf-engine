@@ -26,6 +26,15 @@ import net.slashie.utils.Position;
  */
 
 public class FOV {
+	private int scale;
+	
+	public int getScale() {
+		return scale;
+	}
+
+	public void setScale(int scale) {
+		this.scale = scale;
+	}
 
 	double slope(double x1, double y1, double x2, double y2){
 		double xDiff=x1-x2;
@@ -1079,19 +1088,31 @@ public class FOV {
 	
 	boolean scanCell(FOVMap map, int x, int y)
 	{
+		int gridX = x;
+		int gridY = y;
+		if (scale != 1){
+			gridX = startX + (startX - x) * scale;
+			gridY = startY + (startY - y) * scale;
+		}
 		if (!circle)
-			return map.blockLOS(x,y);
+			return map.blockLOS(gridX,gridY);
 		else {
-			if (Position.flatDistance(x,y, startX, startY) >= maxRadiusX)
+			if (Position.flatDistance(gridX,gridY, startX, startY) >= maxRadiusX)
 				return true;
 			else
-				return map.blockLOS(x,y);
-				
+				return map.blockLOS(gridX,gridY);
 		}
+		
 	}
 	void applyCell(FOVMap map, int x, int y)
 	{
-		map.setSeen(x,y);
+		int gridX = x;
+		int gridY = y;
+		if (scale != 1){
+			gridX = startX + (startX - x) * scale;
+			gridY = startY + (startY - y) * scale;
+		}
+		map.setSeen(gridX,gridY);
 	}
 
 }
