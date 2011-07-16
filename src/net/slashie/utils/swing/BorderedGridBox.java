@@ -39,7 +39,7 @@ public class BorderedGridBox extends AddornedBorderPanel {
 	private List<GFXMenuItem> shownItems;
 	private MouseMotionListener mml;
 	
-	private SwingSystemInterface si;
+	protected SwingSystemInterface si;
 	
 	
 	/*UPLEFT, UPRIGHT, DOWNLEFT, DOWNRIGHT*/
@@ -67,7 +67,7 @@ public class BorderedGridBox extends AddornedBorderPanel {
 			@Override
 			public void mouseMoved(MouseEvent e) {
 				super.mouseMoved(e);
-				draw();
+				draw(true);
 				int pixelX = e.getPoint().x;
 				int pixelY = e.getPoint().y;
 				
@@ -109,7 +109,7 @@ public class BorderedGridBox extends AddornedBorderPanel {
 	}
 	
 	@SuppressWarnings("unchecked")
-	public void draw(){
+	public void draw(boolean refresh){
 		// Draw the frame
 		int xpos = (int)getLocation().getX();
 		int ypos = (int)getLocation().getY();
@@ -163,7 +163,8 @@ public class BorderedGridBox extends AddornedBorderPanel {
 				defaultMenuItemPrint(item, 32, xpos, ypos, i);
 			}
 		}
-		si.refresh();
+		if (refresh)
+			si.refresh();
 	}
 
 	private void defaultMenuItemPrint(GFXMenuItem item, int boxWidth, int xpos, int ypos, int i) {
@@ -187,7 +188,7 @@ public class BorderedGridBox extends AddornedBorderPanel {
 		int itemsPerPage = gridX * gridY;
 		int pageElements = itemsPerPage;
 		while (true){
-			draw();
+			draw(true);
 			@SuppressWarnings("unchecked")
 			List<GFXMenuItem> shownItems = Util.page(items, pageElements, currentPage);
 			CharKey key = new CharKey(CharKey.NONE);
@@ -244,7 +245,7 @@ public class BorderedGridBox extends AddornedBorderPanel {
 		int itemsPerPage = gridX * gridY;
 		int pageElements = itemsPerPage;
 		while (true){
-			draw();
+			draw(true);
 			@SuppressWarnings("unchecked")
 			List<GFXMenuItem> shownItems = Util.page(items, pageElements, currentPage);
 			CharKey key = new CharKey(CharKey.NONE);
