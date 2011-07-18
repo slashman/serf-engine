@@ -1,9 +1,14 @@
 package net.slashie.serf.ui.oryxUI;
 
 import java.awt.Cursor;
+import java.awt.Image;
+import java.awt.Point;
+import java.awt.Rectangle;
+import java.awt.Toolkit;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
+import java.io.IOException;
 import java.io.Serializable;
 import java.util.Properties;
 
@@ -12,20 +17,71 @@ import net.slashie.serf.action.Action;
 import net.slashie.serf.action.ActionSelector;
 import net.slashie.serf.action.Actor;
 import net.slashie.serf.action.Message;
+import net.slashie.serf.game.SworeGame;
 import net.slashie.serf.ui.ActionCancelException;
 import net.slashie.serf.ui.UISelector;
 import net.slashie.serf.ui.UserAction;
 import net.slashie.utils.Debug;
+import net.slashie.utils.ImageUtils;
 import net.slashie.utils.Position;
-
+import net.slashie.utils.PropertyFilters;
 
 public class GFXUISelector extends UISelector implements ActionSelector, MouseListener, MouseMotionListener, Serializable{
+	private static final long serialVersionUID = 1L;
 	private transient SwingSystemInterface si;
 	private boolean useMouse = false;
 	
-	//private static final int WEAPONCODE = CharKey.SPACE;
 	private static final int DONOTHING1_KEY = CharKey.DOT;
 	private static final int DONOTHING2_KEY = CharKey.DOT;
+	
+	private final int[] QDIRECTIONS = new int[]{
+			Action.UPLEFT,
+			Action.UP,
+			Action.UPRIGHT,
+			Action.LEFT,
+			Action.SELF,
+			Action.RIGHT,
+			Action.DOWNLEFT,
+			Action.DOWN,
+			Action.DOWNRIGHT
+		};
+	private Cursor[] QCURSORS; 
+	
+	private void initializeCursors (String cursorsFile){
+		QCURSORS = new Cursor[]{
+			createCursor(cursorsFile, 1, 2),
+			createCursor(cursorsFile, 1, 3),
+			createCursor(cursorsFile, 2, 2),
+			createCursor(cursorsFile, 4, 3),
+			createCursor(cursorsFile, 3, 1),
+			createCursor(cursorsFile, 2, 3),
+			createCursor(cursorsFile, 4, 2),
+			createCursor(cursorsFile, 3, 3),
+			createCursor(cursorsFile, 3, 2)
+		};
+	}
+	
+	private static Cursor createCursor (String cursorsFile, int x, int y){
+		Toolkit tk = Toolkit.getDefaultToolkit();
+		try {
+			Image cursorImage = ImageUtils.crearImagen(cursorsFile , x*24, y*24, 24, 24);
+			Cursor c = tk.createCustomCursor(cursorImage, new Point(12,12), "gfxui-"+x+"-"+y);
+			return c;
+		} catch (IOException e) {
+			SworeGame.crash("Error loading cursors", e);
+			return null;
+		}
+		
+	}
+	
+	private int mouseDirection = -1;
+	private Position mousePosition;
+	
+	private boolean mouseMovementActive = false;
+	
+	public void setMouseMovementActive(boolean mouseMovementActive) {
+		this.mouseMovementActive = mouseMovementActive;
+	}
 
 	public void init(SwingSystemInterface psi, UserAction[] gameActions, Properties UIProperties,
 			Action advance, Action target, Action attack, GFXUserInterface ui, Properties keyBindings){
@@ -36,29 +92,37 @@ public class GFXUISelector extends UISelector implements ActionSelector, MouseLi
 			psi.addMouseMotionListener(this);
 			useMouse = true;
 		}
+		initializeCursors(UIProperties.getProperty("IMG_CURSORS"));
+		Rectangle r = PropertyFilters.getRectangle(UIProperties.getProperty("mouseQuadrant"));
+		x1 = r.x;
+		x2 = r.x + r.width;
+		y1 = r.y;
+		y2 = r.y + r.height;
 		
 	}
 	
-	
-	
+	int x1 = (int)Math.round((800.0/9.0)*4.0);
+	int x2 = (int)Math.round((800.0/9.0)*5.0);
+	int y1 = (int)Math.round((600.0/9.0)*4.0);
+	int y2 = (int)Math.round((600.0/9.0)*5.0);
 	
 	public GFXUserInterface ui(){
 		return (GFXUserInterface) getUI();
 	}
+	
 	/** 
 	 * Returns the Action that the player wants to perform.
      * It may also forward a command instead
-     * 
      */
-	
 	public Action selectAction(Actor who){
     	Debug.enterMethod(this, "selectAction", who);
 	    CharKey input = null;
 	    Action ret = null;
 	    while (ret == null){
+	    	mouseMovementActive = true;
 	    	if (ui().gameOver())
 	    		return null;
-			input = si.inkey();
+			input = si.inkey(200);
 			if (input.code == CharKey.NONE && !useMouse)
 				continue;
 			ret = ((GFXUserInterface)getUI()).selectCommand(input);
@@ -78,7 +142,7 @@ public class GFXUISelector extends UISelector implements ActionSelector, MouseLi
 			}
 			
 			if (useMouse && mousePosition != null){
-				mouseDirection = -1;
+				// mouseDirection = -1;
 				if (level.isValidCoordinate(mousePosition)){
 						ret = target;
 		            	try {
@@ -107,7 +171,7 @@ public class GFXUISelector extends UISelector implements ActionSelector, MouseLi
 				int direction = -1;
 				if (useMouse && mouseDirection != -1){
 					direction = mouseDirection;
-					mouseDirection = -1;
+					//mouseDirection = -1;
 				} else {
 					direction = toIntDirection(input);
 				}
@@ -194,20 +258,7 @@ public class GFXUISelector extends UISelector implements ActionSelector, MouseLi
 		
 	}
 
-	int[] QDIRECTIONS = new int[]{
-		Action.UPLEFT,
-		Action.UP,
-		Action.UPRIGHT,
-		Action.LEFT,
-		Action.SELF,
-		Action.RIGHT,
-		Action.DOWNLEFT,
-		Action.DOWN,
-		Action.DOWNRIGHT
-	};
-
-	private int mouseDirection = -1;
-	private Position mousePosition;
+	
 	public void mousePressed(MouseEvent e) {
 		if (e.getButton() == MouseEvent.BUTTON1){
 			int quadrant = defineQuadrant(e.getPoint().x, e.getPoint().y);
@@ -218,22 +269,24 @@ public class GFXUISelector extends UISelector implements ActionSelector, MouseLi
 	}
 
 	public void mouseReleased(MouseEvent e) {
-		// TODO Auto-generated method stub
+		mouseDirection = -1;
 	}
 
 	public void mouseDragged(MouseEvent e) {
-		// TODO Auto-generated method stub
-		
+		int newQuadrant = defineQuadrant(e.getPoint().x, e.getPoint().y);
+		if (mouseDirection != -1 && mouseDirection != QDIRECTIONS[newQuadrant-1]){
+			mouseDirection = QDIRECTIONS[newQuadrant-1];
+		}
+		mouseMoved(e);
 	}
 
-	int x1 = (int)Math.round((800.0/9.0)*4.0);
-	int x2 = (int)Math.round((800.0/9.0)*5.0);
-	int y1 = (int)Math.round((600.0/9.0)*4.0);
-	int y2 = (int)Math.round((600.0/9.0)*5.0);
-
-	
 	public void mouseMoved(MouseEvent e) {
-		switch (defineQuadrant(e.getPoint().x, e.getPoint().y)){
+		if (!mouseMovementActive)
+			return;
+		int newQuadrant = defineQuadrant(e.getPoint().x, e.getPoint().y);
+		si.setCursor(QCURSORS[newQuadrant-1]);
+		/*
+		switch (newQuadrant){
 		case 9:
 			si.setCursor(Cursor.getPredefinedCursor(Cursor.SE_RESIZE_CURSOR));
 			break;
