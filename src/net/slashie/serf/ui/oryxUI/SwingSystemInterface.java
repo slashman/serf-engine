@@ -106,7 +106,10 @@ public class SwingSystemInterface implements Runnable{
 		//sip.add(invTextArea);
 		
 		frameMain.addMouseMotionListener(new MouseMotionListener(){
+			
 			public void mouseDragged(MouseEvent e) {
+				if (e.getY() > 24)
+					return;
 		        frameMain.setLocation(e.getX()-posClic.x+frameMain.getLocation().x, e.getY()-posClic.y+frameMain.getLocation().y);
 			}
 
@@ -290,6 +293,16 @@ public class SwingSystemInterface implements Runnable{
 	    aStrokeInformer.informKey(Thread.currentThread());
 	    try {
 			this.wait();
+		} catch (InterruptedException ie) {}
+		CharKey ret = new CharKey(aStrokeInformer.getInkeyBuffer());
+		return ret;
+	}
+	private static final CharKey NULL_CHARKEY = new CharKey(CharKey.NONE);
+	public synchronized CharKey inkey(long wait){
+	    aStrokeInformer.informKey(Thread.currentThread());
+	    try {
+			this.wait(wait);
+			return NULL_CHARKEY;
 		} catch (InterruptedException ie) {}
 		CharKey ret = new CharKey(aStrokeInformer.getInkeyBuffer());
 		return ret;
@@ -674,6 +687,7 @@ class StrokeInformer implements KeyListener{
     }
 
     public void keyReleased(KeyEvent e) {}
+    
     public void keyTyped(KeyEvent e) {}
 }
 
