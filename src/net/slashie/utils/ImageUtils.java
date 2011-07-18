@@ -42,12 +42,12 @@ public class ImageUtils {
 	
 	private static Image tempImage; 
 	
-	public static BufferedImage crearImagen(String filename, int x, int y, int width, int height) throws Exception{
+	public static BufferedImage crearImagen(String filename, int x, int y, int width, int height) throws IOException{
 		BufferedImage tempImage = createImage(filename);
 		return crearImagen(tempImage, x, y, width, height);
     }
 	
-	public static BufferedImage crearImagen(BufferedImage tempImage, int x, int y, int width, int height) throws Exception{
+	public static BufferedImage crearImagen(BufferedImage tempImage, int x, int y, int width, int height) {
 		GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
 	    GraphicsConfiguration gc = ge.getDefaultScreenDevice( ).getDefaultConfiguration( );
 
