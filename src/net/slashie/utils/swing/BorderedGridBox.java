@@ -3,11 +3,16 @@ package net.slashie.utils.swing;
 import java.awt.Color;
 import java.awt.Cursor;
 import java.awt.Graphics;
+import java.awt.Point;
+import java.awt.event.ActionEvent;
+import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionAdapter;
 import java.awt.event.MouseMotionListener;
 import java.awt.image.BufferedImage;
 import java.util.*;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
 
 import net.slashie.libjcsi.CharKey;
 import net.slashie.serf.ui.oryxUI.AddornedBorderPanel;
@@ -23,14 +28,14 @@ public class BorderedGridBox extends AddornedBorderPanel {
 	
 	//Configurable properties
 	private String title = "";
-	private String legend;
+	protected String legend;
 	private BufferedImage box;
 	private Color foreColor = Color.WHITE;
 	private Color titleColor = Color.WHITE;
 	private int itemHeight;
 	private int itemWidth;
-	private int gridX;
-	private int gridY;
+	protected int gridX;
+	protected int gridY;
 	
 	// Status Attributes
 	private List<? extends GFXMenuItem> items;
@@ -38,13 +43,25 @@ public class BorderedGridBox extends AddornedBorderPanel {
 	private int pages;
 	private List<GFXMenuItem> shownItems;
 	private MouseMotionListener mml;
+	protected boolean hoverDisabled;
 	
 	protected SwingSystemInterface si;
+
+	protected Integer preselectedCode;
+
+	protected CleanButton closeButton;
 	
+	
+	
+	public class SelectedItem{
+		public int selectedIndex;
+		int cursorX;
+		int cursorY;
+	}
 	
 	/*UPLEFT, UPRIGHT, DOWNLEFT, DOWNRIGHT*/
 	public BorderedGridBox(BufferedImage border1, BufferedImage border2,BufferedImage border3,BufferedImage border4, SwingSystemInterface g, Color backgroundColor, Color borderIn, Color borderOut, int borderWidth, int outsideBound, int inBound, int insideBound, 
-			final int itemHeight, final int itemWidth, final int gridX, final int gridY, BufferedImage box){
+			final int itemHeight, final int itemWidth, final int gridX, final int gridY, BufferedImage box, CleanButton closeButton){
 		super (border1, border2, border3, border4, borderOut, borderIn, backgroundColor, borderWidth, outsideBound, inBound, insideBound );
 		this.si = g;
 		this.box = box;
@@ -54,7 +71,9 @@ public class BorderedGridBox extends AddornedBorderPanel {
 		this.gridY = gridY;
 		if (legend == null)
 			legend = title;
-		
+		this.closeButton = closeButton;
+		if (closeButton != null)
+			si.add(closeButton);
 		// Calculate legend height
 		String[] legends = legend.split("XXX");
 		int fontSize = getFont().getSize();
@@ -67,28 +86,22 @@ public class BorderedGridBox extends AddornedBorderPanel {
 			@Override
 			public void mouseMoved(MouseEvent e) {
 				super.mouseMoved(e);
+				if (hoverDisabled)
+					return;
 				draw(true);
-				int pixelX = e.getPoint().x;
-				int pixelY = e.getPoint().y;
 				
-				pixelX -= getLocation().x + getBorderWidth();
-				pixelY -= getLocation().y + getBorderWidth() + (legendLines + 2) * lineHeight;
-				
-				pixelY += legendLines * lineHeight;
-				int cursorX = (int) Math.floor((double) pixelX / (double) itemWidth);
-				int cursorY = (int) Math.floor((double) pixelY / (double) itemHeight);
-				int selectedIndex =  cursorX * gridY + cursorY;
-				if (cursorX >= 0 && cursorX < gridX && cursorY >= 0 && cursorY < gridY && selectedIndex >= 0 && selectedIndex < shownItems.size()){
-					GFXMenuItem item = (GFXMenuItem) shownItems.get(selectedIndex);
-					int xpos = cursorX * itemWidth + getLocation().x + getBorderWidth();
-					int ypos = cursorY * itemHeight + getLocation().y + getBorderWidth() + (legendLines + 1) * lineHeight;
+				SelectedItem selectedItem = getSelectedItemByClick(e.getPoint(), legendLines, lineHeight);
+				if (selectedItem != null){
+					GFXMenuItem item = (GFXMenuItem) shownItems.get(selectedItem.selectedIndex);
+					int xpos = selectedItem.cursorX * itemWidth + getLocation().x + getBorderWidth();
+					int ypos = selectedItem.cursorY * itemHeight + getLocation().y + getBorderWidth() + (legendLines + 1) * lineHeight;
 					if (item instanceof CustomGFXMenuItem){
-						((CustomGFXMenuItem) item).drawMenuItem(si, xpos, ypos, selectedIndex, true);
+						((CustomGFXMenuItem) item).drawMenuItem(si, xpos, ypos, selectedItem.selectedIndex, true);
 						if (((CustomGFXMenuItem) item).showTooltip()){
 							((CustomGFXMenuItem) item).drawTooltip(si, xpos, ypos);
 						}
 					} else {
-						defaultMenuItemPrint(item, 32, xpos, ypos, selectedIndex);
+						defaultMenuItemPrint(item, 32, xpos, ypos, selectedItem.selectedIndex);
 					}
 					
 					si.refresh();
@@ -100,8 +113,31 @@ public class BorderedGridBox extends AddornedBorderPanel {
 					
 				}
 			}
+
+			
 		};
 		si.addMouseMotionListener(mml);
+	}
+	protected SelectedItem getSelectedItemByClick(Point point, int legendLines, int lineHeight) {
+		int pixelX = point.x;
+		int pixelY = point.y;
+		
+		pixelX -= getLocation().x + getBorderWidth();
+		pixelY -= getLocation().y + getBorderWidth() + (legendLines + 2) * lineHeight;
+		
+		pixelY += legendLines * lineHeight;
+		int cursorX = (int) Math.floor((double) pixelX / (double) itemWidth);
+		int cursorY = (int) Math.floor((double) pixelY / (double) itemHeight);
+		int selectedIndex =  cursorX * gridY + cursorY;
+		if (cursorX >= 0 && cursorX < gridX && cursorY >= 0 && cursorY < gridY && selectedIndex >= 0 && selectedIndex < shownItems.size()){
+			SelectedItem ret = new SelectedItem();
+			ret.cursorX = cursorX;
+			ret.cursorY = cursorY;
+			ret.selectedIndex = selectedIndex;
+			return ret;
+		} else {
+			return null;
+		}
 	}
 	
 	public void setMenuItems(List<? extends GFXMenuItem> items){
@@ -183,44 +219,126 @@ public class BorderedGridBox extends AddornedBorderPanel {
 			si.printAtPixel(xpos + boxWidth, ypos + lineHeight + fontSize, detail, foreColor);
 		}
 	}
-
-	public Object getSelection (){
+	
+	/**
+	 * This is a blocking method that returns a selection for the grid box.
+	 * 
+	 * Since the gridbox supports mouse selection, this method syncs with the mouse
+	 * listener in order to perform a blocking return.
+	 * 
+	 * @return
+	 */
+	@SuppressWarnings("unchecked")
+	public GFXMenuItem getSelection (){
 		int itemsPerPage = gridX * gridY;
-		int pageElements = itemsPerPage;
+		final int pageElements = itemsPerPage;
+		BlockingQueue<Integer> selectionQueue = new LinkedBlockingQueue<Integer>(1);
+		boolean preselected = false;
+		// Preselection
+		if (preselectedCode != null){
+			preselected = true;
+			try {
+				selectionQueue.put(preselectedCode);
+			} catch (InterruptedException e1) {}
+			preselectedCode = null;
+		}
+		
+		// Keyboard Selection
+
+		CallbackKeyListener<Integer> cbkl = new CallbackKeyListener<Integer>(selectionQueue){
+			@Override
+			public void keyPressed(KeyEvent e) {
+				try {
+					int code = SwingSystemInterface.charCode(e);
+					if (code != CharKey.SPACE &&
+						code != CharKey.ESC &&
+						code != CharKey.UARROW &&
+						code != CharKey.DARROW &&
+						code != CharKey.N8 &&
+						code != CharKey.N2 &&
+						(code < CharKey.A || code > CharKey.A + pageElements-1) &&
+						(code < CharKey.a || code > CharKey.a + pageElements-1)
+						){
+						
+					} else {
+						handler.put(code);
+					}
+				} catch (InterruptedException e1) {}
+			}
+		}; 
+		
+		CallbackMouseListener cbml = new CallbackMouseListener(selectionQueue){
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				try {
+					String[] legends = legend.split("XXX");
+					int fontSize = getFont().getSize();
+					final int lineHeight = (int)Math.round(fontSize*1.5);
+					final int legendLines = legends.length > 0 ? legends.length: 1;
+					SelectedItem selectedItem = getSelectedItemByClick(e.getPoint(), legendLines, lineHeight);
+					if (selectedItem != null)
+						handler.put(selectedItem.selectedIndex + CharKey.a);
+					onItemSelected();
+				} catch (InterruptedException e1) {}
+			}
+		};
+		
+		CallbackActionListener<Integer> cbal = new CallbackActionListener<Integer>(selectionQueue){
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				try {
+					handler.put(CharKey.SPACE);
+				} catch (InterruptedException e1) {}
+			}
+		};
+		
+		si.addKeyListener(cbkl);
+		si.addMouseListener(cbml);
+		if (closeButton != null)
+			closeButton.addActionListener(cbal);
+		GFXMenuItem selection = null;
 		while (true){
-			draw(true);
-			@SuppressWarnings("unchecked")
+			if (!preselected)
+				draw(true);
 			List<GFXMenuItem> shownItems = Util.page(items, pageElements, currentPage);
-			CharKey key = new CharKey(CharKey.NONE);
-			while (key.code != CharKey.SPACE &&
-					key.code != CharKey.ESC &&
-				   key.code != CharKey.UARROW &&
-				   key.code != CharKey.DARROW &&
-				   key.code != CharKey.N8 &&
-				   key.code != CharKey.N2 &&
-				   (key.code < CharKey.A || key.code > CharKey.A + pageElements-1) &&
-				   (key.code < CharKey.a || key.code > CharKey.a + pageElements-1)
-				   )
-			   key = si.inkey();
-			if (key.code == CharKey.SPACE || key.code == CharKey.ESC)
-				return null;
-			if (key.code == CharKey.UARROW || key.code == CharKey.N8)
+
+			Integer code = null;
+  	  		while (code == null){
+				try {
+					code = selectionQueue.take();
+				} catch (InterruptedException e1) {
+				}
+	  		}
+			
+			if (code == CharKey.SPACE || code == CharKey.ESC){
+				selection = null;
+				break;
+			}
+			if (code == CharKey.UARROW || code == CharKey.N8)
 				if (currentPage > 0)
 					currentPage --;
-			if (key.code == CharKey.DARROW || key.code == CharKey.N2)
+			if (code == CharKey.DARROW || code == CharKey.N2)
 				if (currentPage < pages-1)
 					currentPage ++;
 			
-			if (key.code >= CharKey.A && key.code <= CharKey.A + shownItems.size()-1)
-				return shownItems.get(key.code - CharKey.A);
-			else
-			if (key.code >= CharKey.a && key.code <= CharKey.a + shownItems.size()-1)
-				return shownItems.get(key.code - CharKey.a);
+			if (code >= CharKey.A && code <= CharKey.A + shownItems.size()-1){
+				selection = shownItems.get(code - CharKey.A);
+				break;
+			}else
+			if (code >= CharKey.a && code <= CharKey.a + shownItems.size()-1){
+				selection = shownItems.get(code - CharKey.a);
+				break;
+			}
 			si.restore();
 		}
+		si.removeKeyListener(cbkl);
+		si.removeMouseListener(cbml);
+		if (closeButton != null)
+			closeButton.removeActionListener(cbal);
+		return selection;
 	}
 	
-	public Object getSelection(CharKey key) {
+	public GFXMenuItem getSelection(CharKey key) {
 		int itemsPerPage = gridX * gridY;
 		@SuppressWarnings("unchecked")
 		List<GFXMenuItem> shownItems = Util.page(items, itemsPerPage, currentPage);
@@ -241,7 +359,7 @@ public class BorderedGridBox extends AddornedBorderPanel {
 		return null;
 	}
 	
-	public Object getSelectionAKS (int[] keys) throws AdditionalKeysSignal{
+	public GFXMenuItem getSelectionAKS (int[] keys) throws AdditionalKeysSignal{
 		int itemsPerPage = gridX * gridY;
 		int pageElements = itemsPerPage;
 		while (true){
@@ -307,5 +425,10 @@ public class BorderedGridBox extends AddornedBorderPanel {
 	
 	public void kill(){
 		si.removeMouseMotionListener(mml);
+		if (closeButton != null)
+			si.remove(closeButton);
+	}
+	
+	public void onItemSelected() {
 	}
 }
