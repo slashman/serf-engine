@@ -400,6 +400,10 @@ public class SwingSystemInterface implements Runnable{
 		sip.validate();
 	}
 	
+	public void changeZOrder(Component c, int zOrder){
+		sip.setComponentZOrder(c, zOrder);
+		sip.validate();
+	}
 	public void remove(Component c){
 		sip.remove(c);
 		sip.validate();

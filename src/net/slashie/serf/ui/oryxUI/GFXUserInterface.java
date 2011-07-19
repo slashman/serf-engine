@@ -6,6 +6,9 @@ import java.awt.Font;
 import java.awt.FontFormatException;
 import java.awt.Graphics2D;
 import java.awt.Image;
+import java.awt.event.ActionEvent;
+import java.awt.event.KeyEvent;
+import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileInputStream;
@@ -13,6 +16,10 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Properties;
 import java.util.Vector;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
+
+import javax.swing.ImageIcon;
 
 import net.slashie.libjcsi.CharKey;
 import net.slashie.serf.action.Action;
@@ -39,6 +46,12 @@ import net.slashie.utils.Line;
 import net.slashie.utils.Position;
 import net.slashie.utils.PropertyFilters;
 import net.slashie.utils.swing.BorderedMenuBox;
+import net.slashie.utils.swing.CallbackActionListener;
+import net.slashie.utils.swing.CallbackKeyListener;
+import net.slashie.utils.swing.CallbackMouseListener;
+import net.slashie.utils.swing.CleanButton;
+import net.slashie.utils.swing.GFXMenuItem;
+import net.slashie.utils.swing.SimpleGFXMenuItem;
 
 
 /** 
@@ -287,7 +300,42 @@ public abstract class GFXUserInterface extends UserInterface implements Runnable
    
 	public void showTextBox(String text, int x, int y, int w, int h){
 		printTextBox(text, x, y, w, h);
-		si.waitKeys(CharKey.SPACE, CharKey.ESC);
+		
+		BlockingQueue<String> selectionQueue = new LinkedBlockingQueue<String>(1);
+		
+		CallbackKeyListener<String> cbkl = new CallbackKeyListener<String>(selectionQueue){
+			@Override
+			public void keyPressed(KeyEvent e) {
+				try {
+					CharKey x = new CharKey(SwingSystemInterface.charCode(e));
+					if (x.code == CharKey.SPACE || x.code == CharKey.ESC)
+						handler.put("OK");
+				} catch (InterruptedException e1) {}
+			}
+		};
+		
+		CallbackMouseListener<String> cbml = new CallbackMouseListener<String>(selectionQueue){
+			@Override
+			public void mousePressed(MouseEvent e) {
+				try {
+					handler.put("OK");
+				} catch (InterruptedException e1) {}
+			}
+		};
+		
+		si.addKeyListener(cbkl);
+		si.addMouseListener(cbml);
+		addornedTextArea.addMouseListener(cbml);
+		String choice = null;
+		while (choice == null){
+			try {
+				choice = selectionQueue.take();
+			} catch (InterruptedException e1) {}
+		}
+		
+		si.removeKeyListener(cbkl);
+		si.removeMouseListener(cbml);
+		addornedTextArea.removeMouseListener(cbml);
 		clearTextBox();
 	}
 	
@@ -303,15 +351,79 @@ public abstract class GFXUserInterface extends UserInterface implements Runnable
 	
 	protected AddornedBorderTextArea addornedTextArea;
 
-	public boolean showTextBoxPrompt(String text, int consoleX, int consoleY, int consoleW, int consoleH){
-		addornedTextArea.setBounds(consoleX, consoleY, consoleW, consoleH);
+	public boolean showTextBoxPrompt(String text, int xPos, int yPos, int width, int height){
+		addornedTextArea.setBounds(xPos, yPos, width, height);
 		addornedTextArea.setText(text);
 		addornedTextArea.setVisible(true);
-		CharKey x = new CharKey(CharKey.NONE);
-		while (x.code != CharKey.Y && x.code != CharKey.y && x.code != CharKey.N && x.code != CharKey.n)
-			x = si.inkey();
-		boolean ret = (x.code == CharKey.Y || x.code == CharKey.y);
+		
+		BlockingQueue<String> selectionQueue = new LinkedBlockingQueue<String>(1);
+		
+		CallbackKeyListener<String> cbkl = new CallbackKeyListener<String>(selectionQueue){
+			@Override
+			public void keyPressed(KeyEvent e) {
+				try {
+					CharKey x = new CharKey(SwingSystemInterface.charCode(e));
+					if (x.code == CharKey.Y || x.code == CharKey.y)
+						handler.put("Y");
+					if (x.code == CharKey.N || x.code == CharKey.n)
+						handler.put("N");
+				} catch (InterruptedException e1) {}
+			}
+		};
+		
+		CleanButton yesButton = new CleanButton(new ImageIcon(IMG_YES_BUTTON));
+		yesButton.setBounds(xPos + (int)Math.round((double)width / 2.0d) - IMG_YES_BUTTON.getWidth() - 20,
+				yPos + height - IMG_YES_BUTTON.getHeight() - 20,
+				IMG_YES_BUTTON.getWidth(),
+				IMG_YES_BUTTON.getHeight()
+				//48, 96
+				);
+		si.add(yesButton);
+		si.changeZOrder(yesButton, 1);
+
+		CleanButton noButton = new CleanButton(new ImageIcon(IMG_NO_BUTTON));
+		noButton.setBounds(xPos + (int)Math.round((double)width / 2.0d) + 20,
+				yPos + height - IMG_NO_BUTTON.getHeight() - 20,
+				IMG_NO_BUTTON.getWidth(),
+				IMG_NO_BUTTON.getHeight()
+				/*48, 96*/
+		);
+		yesButton.addActionListener(new CallbackActionListener<String>(selectionQueue){
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				try {
+					handler.put("Y");
+				} catch (InterruptedException e1) {}
+			}
+		});
+		
+		noButton.addActionListener(new CallbackActionListener<String>(selectionQueue){
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				try {
+					handler.put("N");
+				} catch (InterruptedException e1) {}
+			}
+		});
+		si.add(noButton);
+		si.changeZOrder(noButton, 1);
+		si.refresh();
+
+
+		si.addKeyListener(cbkl);
+		
+		String choice = null;
+		while (choice == null){
+			try {
+				choice = selectionQueue.take();
+			} catch (InterruptedException e1) {}
+		}
+		boolean ret = choice.equals("Y");
 		addornedTextArea.setVisible(false);
+		si.remove(noButton);
+		si.remove(yesButton);
+		
+		si.removeKeyListener(cbkl);
 		return ret;
 	}
    
@@ -484,6 +596,8 @@ public abstract class GFXUserInterface extends UserInterface implements Runnable
 	}*/
 	
 	private boolean isCursorEnabled = false;
+	private BufferedImage IMG_YES_BUTTON;
+	private BufferedImage IMG_NO_BUTTON;
 	
 	private void initProperties(Properties p){
 		xrange = PropertyFilters.inte(p.getProperty("XRANGE"));
@@ -537,6 +651,9 @@ public abstract class GFXUserInterface extends UserInterface implements Runnable
 			FNT_TEXT = PropertyFilters.getFont(p.getProperty("FNT_TEXT"), p.getProperty("FNT_TEXT_SIZE"));
 			FNT_DIALOGUEIN  = FNT_TEXT;
 			FNT_MONO = PropertyFilters.getFont(p.getProperty("FNT_MONO"), p.getProperty("FNT_MONO_SIZE"));
+			
+			IMG_YES_BUTTON = PropertyFilters.getImage(p.getProperty("IMG_UI"), p.getProperty("BTN_YES_BOUNDS"));
+			IMG_NO_BUTTON = PropertyFilters.getImage(p.getProperty("IMG_UI"), p.getProperty("BTN_NO_BOUNDS"));
 			
 		} catch (Exception e){
 			SworeGame.crash(e.getMessage(),e);
@@ -1073,9 +1190,36 @@ public abstract class GFXUserInterface extends UserInterface implements Runnable
 		return promptChat(message, 20,20,200,100);
 	}
 
+	public int switchChat(String title, String prompt, Color titleColor, Color textColor, String... options) {
+		BorderedMenuBox selectionBox = new BorderedMenuBox(BORDER1, BORDER2, BORDER3, BORDER4, si, COLOR_WINDOW_BACKGROUND, COLOR_BORDER_IN, COLOR_BORDER_OUT, tileSize, 6,9,12,tileSize+6, null);
+   		selectionBox.setItemsPerPage(8);
+   		selectionBox.setBounds(80, 300, 640,250);
+  		Vector<GFXMenuItem> menuItems = new Vector<GFXMenuItem>();
+  		int i = 0;
+  		for (String option: options){
+  			menuItems.add(new SimpleGFXMenuItem(option,i));
+  			i++;
+  		}
+  		selectionBox.setMenuItems(menuItems);
+  		selectionBox.setLegend(prompt);
+  		selectionBox.setTitle(title);
+  		selectionBox.setTitleColor(titleColor);
+  		selectionBox.setForeColor(textColor);
+  		selectionBox.draw();
+  		
+		while (true) {
+			si.refresh();
+			SimpleGFXMenuItem itemChoice = ((SimpleGFXMenuItem)selectionBox.getSelection());
+			if (itemChoice == null)
+				break;
+			return itemChoice.getValue();
+		}
+		return -1;
+	}
+		
 	@Override
 	public int switchChat(String title, String prompt, String... options) {
-		return 0;
+   		return switchChat(title, prompt, COLOR_BOLD, Color.WHITE, options);
 	}
 
 	@Override

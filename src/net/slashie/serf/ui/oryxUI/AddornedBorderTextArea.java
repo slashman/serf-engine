@@ -4,6 +4,7 @@ import java.awt.Color;
 import java.awt.Font;
 import java.awt.GridLayout;
 import java.awt.Image;
+import java.awt.event.MouseListener;
 
 import javax.swing.JTextArea;
 import javax.swing.border.EmptyBorder;
@@ -45,6 +46,17 @@ public class AddornedBorderTextArea extends AddornedBorderPanel{
 		if (textArea != null) textArea.setBackground(fore);
 	}
 	
+	@Override
+	public synchronized void addMouseListener(MouseListener l) {
+		super.addMouseListener(l);
+		textArea.addMouseListener(l);
+	}
+	
+	@Override
+	public synchronized void removeMouseListener(MouseListener l) {
+		super.removeMouseListener(l);
+		textArea.removeMouseListener(l);
+	}
 
 	
 }
