@@ -27,7 +27,7 @@ public class PropertyFilters {
 		return Font.createFont(Font.TRUETYPE_FONT, new FileInputStream(new File(fontName))).deriveFont(Font.PLAIN, inte(size));
 	}
 	
-	public static BufferedImage getImage(String fileName, String bounds) throws Exception{
+	public static BufferedImage getImage(String fileName, String bounds) throws IOException{
 		Rectangle r = getRectangle(bounds);
 		return ImageUtils.crearImagen(fileName, r.x, r.y, r.width, r.height);
 	}
