@@ -412,6 +412,10 @@ public class SwingSystemInterface implements Runnable{
 	public void removeMouseMotionListener(MouseMotionListener listener) {
 		frameMain.removeMouseMotionListener(listener);
 	}
+	
+	public void removeMouseListener(MouseListener listener){
+		frameMain.removeMouseListener(listener);
+	}
 
 	public StrokeNClickInformer getStrokeInformer() {
 		return aStrokeInformer;
@@ -551,6 +555,11 @@ public class SwingSystemInterface implements Runnable{
 	public void removeKeyListener(CallbackKeyListener keyListener) {
 		frameMain.removeKeyListener(keyListener);
 	}
+
+	
+	public Font getFont() {
+		return sip.getGraphicsFont();
+	}
 }
 
 class SwingInterfacePanel extends JPanel{
@@ -563,9 +572,6 @@ class SwingInterfacePanel extends JPanel{
 	private Image[] backImageBuffers;
 	private Graphics[] backGraphicsBuffers;
 	
-	private Color color;
-	private Font font;
-	
 	public void cls(){
 		Color oldColor = bufferGraphics.getColor();
 		bufferGraphics.setColor(Color.BLACK);
@@ -574,13 +580,15 @@ class SwingInterfacePanel extends JPanel{
 	}
 	
 	public void setColor(Color color){
-		this.color = color;
 		bufferGraphics.setColor(color);
 	}
 	
 	public void setFontFace(Font f){
-		font = f;
 		bufferGraphics.setFont(f);
+	}
+	
+	public Font getGraphicsFont(){
+		return bufferGraphics.getFont();
 	}
 	
 	public Graphics2D getCurrentGraphics(){
