@@ -38,7 +38,7 @@ public class BorderedGridBox extends AddornedBorderPanel {
 	protected int gridY;
 	
 	// Status Attributes
-	private List<? extends GFXMenuItem> items;
+	protected List<? extends GFXMenuItem> items;
 	private int currentPage;
 	private int pages;
 	private List<GFXMenuItem> shownItems;
