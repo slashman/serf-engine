@@ -28,11 +28,11 @@ import net.slashie.utils.PropertyFilters;
 
 public class GFXUISelector extends UISelector implements ActionSelector, MouseListener, MouseMotionListener, Serializable{
 	private static final long serialVersionUID = 1L;
-	private transient SwingSystemInterface si;
+	protected transient SwingSystemInterface si;
 	private boolean useMouse = false;
 	
-	private static final int DONOTHING1_KEY = CharKey.DOT;
-	private static final int DONOTHING2_KEY = CharKey.DOT;
+	protected static final int DONOTHING1_KEY = CharKey.DOT;
+	protected static final int DONOTHING2_KEY = CharKey.DOT;
 	
 	private final int[] QDIRECTIONS = new int[]{
 			Action.UPLEFT,
@@ -116,12 +116,15 @@ public class GFXUISelector extends UISelector implements ActionSelector, MouseLi
      */
 	public Action selectAction(Actor who){
     	Debug.enterMethod(this, "selectAction", who);
+    	activate();
 	    CharKey input = null;
 	    Action ret = null;
 	    while (ret == null){
 	    	mouseMovementActive = true;
-	    	if (ui().gameOver())
+	    	if (ui().gameOver()){
+	    		deactivate();
 	    		return null;
+	    	}
 			input = si.inkey(200);
 			if (input.code == CharKey.NONE && !useMouse)
 				continue;
@@ -233,6 +236,12 @@ public class GFXUISelector extends UISelector implements ActionSelector, MouseLi
 		return null;
 	}
 	
+
+	public void activate() {}
+	
+	public void deactivate() {
+    	mouseMovementActive = false;
+	}
 
 	public String getID(){
 		return "UI";
