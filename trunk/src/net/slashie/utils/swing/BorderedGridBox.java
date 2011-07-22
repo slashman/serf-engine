@@ -2,7 +2,6 @@ package net.slashie.utils.swing;
 
 import java.awt.Color;
 import java.awt.Cursor;
-import java.awt.Graphics;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
@@ -50,8 +49,6 @@ public class BorderedGridBox extends AddornedBorderPanel {
 	protected Integer preselectedCode;
 
 	protected CleanButton closeButton;
-	
-	
 	
 	public class SelectedItem{
 		public int selectedIndex;
@@ -103,7 +100,6 @@ public class BorderedGridBox extends AddornedBorderPanel {
 					} else {
 						defaultMenuItemPrint(item, 32, xpos, ypos, selectedItem.selectedIndex);
 					}
-					
 					si.refresh();
 					si.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
 				} else {
@@ -141,7 +137,10 @@ public class BorderedGridBox extends AddornedBorderPanel {
 	}
 	
 	public void setMenuItems(List<? extends GFXMenuItem> items){
+		currentPage = 0;
 		this.items = items;
+		int itemsPerPage = gridX * gridY;
+		pages = (int)(Math.floor((items.size()-1) / (double)(itemsPerPage)) +1);
 	}
 	
 	@SuppressWarnings("unchecked")
@@ -198,6 +197,11 @@ public class BorderedGridBox extends AddornedBorderPanel {
 			} else {
 				defaultMenuItemPrint(item, 32, xpos, ypos, i);
 			}
+		}
+		
+		// Draw the footer
+		if (pages > 1){
+			si.printAtPixel((int)getLocation().getX()+getBorderWidth(), (int)getLocation().getY()+getHeight()-getBorderWidth()-lineHeight, "Page "+(currentPage+1)+"/"+pages, Color.WHITE);
 		}
 		if (refresh)
 			si.refresh();
@@ -298,10 +302,9 @@ public class BorderedGridBox extends AddornedBorderPanel {
 			closeButton.addActionListener(cbal);
 		GFXMenuItem selection = null;
 		while (true){
+			List<GFXMenuItem> shownItems = Util.page(items, pageElements, currentPage);
 			if (!preselected)
 				draw(true);
-			List<GFXMenuItem> shownItems = Util.page(items, pageElements, currentPage);
-
 			Integer code = null;
   	  		while (code == null){
 				try {
@@ -338,66 +341,8 @@ public class BorderedGridBox extends AddornedBorderPanel {
 		return selection;
 	}
 	
-	public GFXMenuItem getSelection(CharKey key) {
-		int itemsPerPage = gridX * gridY;
-		@SuppressWarnings("unchecked")
-		List<GFXMenuItem> shownItems = Util.page(items, itemsPerPage, currentPage);
-		if (key.code == CharKey.SPACE || key.code == CharKey.ESC)
-			return null;
-		if (key.code == CharKey.UARROW || key.code == CharKey.N8)
-			if (currentPage > 0)
-				currentPage --;
-		if (key.code == CharKey.DARROW || key.code == CharKey.N2)
-			if (currentPage < pages-1)
-				currentPage ++;
-		
-		if (key.code >= CharKey.A && key.code <= CharKey.A + shownItems.size()-1)
-			return shownItems.get(key.code - CharKey.A);
-		else
-		if (key.code >= CharKey.a && key.code <= CharKey.a + shownItems.size()-1)
-			return shownItems.get(key.code - CharKey.a);
-		return null;
-	}
 	
-	public GFXMenuItem getSelectionAKS (int[] keys) throws AdditionalKeysSignal{
-		int itemsPerPage = gridX * gridY;
-		int pageElements = itemsPerPage;
-		while (true){
-			draw(true);
-			@SuppressWarnings("unchecked")
-			List<GFXMenuItem> shownItems = Util.page(items, pageElements, currentPage);
-			CharKey key = new CharKey(CharKey.NONE);
-			while (key.code != CharKey.SPACE &&
-					key.code != CharKey.ESC &&
-				   key.code != CharKey.UARROW &&
-				   key.code != CharKey.DARROW &&
-				   key.code != CharKey.N8 &&
-				   key.code != CharKey.N2 &&
-				   (key.code < CharKey.A || key.code > CharKey.A + pageElements-1) &&
-				   (key.code < CharKey.a || key.code > CharKey.a + pageElements-1) &&
-				   !isOneOf(key.code, keys)
-				   )
-			   key = si.inkey();
-			if (key.code == CharKey.SPACE || key.code == CharKey.ESC)
-				return null;
-			if (key.code == CharKey.UARROW || key.code == CharKey.N8)
-				if (currentPage > 0)
-					currentPage --;
-			if (key.code == CharKey.DARROW || key.code == CharKey.N2)
-				if (currentPage < pages-1)
-					currentPage ++;
-			
-			if (key.code >= CharKey.A && key.code <= CharKey.A + shownItems.size()-1)
-				return shownItems.get(key.code - CharKey.A);
-			else
-			if (key.code >= CharKey.a && key.code <= CharKey.a + shownItems.size()-1)
-				return shownItems.get(key.code - CharKey.a);
-			if (isOneOf(key.code, keys))
-				throw new AdditionalKeysSignal(key.code);
-			si.restore();
-
-		}
-	}
+	
 	
 	public void setTitle(String s){
 		title = s;
@@ -431,4 +376,40 @@ public class BorderedGridBox extends AddornedBorderPanel {
 	
 	public void onItemSelected() {
 	}
+	
+	public void setHoverDisabled(boolean v){
+		hoverDisabled = v;
+	}
+	
+	public void rePag(){
+		if (currentPage > 0)
+			currentPage --;
+	}
+	
+	public void avPag(){
+		if (currentPage < pages-1)
+			currentPage ++;
+	}
+	
+	public int getCurrentPage(){
+		return currentPage;
+	}
+	
+	public int getItemsPerPage(){
+		return gridX * gridY;
+	}
+	
+	public boolean isValidPage(int page){
+		return page >= 0 && page <= pages - 1;
+	}
+	
+	public int getPages(){
+		return pages;
+	}
+	
+	public void setCurrentPage(int page){
+		if (isValidPage(page))
+			currentPage = page;
+	}
+	
 }

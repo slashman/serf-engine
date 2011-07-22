@@ -1,6 +1,7 @@
 package net.slashie.utils.swing;
 
 import java.awt.Cursor;
+import java.awt.Image;
 
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -24,7 +25,9 @@ public class CleanButton extends JButton{
 		this(icon, Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
 	}
 	
-	
+	public CleanButton(Image image){
+		this (new ImageIcon(image));
+	}
 	
 	public CleanButton(){
 		this(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));

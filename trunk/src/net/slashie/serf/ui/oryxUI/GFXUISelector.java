@@ -5,12 +5,18 @@ import java.awt.Image;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.Toolkit;
+import java.awt.event.ActionEvent;
+import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.Properties;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
+
+import javax.swing.AbstractAction;
+import javax.swing.Timer;
 
 import net.slashie.libjcsi.CharKey;
 import net.slashie.serf.action.Action;
@@ -21,12 +27,13 @@ import net.slashie.serf.game.SworeGame;
 import net.slashie.serf.ui.ActionCancelException;
 import net.slashie.serf.ui.UISelector;
 import net.slashie.serf.ui.UserAction;
-import net.slashie.utils.Debug;
 import net.slashie.utils.ImageUtils;
 import net.slashie.utils.Position;
 import net.slashie.utils.PropertyFilters;
+import net.slashie.utils.swing.CallbackKeyListener;
+import net.slashie.utils.swing.CallbackMouseListener;
 
-public class GFXUISelector extends UISelector implements ActionSelector, MouseListener, MouseMotionListener, Serializable{
+public class GFXUISelector extends UISelector implements ActionSelector, Serializable{
 	private static final long serialVersionUID = 1L;
 	protected transient SwingSystemInterface si;
 	private boolean useMouse = false;
@@ -45,7 +52,9 @@ public class GFXUISelector extends UISelector implements ActionSelector, MouseLi
 			Action.DOWN,
 			Action.DOWNRIGHT
 		};
-	private Cursor[] QCURSORS; 
+	private Cursor[] QCURSORS;
+	
+	protected BlockingQueue<String> selectionHandler;
 	
 	private void initializeCursors (String cursorsFile){
 		QCURSORS = new Cursor[]{
@@ -75,29 +84,106 @@ public class GFXUISelector extends UISelector implements ActionSelector, MouseLi
 	}
 	
 	private int mouseDirection = -1;
-	private Position mousePosition;
+	private Point mousePosition;
 	
-	private boolean mouseMovementActive = false;
+	private boolean selectionActive = false;
 	
-	public void setMouseMovementActive(boolean mouseMovementActive) {
-		this.mouseMovementActive = mouseMovementActive;
-	}
+	/*public void setSelectionActive(boolean selectionActive) {
+		this.selectionActive = selectionActive;
+	}*/
 
 	public void init(SwingSystemInterface psi, UserAction[] gameActions, Properties UIProperties,
 			Action advance, Action target, Action attack, GFXUserInterface ui, Properties keyBindings){
 		super.init(gameActions, advance, target, attack, ui,keyBindings);
 		this.si = psi;
+		selectionHandler = new LinkedBlockingQueue<String>();
 		if (UIProperties.getProperty("useMouse").equals("true")){
-			psi.addMouseListener(this);
-			psi.addMouseMotionListener(this);
 			useMouse = true;
+			javax.swing.Action gotoDirectionAction = new AbstractAction() {
+				private static final long serialVersionUID = 1L;
+				@Override
+				public void actionPerformed(ActionEvent arg0) {
+					int quadrant = defineQuadrant(mousePosition.x, mousePosition.y);
+					mouseDirection = QDIRECTIONS[quadrant-1];
+					try {
+						selectionHandler.put("MOUSE_MOVE:"+mouseDirection);
+					} catch (InterruptedException e1) {}
+				}
+			};
+			final Timer gotoDirectionTimer = new Timer(200, gotoDirectionAction);
+			
+			psi.addMouseListener(new CallbackMouseListener<String>(selectionHandler){
+				public void mousePressed(final MouseEvent e) {
+					if (!selectionActive)
+						return;
+					if (e.getButton() == MouseEvent.BUTTON1){
+						mousePosition = e.getPoint();
+						int quadrant = defineQuadrant(mousePosition.x, mousePosition.y);
+						mouseDirection = QDIRECTIONS[quadrant-1];
+						try {
+							selectionHandler.put("MOUSE_MOVE:"+mouseDirection);
+						} catch (InterruptedException e1) {}
+						gotoDirectionTimer.start();
+					} else if (e.getButton() == MouseEvent.BUTTON3){
+						Position p = translatePosition(e.getPoint().x, e.getPoint().y);
+						try {
+							handler.put("MOUSE:"+p.x+":"+p.y);
+						} catch (InterruptedException e1) {}
+					}
+				}
+
+				public void mouseReleased(MouseEvent e) {
+					mouseDirection = -1;
+					gotoDirectionTimer.stop();
+				}
+				
+				private Position tempRel = new Position(0,0);
+				private Position translatePosition(int x, int y){
+					int bigx = (int)Math.ceil(x/32.0);
+					int bigy = (int)Math.ceil(y/32.0);
+					tempRel.x = bigx-ui().PC_POS.x-1;
+					tempRel.y = bigy-ui().PC_POS.y-1;
+					return Position.add(player.getPosition(), tempRel);
+				}
+			});
+			psi.addMouseMotionListener(new MouseMotionListener(){
+				public void mouseDragged(MouseEvent e) {
+					int newQuadrant = defineQuadrant(e.getPoint().x, e.getPoint().y);
+					if (mouseDirection != -1 && mouseDirection != QDIRECTIONS[newQuadrant-1]){
+						mouseDirection = QDIRECTIONS[newQuadrant-1];
+					}
+					mouseMoved(e);
+				}
+
+				public void mouseMoved(MouseEvent e) {
+					if (!selectionActive)
+						return;
+					mousePosition = e.getPoint();
+					int newQuadrant = defineQuadrant(e.getPoint().x, e.getPoint().y);
+					si.setCursor(QCURSORS[newQuadrant-1]);
+				}
+			});
+			
 		}
+		
+		si.addKeyListener(new CallbackKeyListener<String>(selectionHandler){
+			@Override
+			public void keyPressed(KeyEvent e) {
+				if (!selectionActive)
+					return;
+				int charcode = SwingSystemInterface.charCode(e);
+				try {
+					handler.put("KEY:"+charcode);
+				} catch (InterruptedException e1) {}
+			}
+		});
 		initializeCursors(UIProperties.getProperty("IMG_CURSORS"));
 		Rectangle r = PropertyFilters.getRectangle(UIProperties.getProperty("mouseQuadrant"));
 		x1 = r.x;
 		x2 = r.x + r.width;
 		y1 = r.y;
 		y2 = r.y + r.height;
+		
 		
 	}
 	
@@ -110,137 +196,128 @@ public class GFXUISelector extends UISelector implements ActionSelector, MouseLi
 		return (GFXUserInterface) getUI();
 	}
 	
-	/** 
-	 * Returns the Action that the player wants to perform.
-     * It may also forward a command instead
-     */
-	public Action selectAction(Actor who){
-    	Debug.enterMethod(this, "selectAction", who);
-    	activate();
-	    CharKey input = null;
-	    Action ret = null;
-	    while (ret == null){
-	    	mouseMovementActive = true;
+	public Action selectAction(Actor who) {
+	    while (true){
+	    	activate();
 	    	if (ui().gameOver()){
 	    		deactivate();
 	    		return null;
 	    	}
-			input = si.inkey(200);
-			if (input.code == CharKey.NONE && !useMouse)
-				continue;
-			ret = ((GFXUserInterface)getUI()).selectCommand(input);
-			if (ret != null){
-				if (ret.canPerform(player))
-            		return ret;
-            	else 
-            		return null;
-			}
-			if (input.code == DONOTHING1_KEY) {
-				Debug.exitMethod("null");
-				return null;
-			}
-			if (input.code == DONOTHING2_KEY) {
-				Debug.exitMethod("null");
-				return null;
-			}
-			
-			if (useMouse && mousePosition != null){
-				// mouseDirection = -1;
-				if (level.isValidCoordinate(mousePosition)){
-						ret = target;
-		            	try {
+	    	String selection = null;
+	    	while (selection == null){
+	    		try {
+					selection = selectionHandler.take();
+				} catch (InterruptedException e) {}
+	    	}
+	    	System.out.println("Selection "+selection);
+	    	String[] commands = selection.split(":");
+	    	if (commands[0].equals("KEY")){
+	    		int key = Integer.parseInt(commands[1]);
+	    		CharKey input = new CharKey(key);
+	    		if (input.code == CharKey.NONE)
+	    			continue;
+	    		Action ret = ((GFXUserInterface)getUI()).selectCommand(input);
+				if (ret != null){
+					if (ret.canPerform(player))
+	            		return ret;
+	            	else 
+	            		return null;
+				}
+				if (input.code == DONOTHING1_KEY) {
+					return null;
+				}
+				if (input.code == DONOTHING2_KEY) {
+					return null;
+				}
+				if (isArrow(input)){
+					return advanceInDirection(toIntDirection(input));
+				} else {
+					ret = getRelatedAction(input.code);
+	            	try {
+		            	if (ret != null){
 		            		ret.setPerformer(player);
 		            		if (ret.canPerform(player))
-		            			ret.setPosition(mousePosition);
+		            			ui().setTargets(ret);
 		            		else {
 		            			level.addMessage(ret.getInvalidationMessage());
-		            			throw new ActionCancelException();
+			            		throw new ActionCancelException();
 		            		}
-	                     	Debug.exitMethod(ret);
-	                     	mousePosition = null;
 	                    	return ret;
 						}
-						catch (ActionCancelException ace){
-			 				ui().addMessage(new Message("- Cancelled", player.getPosition()));
-			 				si.refresh();
-							ret = null;
+					}catch (ActionCancelException ace){
+		 				ui().addMessage(new Message("- Cancelled", player.getPosition()));
+						continue;
+					}
+				}
+	    	} else if (commands[0].equals("MOUSE")){
+	    		if (!useMouse){
+	    			continue;
+	    		}
+	    		Position mousePosition = new Position(Integer.parseInt(commands[1]),Integer.parseInt(commands[2]));
+				if (level.isValidCoordinate(mousePosition)){
+					Action ret = target;
+					try {
+						ret.setPerformer(player);
+						if (ret.canPerform(player))
+							ret.setPosition(mousePosition);
+						else {
+							level.addMessage(ret.getInvalidationMessage());
+							throw new ActionCancelException();
 						}
-
-				}
-				mousePosition = null;
-			}
-			
-			if (isArrow(input) || (useMouse && mousePosition == null && mouseDirection != -1)){
-				int direction = -1;
-				if (useMouse && mouseDirection != -1){
-					direction = mouseDirection;
-					//mouseDirection = -1;
-				} else {
-					direction = toIntDirection(input);
-				}
-				
-				
-				Actor vMonster = player.getLevel().getActorAt(Position.add(player.getPosition(), Action.directionToVariation(direction)));
-				if (vMonster != null && vMonster.isHostile() && attack.canPerform(player)){
-					attack.setDirection(direction);
-					Debug.exitMethod(attack);
-					return attack;
-				} else {
-					advance.setDirection(direction);
-					Debug.exitMethod(advance);
-					switch (direction){
-					case Action.UPLEFT:
-					case Action.LEFT:
-					case Action.DOWNLEFT:
-						ui().setFlipFacing(true);
-						break;
-					case Action.UPRIGHT:
-					case Action.RIGHT:
-					case Action.DOWNRIGHT:
-						ui().setFlipFacing(false);
-						break;
-					}
-					if (advance.canPerform(player)){
-						return advance;
-					} else {
-						ui().addMessage(new Message(advance.getInvalidationMessage(), player.getPosition()));
-						ret = null;
-					}
-				}
-			} else {
-            	ret = getRelatedAction(input.code);
-            	try {
-	            	if (ret != null){
-	            		ret.setPerformer(player);
-	            		if (ret.canPerform(player))
-	            			ui().setTargets(ret);
-	            		else {
-	            			level.addMessage(ret.getInvalidationMessage());
-		            		throw new ActionCancelException();
-	            		}
-                     	Debug.exitMethod(ret);
+                     	mousePosition = null;
                     	return ret;
+					} catch (ActionCancelException ace){
+		 				ui().addMessage(new Message("- Cancelled", player.getPosition()));
+		 				si.refresh();
+						continue;
 					}
+				}
+	    	} else if (commands[0].equals("MOUSE_MOVE")){
+	    		if (!useMouse){
+	    			continue;
+	    		}
+	    		int direction = Integer.parseInt(commands[1]);
+	    		return advanceInDirection(direction);
+	    	}
+		}
+	}
 
-				}
-				catch (ActionCancelException ace){
-					//si.cls();
-	 				//refresh();
-	 				ui().addMessage(new Message("- Cancelled", player.getPosition()));
-					ret = null;
-				}
-				//refresh();
+	private Action advanceInDirection(int direction) {
+		Actor vMonster = player.getLevel().getActorAt(Position.add(player.getPosition(), Action.directionToVariation(direction)));
+		if (vMonster != null && vMonster.isHostile() && attack.canPerform(player)){
+			attack.setDirection(direction);
+			return attack;
+		} else {
+			advance.setDirection(direction);
+			switch (direction){
+			case Action.UPLEFT:
+			case Action.LEFT:
+			case Action.DOWNLEFT:
+				ui().setFlipFacing(true);
+				break;
+			case Action.UPRIGHT:
+			case Action.RIGHT:
+			case Action.DOWNRIGHT:
+				ui().setFlipFacing(false);
+				break;
+			}
+			if (advance.canPerform(player)){
+				return advance;
+			} else {
+				ui().addMessage(new Message(advance.getInvalidationMessage(), player.getPosition()));
+				return null;
 			}
 		}
-		Debug.exitMethod("null");
-		return null;
 	}
 	
+	
 
-	public void activate() {}
+	public void activate() {
+		selectionActive = true;
+	}
 	
 	public void deactivate() {
-    	mouseMovementActive = false;
+		selectionActive = false;
 	}
 
 	public String getID(){
@@ -250,83 +327,6 @@ public class GFXUISelector extends UISelector implements ActionSelector, MouseLi
 	public ActionSelector derive(){
  		return null;
  	}
-	
-	
-	public void mouseClicked(MouseEvent e) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	public void mouseEntered(MouseEvent e) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	public void mouseExited(MouseEvent e) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	
-	public void mousePressed(MouseEvent e) {
-		if (e.getButton() == MouseEvent.BUTTON1){
-			int quadrant = defineQuadrant(e.getPoint().x, e.getPoint().y);
-			mouseDirection = QDIRECTIONS[quadrant-1];
-		} else if (e.getButton() == MouseEvent.BUTTON3){
-			translatePosition(e.getPoint().x, e.getPoint().y);
-		}
-	}
-
-	public void mouseReleased(MouseEvent e) {
-		mouseDirection = -1;
-	}
-
-	public void mouseDragged(MouseEvent e) {
-		int newQuadrant = defineQuadrant(e.getPoint().x, e.getPoint().y);
-		if (mouseDirection != -1 && mouseDirection != QDIRECTIONS[newQuadrant-1]){
-			mouseDirection = QDIRECTIONS[newQuadrant-1];
-		}
-		mouseMoved(e);
-	}
-
-	public void mouseMoved(MouseEvent e) {
-		if (!mouseMovementActive)
-			return;
-		int newQuadrant = defineQuadrant(e.getPoint().x, e.getPoint().y);
-		si.setCursor(QCURSORS[newQuadrant-1]);
-		/*
-		switch (newQuadrant){
-		case 9:
-			si.setCursor(Cursor.getPredefinedCursor(Cursor.SE_RESIZE_CURSOR));
-			break;
-		case 6:
-			si.setCursor(Cursor.getPredefinedCursor(Cursor.E_RESIZE_CURSOR));
-			break;
-		case 3:
-			si.setCursor(Cursor.getPredefinedCursor(Cursor.NE_RESIZE_CURSOR));
-			break;
-		case 8:
-			si.setCursor(Cursor.getPredefinedCursor(Cursor.S_RESIZE_CURSOR));
-			break;
-		case 5:
-			si.setCursor(Cursor.getPredefinedCursor(Cursor.CROSSHAIR_CURSOR));
-			break;
-		case 2:
-			si.setCursor(Cursor.getPredefinedCursor(Cursor.N_RESIZE_CURSOR));
-			break;
-		case 7:
-			si.setCursor(Cursor.getPredefinedCursor(Cursor.SW_RESIZE_CURSOR));
-			break;
-		case 4:
-			si.setCursor(Cursor.getPredefinedCursor(Cursor.W_RESIZE_CURSOR));
-			break;
-		case 1:
-			si.setCursor(Cursor.getPredefinedCursor(Cursor.NW_RESIZE_CURSOR));
-			break;
-		}
-		/*if (isCursorEnabled && updateCursorPosition(e.getPoint().x, e.getPoint().y))
-			drawCursor();*/
-	}
 	
 	private int defineQuadrant(int x, int y){
 		if (x > x2)
@@ -351,15 +351,8 @@ public class GFXUISelector extends UISelector implements ActionSelector, MouseLi
 			else
 				return 1;
 	}
-	private Position tempRel = new Position(0,0);
-	private void translatePosition(int x, int y){
-		int bigx = (int)Math.ceil(x/32.0);
-		int bigy = (int)Math.ceil(y/32.0);
-		tempRel.x = bigx-ui().PC_POS.x-1;
-		tempRel.y = bigy-ui().PC_POS.y-1;
-		mousePosition = Position.add(player.getPosition(), tempRel);
-	}
-	private Position tempCursorPosition = new Position(0,0);
+	
+	/*private Position tempCursorPosition = new Position(0,0);
 	private Position tempCursorPositionScr = new Position(0,0);
 	
 	private boolean updateCursorPosition(int x, int y){
@@ -380,7 +373,7 @@ public class GFXUISelector extends UISelector implements ActionSelector, MouseLi
 			tempCursorPositionScr.y=tempRel.y;
 		}
 		return true;
-	}
+	}*/
 	
 	public static int toIntDirection(Position what){
 		switch (what.x()){
@@ -413,9 +406,4 @@ public class GFXUISelector extends UISelector implements ActionSelector, MouseLi
 
 		return -1;
 	}
-	
-	
-	
-
-	
 }
