@@ -1,34 +1,33 @@
 package net.slashie.serf.ui.oryxUI;
 
 import java.awt.Color;
-
 import java.awt.Component;
 import java.awt.Cursor;
 import java.awt.Dimension;
-import java.awt.DisplayMode;
 import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.GraphicsConfiguration;
 import java.awt.GraphicsDevice;
 import java.awt.GraphicsEnvironment;
 import java.awt.GridLayout;
 import java.awt.Image;
 import java.awt.Point;
 import java.awt.Toolkit;
-import java.awt.Window;
+import java.awt.Transparency;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
+import java.awt.image.BufferedImage;
+import java.io.IOException;
 import java.util.Hashtable;
 
-import javax.imageio.ImageIO;
 import javax.swing.JFrame;
+import javax.swing.JLayeredPane;
 import javax.swing.JPanel;
-import javax.swing.JTextArea;
-import javax.swing.border.Border;
 import javax.swing.border.LineBorder;
 
 import net.slashie.libjcsi.CharKey;
@@ -37,12 +36,11 @@ import net.slashie.utils.ImageUtils;
 import net.slashie.utils.Position;
 import net.slashie.utils.swing.CallbackKeyListener;
 
-import java.awt.Frame;
-
 public class SwingSystemInterface implements Runnable{ 
 	public void run(){
 	}
 	private SwingInterfacePanel sip;
+
 	private StrokeNClickInformer aStrokeInformer;
 	private Position caretPosition = new Position(0,0);
 	private Hashtable images = new Hashtable();
@@ -65,7 +63,6 @@ public class SwingSystemInterface implements Runnable{
 		frameMain.setCursor(c);
 	}
 	
-	
 	public void setIcon(Image icon){
 		frameMain.setIconImage(icon);
 	}
@@ -79,40 +76,38 @@ public class SwingSystemInterface implements Runnable{
 	}
 	
 	public SwingSystemInterface (){
-		frameMain = new JFrame();
-		
 		Dimension size = Toolkit.getDefaultToolkit().getScreenSize();
+		
+		frameMain = new JFrame();
 		frameMain.setBounds((size.width - 800)/2,(size.height-600)/2,800,600);
 		frameMain.getContentPane().setLayout(new GridLayout(1,1));
 		frameMain.setUndecorated(true);
-		
-		sip = new SwingInterfacePanel();
-		frameMain.getContentPane().add(sip);
 		frameMain.setVisible(true);
 		frameMain.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frameMain.setBackground(Color.BLACK);
-		//SZ030507 aStrokeInformer = new StrokeInformer();
+		frameMain.setFocusable(true);
+		frameMain.getContentPane().setLayout(null);
+		
+		JLayeredPane layeredPane = new JLayeredPane();
+		frameMain.getContentPane().add(layeredPane);
+		layeredPane.setBounds(0,0,800,600);
+		sip = new SwingInterfacePanel();
+		sip.setBounds(0,0,800,600);
+		layeredPane.add(sip);
+		
+		
 		aStrokeInformer = new StrokeNClickInformer();
 		frameMain.addKeyListener(aStrokeInformer);
 		frameMain.addMouseListener(aStrokeInformer);
-		frameMain.setFocusable(true);
 		sip.init();
-		/*invTextArea = new JTextArea();
-		invTextArea.setEditable(false);
-		invTextArea.setEnabled(false);
-		invTextArea.setOpaque(false);
-		invTextArea.setForeground(Color.WHITE);
-		invTextArea.setVisible(false);*/
-		//sip.add(invTextArea);
 		
 		frameMain.addMouseMotionListener(new MouseMotionListener(){
-			
 			public void mouseDragged(MouseEvent e) {
 				if (e.getY() > 24)
 					return;
 		        frameMain.setLocation(e.getX()-posClic.x+frameMain.getLocation().x, e.getY()-posClic.y+frameMain.getLocation().y);
 			}
-
+			
 			public void mouseMoved(MouseEvent e) {}
         	
         });
@@ -131,8 +126,6 @@ public class SwingSystemInterface implements Runnable{
 			public void mouseReleased(MouseEvent e) {}
         });
 	}
-	
-	
 	
 	/*public SwingSystemInterface(){
 		GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
@@ -214,13 +207,8 @@ public class SwingSystemInterface implements Runnable{
 	}
 	
 	public void refresh(){
-		//invTextArea.setVisible(false);
 		sip.repaint();
 	}
-	
-	/*public void print(int x, int y, String text){
-		sip.print(x*10, y*24, text);
-	}*/
 	
 	public void printAtPixel(int x, int y, String text){
 		sip.print(x, y, text);
@@ -261,7 +249,6 @@ public class SwingSystemInterface implements Runnable{
 		}
 	}
 	
-
 	public void drawImage(int scrX, int scrY, Image img){
 		sip.drawImage(scrX, scrY, img);
 	}
@@ -280,7 +267,6 @@ public class SwingSystemInterface implements Runnable{
 		sip.drawImage(scrX, scrY, im);
 	}
 
-	
 	public void drawImageCC(int consoleX, int consoleY, Image img){
 		drawImage(consoleX*10, consoleY*24, img);
 	}
@@ -312,25 +298,14 @@ public class SwingSystemInterface implements Runnable{
 		return sip.getCurrentGraphics();
 	}
 	
-	/*public void showTextArea(int scrX, int scrY, int scrW, int scrH, String text){
-		invTextArea.setBounds(scrX, scrY, scrW, scrH);
-		invTextArea.setText(text);
-		invTextArea.setVisible(true);
-		invTextArea.repaint();
-		invTextArea.setVisible(false);
-	}*/
-	
 	public void setFont(Font fnt){
 		sip.setFontFace(fnt);
-		//invTextArea.setFont(fnt);
 	}
 	
 	public void setColor(Color color){
 		sip.setColor(color);
-		//invTextArea.setForeground(color);
 	}
 	
-	//public String input(int consXPrompt,int consYPrompt,String prompt,Color promptColor, int maxLength, Color textColor){
 	public String input(int xpos,int ypos, Color textColor, int maxLength){
 		String ret = "";
 		CharKey read = new CharKey(CharKey.NONE);
@@ -404,6 +379,7 @@ public class SwingSystemInterface implements Runnable{
 		sip.setComponentZOrder(c, zOrder);
 		sip.validate();
 	}
+	
 	public void remove(Component c){
 		sip.remove(c);
 		sip.validate();
@@ -556,11 +532,10 @@ public class SwingSystemInterface implements Runnable{
 		frameMain.addKeyListener(keyListener);	
 	}
 
-	public void removeKeyListener(CallbackKeyListener keyListener) {
+	public void removeKeyListener(KeyListener keyListener) {
 		frameMain.removeKeyListener(keyListener);
 	}
 
-	
 	public Font getFont() {
 		return sip.getGraphicsFont();
 	}
@@ -603,6 +578,43 @@ class SwingInterfacePanel extends JPanel{
 		setLayout(null);
 		setBorder(new LineBorder(Color.GRAY));
 	}
+	/*
+	boolean isTransparent;
+	Image transparentImage = null;
+	public void activateTransparency (){
+		GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
+		GraphicsDevice gs = ge.getDefaultScreenDevice();
+		GraphicsConfiguration gc = gs.getDefaultConfiguration();
+		
+		
+		try {
+			transparentImage = ImageUtils.createImage("res/transparent.png");
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		
+		bufferImage = gc.createCompatibleImage(800, 600, Transparency.BITMASK);
+		bufferImage = transparentImage;
+        bufferGraphics = bufferImage.getGraphics();
+        bufferGraphics.setColor(Color.WHITE);
+        backImage = gc.createCompatibleImage(800, 600, Transparency.BITMASK);
+        backImage = transparentImage;
+        backGraphics = backImage.getGraphics();
+        backImageBuffers = new Image[5];
+        backGraphicsBuffers = new Graphics[5];
+        for (int i = 0 ; i < 5; i++){
+        	backImageBuffers[i] = gc.createCompatibleImage(800, 600, Transparency.BITMASK);
+        	backImageBuffers[i] = transparentImage;
+        	backGraphicsBuffers[i] = backImageBuffers[i].getGraphics();
+        	
+        }
+	
+		Graphics2D g = (Graphics2D) bufferImage.getGraphics();
+		g.setBackground(new Color(0,0,0,0));
+		g.clearRect(0,0,800,600);
+		
+		isTransparent = true;
+	}*/
 	
 	public void init(){
 		bufferImage = createImage(800, 600);
@@ -645,14 +657,27 @@ class SwingInterfacePanel extends JPanel{
 	}
 	
 	public void saveBuffer(int buffer){
+		cleanBuffer(buffer);
 		backGraphicsBuffers[buffer].drawImage(bufferImage,0,0,this);
 	}
 	
+	private void cleanBuffer(int buffer) {
+		//backImageBuffers[buffer] = transparentImage;
+    	backGraphicsBuffers[buffer] = backImageBuffers[buffer].getGraphics();
+	}
+
 	public void restore(){
 		bufferGraphics.drawImage(backImage, 0,0,this);
 	}
 	
 	public void restore(int buffer){
+		/*try {
+			transparentImage = ImageUtils.createImage("res/transparent.png");
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		bufferImage = transparentImage;
+        bufferGraphics = bufferImage.getGraphics();*/
 		bufferGraphics.drawImage(backImageBuffers[buffer], 0,0,this);
 	}
 	
@@ -661,7 +686,8 @@ class SwingInterfacePanel extends JPanel{
 	}
 	
 	public void paintComponent(Graphics g){
-		super.paintComponent(g);
+		//if (!isTransparent)
+			super.paintComponent(g);
 		if (bufferImage != null){
 			g.drawImage(bufferImage, 0,0,this);
 		}
@@ -670,9 +696,6 @@ class SwingInterfacePanel extends JPanel{
 	public Component add(Component comp) {
 		return super.add(comp);
 	}
-	
-	
-	
 }
 
 class StrokeInformer implements KeyListener{
