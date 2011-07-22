@@ -8,6 +8,7 @@ import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.io.IOException;
 import java.io.Serializable;
@@ -41,7 +42,7 @@ public class GFXUISelector extends UISelector implements ActionSelector, Seriali
 	protected static final int DONOTHING1_KEY = CharKey.DOT;
 	protected static final int DONOTHING2_KEY = CharKey.DOT;
 	
-	private final int[] QDIRECTIONS = new int[]{
+	public final int[] QDIRECTIONS = new int[]{
 			Action.UPLEFT,
 			Action.UP,
 			Action.UPRIGHT,
@@ -58,40 +59,23 @@ public class GFXUISelector extends UISelector implements ActionSelector, Seriali
 	
 	private void initializeCursors (String cursorsFile){
 		QCURSORS = new Cursor[]{
-			createCursor(cursorsFile, 1, 2),
-			createCursor(cursorsFile, 1, 3),
-			createCursor(cursorsFile, 2, 2),
-			createCursor(cursorsFile, 4, 3),
-			createCursor(cursorsFile, 3, 1),
-			createCursor(cursorsFile, 2, 3),
-			createCursor(cursorsFile, 4, 2),
-			createCursor(cursorsFile, 3, 3),
-			createCursor(cursorsFile, 3, 2)
+			GFXUserInterface.createCursor(cursorsFile, 1, 2),
+			GFXUserInterface.createCursor(cursorsFile, 1, 3),
+			GFXUserInterface.createCursor(cursorsFile, 2, 2),
+			GFXUserInterface.createCursor(cursorsFile, 4, 3),
+			GFXUserInterface.createCursor(cursorsFile, 3, 1),
+			GFXUserInterface.createCursor(cursorsFile, 2, 3),
+			GFXUserInterface.createCursor(cursorsFile, 4, 2),
+			GFXUserInterface.createCursor(cursorsFile, 3, 3),
+			GFXUserInterface.createCursor(cursorsFile, 3, 2)
 		};
 	}
 	
-	private static Cursor createCursor (String cursorsFile, int x, int y){
-		Toolkit tk = Toolkit.getDefaultToolkit();
-		try {
-			Image cursorImage = ImageUtils.crearImagen(cursorsFile , x*24, y*24, 24, 24);
-			Cursor c = tk.createCustomCursor(cursorImage, new Point(12,12), "gfxui-"+x+"-"+y);
-			return c;
-		} catch (IOException e) {
-			SworeGame.crash("Error loading cursors", e);
-			return null;
-		}
-		
-	}
+	protected int mouseDirection = -1;
+	protected Point mousePosition;
 	
-	private int mouseDirection = -1;
-	private Point mousePosition;
+	protected boolean selectionActive = false;
 	
-	private boolean selectionActive = false;
-	
-	/*public void setSelectionActive(boolean selectionActive) {
-		this.selectionActive = selectionActive;
-	}*/
-
 	public void init(SwingSystemInterface psi, UserAction[] gameActions, Properties UIProperties,
 			Action advance, Action target, Action attack, GFXUserInterface ui, Properties keyBindings){
 		super.init(gameActions, advance, target, attack, ui,keyBindings);
@@ -99,70 +83,8 @@ public class GFXUISelector extends UISelector implements ActionSelector, Seriali
 		selectionHandler = new LinkedBlockingQueue<String>();
 		if (UIProperties.getProperty("useMouse").equals("true")){
 			useMouse = true;
-			javax.swing.Action gotoDirectionAction = new AbstractAction() {
-				private static final long serialVersionUID = 1L;
-				@Override
-				public void actionPerformed(ActionEvent arg0) {
-					int quadrant = defineQuadrant(mousePosition.x, mousePosition.y);
-					mouseDirection = QDIRECTIONS[quadrant-1];
-					try {
-						selectionHandler.put("MOUSE_MOVE:"+mouseDirection);
-					} catch (InterruptedException e1) {}
-				}
-			};
-			final Timer gotoDirectionTimer = new Timer(200, gotoDirectionAction);
-			
-			psi.addMouseListener(new CallbackMouseListener<String>(selectionHandler){
-				public void mousePressed(final MouseEvent e) {
-					if (!selectionActive)
-						return;
-					if (e.getButton() == MouseEvent.BUTTON1){
-						mousePosition = e.getPoint();
-						int quadrant = defineQuadrant(mousePosition.x, mousePosition.y);
-						mouseDirection = QDIRECTIONS[quadrant-1];
-						try {
-							selectionHandler.put("MOUSE_MOVE:"+mouseDirection);
-						} catch (InterruptedException e1) {}
-						gotoDirectionTimer.start();
-					} else if (e.getButton() == MouseEvent.BUTTON3){
-						Position p = translatePosition(e.getPoint().x, e.getPoint().y);
-						try {
-							handler.put("MOUSE:"+p.x+":"+p.y);
-						} catch (InterruptedException e1) {}
-					}
-				}
-
-				public void mouseReleased(MouseEvent e) {
-					mouseDirection = -1;
-					gotoDirectionTimer.stop();
-				}
-				
-				private Position tempRel = new Position(0,0);
-				private Position translatePosition(int x, int y){
-					int bigx = (int)Math.ceil(x/32.0);
-					int bigy = (int)Math.ceil(y/32.0);
-					tempRel.x = bigx-ui().PC_POS.x-1;
-					tempRel.y = bigy-ui().PC_POS.y-1;
-					return Position.add(player.getPosition(), tempRel);
-				}
-			});
-			psi.addMouseMotionListener(new MouseMotionListener(){
-				public void mouseDragged(MouseEvent e) {
-					int newQuadrant = defineQuadrant(e.getPoint().x, e.getPoint().y);
-					if (mouseDirection != -1 && mouseDirection != QDIRECTIONS[newQuadrant-1]){
-						mouseDirection = QDIRECTIONS[newQuadrant-1];
-					}
-					mouseMoved(e);
-				}
-
-				public void mouseMoved(MouseEvent e) {
-					if (!selectionActive)
-						return;
-					mousePosition = e.getPoint();
-					int newQuadrant = defineQuadrant(e.getPoint().x, e.getPoint().y);
-					si.setCursor(QCURSORS[newQuadrant-1]);
-				}
-			});
+			psi.addMouseListener(getMouseClickListener(selectionHandler));
+			psi.addMouseMotionListener(getCursorListener());
 			
 		}
 		
@@ -187,6 +109,75 @@ public class GFXUISelector extends UISelector implements ActionSelector, Seriali
 		
 	}
 	
+	protected MouseMotionListener getCursorListener() {
+		return new MouseMotionListener(){
+			public void mouseDragged(MouseEvent e) {
+				int newQuadrant = defineQuadrant(e.getPoint().x, e.getPoint().y);
+				if (mouseDirection != -1 && mouseDirection != QDIRECTIONS[newQuadrant-1]){
+					mouseDirection = QDIRECTIONS[newQuadrant-1];
+				}
+				mouseMoved(e);
+			}
+
+			public void mouseMoved(MouseEvent e) {
+				if (!selectionActive)
+					return;
+				mousePosition = e.getPoint();
+				int newQuadrant = defineQuadrant(e.getPoint().x, e.getPoint().y);
+				si.setCursor(QCURSORS[newQuadrant-1]);
+			}
+		};
+	}
+
+	protected MouseListener getMouseClickListener(BlockingQueue<String> selectionHandler_) {
+		javax.swing.Action gotoDirectionAction = new AbstractAction() {
+			private static final long serialVersionUID = 1L;
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				int quadrant = defineQuadrant(mousePosition.x, mousePosition.y);
+				mouseDirection = QDIRECTIONS[quadrant-1];
+				try {
+					selectionHandler.put("MOUSE_MOVE:"+mouseDirection);
+				} catch (InterruptedException e1) {}
+			}
+		};
+		final Timer gotoDirectionTimer = new Timer(200, gotoDirectionAction);
+		return new CallbackMouseListener<String>(selectionHandler_){
+			public void mousePressed(final MouseEvent e) {
+				if (!selectionActive)
+					return;
+				if (e.getButton() == MouseEvent.BUTTON1){
+					mousePosition = e.getPoint();
+					int quadrant = defineQuadrant(mousePosition.x, mousePosition.y);
+					mouseDirection = QDIRECTIONS[quadrant-1];
+					try {
+						handler.put("MOUSE_MOVE:"+mouseDirection);
+					} catch (InterruptedException e1) {}
+					gotoDirectionTimer.start();
+				} else if (e.getButton() == MouseEvent.BUTTON3){
+					Position p = translatePosition(e.getPoint().x, e.getPoint().y);
+					try {
+						handler.put("MOUSE:"+p.x+":"+p.y);
+					} catch (InterruptedException e1) {}
+				}
+			}
+
+			public void mouseReleased(MouseEvent e) {
+				mouseDirection = -1;
+				gotoDirectionTimer.stop();
+			}
+			
+			private Position tempRel = new Position(0,0);
+			private Position translatePosition(int x, int y){
+				int bigx = (int)Math.ceil(x/32.0);
+				int bigy = (int)Math.ceil(y/32.0);
+				tempRel.x = bigx-ui().PC_POS.x-1;
+				tempRel.y = bigy-ui().PC_POS.y-1;
+				return Position.add(player.getPosition(), tempRel);
+			}
+		};
+	}
+
 	int x1 = (int)Math.round((800.0/9.0)*4.0);
 	int x2 = (int)Math.round((800.0/9.0)*5.0);
 	int y1 = (int)Math.round((600.0/9.0)*4.0);
@@ -328,7 +319,7 @@ public class GFXUISelector extends UISelector implements ActionSelector, Seriali
  		return null;
  	}
 	
-	private int defineQuadrant(int x, int y){
+	protected int defineQuadrant(int x, int y){
 		if (x > x2)
 			if (y > y2)
 				return 9;

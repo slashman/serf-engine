@@ -29,6 +29,10 @@ public class CleanButton extends JButton{
 		this (new ImageIcon(image));
 	}
 	
+	public CleanButton(Image image, Cursor c){
+		this (new ImageIcon(image), c);
+	}
+	
 	public CleanButton(){
 		this(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
 	}

@@ -2,10 +2,13 @@ package net.slashie.serf.ui.oryxUI;
 
 
 import java.awt.Color;
+import java.awt.Cursor;
 import java.awt.Font;
 import java.awt.FontFormatException;
 import java.awt.Graphics2D;
 import java.awt.Image;
+import java.awt.Point;
+import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
@@ -1246,6 +1249,18 @@ public abstract class GFXUserInterface extends UserInterface implements Runnable
 	public void reset() {
 		messageBox.setText("");
 		messageHistory.clear();
+	}
+
+	public static Cursor createCursor (String cursorsFile, int x, int y){
+		Toolkit tk = Toolkit.getDefaultToolkit();
+		try {
+			Image cursorImage = ImageUtils.crearImagen(cursorsFile , x*24, y*24, 24, 24);
+			Cursor c = tk.createCustomCursor(cursorImage, new Point(12,12), "gfxui-"+x+"-"+y);
+			return c;
+		} catch (IOException e) {
+			SworeGame.crash("Error loading cursors", e);
+			return null;
+		}
 	}
 }
 
