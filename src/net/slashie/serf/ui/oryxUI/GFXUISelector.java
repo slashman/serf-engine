@@ -85,7 +85,6 @@ public class GFXUISelector extends UISelector implements ActionSelector, Seriali
 			useMouse = true;
 			psi.addMouseListener(getMouseClickListener(selectionHandler));
 			psi.addMouseMotionListener(getCursorListener());
-			
 		}
 		
 		si.addKeyListener(new CallbackKeyListener<String>(selectionHandler){
@@ -220,7 +219,7 @@ public class GFXUISelector extends UISelector implements ActionSelector, Seriali
 				if (input.code == DONOTHING2_KEY) {
 					return null;
 				}
-				if (isArrow(input)){
+				if (GFXUISelector.isArrow(input)){
 					return advanceInDirection(toIntDirection(input));
 				} else {
 					ret = getRelatedAction(input.code);

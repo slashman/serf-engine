@@ -73,7 +73,7 @@ public abstract class UISelector implements ActionSelector  {
 		SELF2_KEY  = Integer.parseInt(keyBindings.getProperty("SELF2_KEY"));
 	}
 	
-    public boolean isArrow(CharKey input) {
+    public static boolean isArrow(CharKey input) {
 		return toIntDirection(input) != -1;
 	}
     

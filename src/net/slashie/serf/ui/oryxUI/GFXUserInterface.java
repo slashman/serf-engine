@@ -11,7 +11,9 @@ import java.awt.Point;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileInputStream;
@@ -219,10 +221,75 @@ public abstract class GFXUserInterface extends UserInterface implements Runnable
 		leaveScreen();
 	}
     
+    private Position getRelativeMapCoordinates_recycle = new Position(0,0);
+    private Position getRelativeMapCoordinates(MouseEvent e) {
+    	int mouseX = e.getX();
+    	int mouseY = e.getY();
+    	mouseX -= PC_POS.x * tileSize;
+    	mouseY -= PC_POS.y * tileSize;
+    	if (mouseX > 0)
+    		mouseX = (int)Math.floor(mouseX / tileSize);
+    	else
+    		mouseX = (int)Math.ceil(mouseX / tileSize) - 1;
+    	if (mouseY > 0)
+    		mouseY = (int)Math.floor(mouseY / tileSize);
+    	else
+    		mouseY = (int)Math.ceil(mouseY / tileSize) - 1;
+    	getRelativeMapCoordinates_recycle.x = mouseX;
+    	getRelativeMapCoordinates_recycle.y = mouseY;
+    	return getRelativeMapCoordinates_recycle;
+	}
+    
     //Interactive Methods
     public void doLook(){
-		Position offset = new Position (0,0);
-		
+    	((GFXUISelector)getPlayer().getSelector()).deactivate();
+    	si.setCursor(LOOK_CURSOR);
+    	BlockingQueue<String> selectionHandler = new LinkedBlockingQueue<String>();
+    	KeyListener cbkl = new CallbackKeyListener<String>(selectionHandler){
+    		@Override
+    		public void keyPressed(KeyEvent e) {
+    			try {
+					CharKey input = new CharKey(SwingSystemInterface.charCode(e));
+					if (input.code == CharKey.SPACE || input.code == CharKey.ESC){
+						handler.put("BREAK");
+					} else if (input.code == CharKey.m){
+						handler.put("MORE");
+					} else if (GFXUISelector.isArrow(input)){
+						handler.put("MOVE_CURSOR:"+input.code);
+					}
+				} catch (InterruptedException e1) {} 
+    		}
+    	};
+    	si.addKeyListener(cbkl);
+    	MouseListener cbml = null;
+    	if (useMouse){
+	    	cbml = new CallbackMouseListener<String>(selectionHandler){
+	    		@Override
+	    		public void mouseClicked(MouseEvent e) {
+	    			if (e.getButton() == MouseEvent.BUTTON1){
+	    				try {
+							Position p = getRelativeMapCoordinates(e);
+							handler.put("SET_CURSOR:"+p.x+":"+p.y);
+							if (e.getClickCount() == 2) {
+								handler.put("MORE");
+							}
+						} catch (InterruptedException e1) {}
+	    			} else if (e.getButton() == MouseEvent.BUTTON3){
+		    			try {
+							handler.put("BREAK");
+						} catch (InterruptedException e1) {}
+	    			}
+	    			
+	    		}
+	    	};
+	    	si.addMouseListener(cbml);
+    	}
+    	
+    	String message = "Looking around. Press SPACE to exit \n ";
+    	if (useMouse)
+    		message = "Looking around. Right click to exit \n ";
+    	
+    	Position offset = new Position (0,0);
 		messageBox.setForeground(COLOR_LAST_MESSAGE);
 		si.saveBuffer();
 		Actor lookedMonster = null;
@@ -259,30 +326,44 @@ public abstract class GFXUserInterface extends UserInterface implements Runnable
 					looked += ", "+ actor.getDescription();
 				}
 			}
-			messageBox.setText(looked);
+			messageBox.setText(message+looked);
 			si.drawImage((PC_POS.x + offset.x)*tileSize, ((PC_POS.y + offset.y)*tileSize), TILE_SCAN);
 			si.refresh();
-			CharKey x = new CharKey(CharKey.NONE);
-			while (x.code != CharKey.SPACE && x.code != CharKey.m && x.code != CharKey.ESC &&
-				   ! x.isArrow())
-				x = si.inkey();
-			if (x.code == CharKey.SPACE || x.code == CharKey.ESC){
+			String command = null;
+			while (command == null){
+				try {
+					command = selectionHandler.take();
+				} catch (InterruptedException e1) {}
+			}
+			if (command.equals("BREAK")){
 				si.restore();
 				break;
-			}
-			if (x.code == CharKey.m){
+			} else if (command.equals("MORE")){
 				if (lookedMonster != null)
 					showDetailedInfo(lookedMonster);
-			} else {
-				offset.add(Action.directionToVariation(GFXUISelector.toIntDirection(x)));
-	
+			} else if (command.startsWith("MOVE_CURSOR")){
+				int charcode = Integer.parseInt(command.split(":")[1]);
+				offset.add(Action.directionToVariation(GFXUISelector.toIntDirection(new CharKey(charcode))));
+				if (offset.x >= xrange) offset.x = xrange;
+				if (offset.x <= -xrange) offset.x = -xrange;
+				if (offset.y >= yrange) offset.y = yrange;
+				if (offset.y <= -yrange) offset.y = -yrange;
+			} else if (command.startsWith("SET_CURSOR")){
+				offset.x = Integer.parseInt(command.split(":")[1]);
+				offset.y = Integer.parseInt(command.split(":")[2]);
 				if (offset.x >= xrange) offset.x = xrange;
 				if (offset.x <= -xrange) offset.x = -xrange;
 				if (offset.y >= yrange) offset.y = yrange;
 				if (offset.y <= -yrange) offset.y = -yrange;
 			}
+
      	}
 		messageBox.setText("Look mode off");
+    	si.removeKeyListener(cbkl);
+    	if (useMouse){
+    		si.removeMouseListener(cbml);
+    	}
+    	((GFXUISelector)getPlayer().getSelector()).activate();
 		si.restore();
 		si.refresh();
 		
@@ -667,6 +748,9 @@ public abstract class GFXUserInterface extends UserInterface implements Runnable
 		
 	}
     
+	private Cursor LOOK_CURSOR;
+	private boolean useMouse = false;
+	
 	public void init(SwingSystemInterface psi, String title, UserCommand[] gameCommands, Properties UIProperties, Action target){
 		Debug.enterMethod(this, "init");
 		super.init(gameCommands);
@@ -675,6 +759,10 @@ public abstract class GFXUserInterface extends UserInterface implements Runnable
 
 		initProperties(UIProperties);
 		//GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice().setDisplayMode(new DisplayMode(800,600,8, DisplayMode.REFRESH_RATE_UNKNOWN));
+		
+		if (UIProperties.getProperty("useMouse").equals("true")){
+			useMouse  = true;
+		}
 		
 		try {
 			addornedTextArea = new AddornedBorderTextArea(
@@ -736,6 +824,7 @@ public abstract class GFXUserInterface extends UserInterface implements Runnable
 		persistantMessageBox.setForeground(Color.WHITE);
 		psi.add(persistantMessageBox);
 
+		LOOK_CURSOR = createCursor(UIProperties.getProperty("IMG_CURSORS"), 6, 2);
 		
 		si.setVisible(true);
 		
