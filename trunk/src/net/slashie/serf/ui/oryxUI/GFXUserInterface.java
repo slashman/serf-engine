@@ -455,7 +455,7 @@ public abstract class GFXUserInterface extends UserInterface implements Runnable
 			}
 		};
 		
-		CleanButton yesButton = new CleanButton(new ImageIcon(IMG_YES_BUTTON));
+		CleanButton yesButton = new CleanButton(new ImageIcon(IMG_YES_BUTTON), getHandCursor());
 		yesButton.setBounds(xPos + (int)Math.round((double)width / 2.0d) - IMG_YES_BUTTON.getWidth() - 20,
 				yPos + height - IMG_YES_BUTTON.getHeight() - 20,
 				IMG_YES_BUTTON.getWidth(),
@@ -465,7 +465,7 @@ public abstract class GFXUserInterface extends UserInterface implements Runnable
 		si.add(yesButton);
 		si.changeZOrder(yesButton, 1);
 
-		CleanButton noButton = new CleanButton(new ImageIcon(IMG_NO_BUTTON));
+		CleanButton noButton = new CleanButton(new ImageIcon(IMG_NO_BUTTON), getHandCursor());
 		noButton.setBounds(xPos + (int)Math.round((double)width / 2.0d) + 20,
 				yPos + height - IMG_NO_BUTTON.getHeight() - 20,
 				IMG_NO_BUTTON.getWidth(),
@@ -824,7 +824,7 @@ public abstract class GFXUserInterface extends UserInterface implements Runnable
 		persistantMessageBox.setForeground(Color.WHITE);
 		psi.add(persistantMessageBox);
 
-		LOOK_CURSOR = createCursor(UIProperties.getProperty("IMG_CURSORS"), 6, 2);
+		LOOK_CURSOR = createCursor(UIProperties.getProperty("IMG_CURSORS"), 6, 2, 10, 4);
 		
 		si.setVisible(true);
 		
@@ -1283,7 +1283,25 @@ public abstract class GFXUserInterface extends UserInterface implements Runnable
 	}
 
 	public int switchChat(String title, String prompt, Color titleColor, Color textColor, String... options) {
-		BorderedMenuBox selectionBox = new BorderedMenuBox(BORDER1, BORDER2, BORDER3, BORDER4, si, COLOR_WINDOW_BACKGROUND, COLOR_BORDER_IN, COLOR_BORDER_OUT, tileSize, 6,9,12,tileSize+6, null);
+		final Cursor defaultCursor = getDefaultCursor();
+		final Cursor handCursor = getHandCursor();
+		BorderedMenuBox selectionBox = new BorderedMenuBox(BORDER1, BORDER2, BORDER3, BORDER4, si, COLOR_WINDOW_BACKGROUND, COLOR_BORDER_IN, COLOR_BORDER_OUT, tileSize, 6,9,12,tileSize+6, null){
+			@Override
+			protected Cursor getDefaultCursor() {
+				if (defaultCursor != null)
+					return defaultCursor;
+				else
+					return super.getDefaultCursor();
+			}
+			
+			@Override
+			protected Cursor getHandCursor() {
+				if (handCursor != null)
+					return handCursor;
+				else
+					return super.getHandCursor();
+			}
+		};
    		selectionBox.setItemsPerPage(8);
    		selectionBox.setBounds(80, 300, 640,250);
   		Vector<GFXMenuItem> menuItems = new Vector<GFXMenuItem>();
@@ -1308,7 +1326,17 @@ public abstract class GFXUserInterface extends UserInterface implements Runnable
 		}
 		return -1;
 	}
+	
 		
+	public Cursor getHandCursor() {
+		return Cursor.getDefaultCursor();
+	}
+
+	public Cursor getDefaultCursor() {
+		return Cursor.getDefaultCursor();
+	}
+	
+
 	@Override
 	public int switchChat(String title, String prompt, String... options) {
    		return switchChat(title, prompt, COLOR_BOLD, Color.WHITE, options);
@@ -1340,11 +1368,12 @@ public abstract class GFXUserInterface extends UserInterface implements Runnable
 		messageHistory.clear();
 	}
 
-	public static Cursor createCursor (String cursorsFile, int x, int y){
+	
+	public static Cursor createCursor (String cursorsFile, int x, int y, int hotX, int hotY){
 		Toolkit tk = Toolkit.getDefaultToolkit();
 		try {
 			Image cursorImage = ImageUtils.crearImagen(cursorsFile , x*24, y*24, 24, 24);
-			Cursor c = tk.createCustomCursor(cursorImage, new Point(12,12), "gfxui-"+x+"-"+y);
+			Cursor c = tk.createCustomCursor(cursorImage, new Point(hotX, hotY), "gfxui-"+x+"-"+y);
 			return c;
 		} catch (IOException e) {
 			SworeGame.crash("Error loading cursors", e);

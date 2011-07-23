@@ -1,16 +1,13 @@
 package net.slashie.serf.ui.oryxUI;
 
 import java.awt.Cursor;
-import java.awt.Image;
 import java.awt.Point;
 import java.awt.Rectangle;
-import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
-import java.io.IOException;
 import java.io.Serializable;
 import java.util.Properties;
 import java.util.concurrent.BlockingQueue;
@@ -24,11 +21,9 @@ import net.slashie.serf.action.Action;
 import net.slashie.serf.action.ActionSelector;
 import net.slashie.serf.action.Actor;
 import net.slashie.serf.action.Message;
-import net.slashie.serf.game.SworeGame;
 import net.slashie.serf.ui.ActionCancelException;
 import net.slashie.serf.ui.UISelector;
 import net.slashie.serf.ui.UserAction;
-import net.slashie.utils.ImageUtils;
 import net.slashie.utils.Position;
 import net.slashie.utils.PropertyFilters;
 import net.slashie.utils.swing.CallbackKeyListener;
@@ -59,15 +54,15 @@ public class GFXUISelector extends UISelector implements ActionSelector, Seriali
 	
 	private void initializeCursors (String cursorsFile){
 		QCURSORS = new Cursor[]{
-			GFXUserInterface.createCursor(cursorsFile, 1, 2),
-			GFXUserInterface.createCursor(cursorsFile, 1, 3),
-			GFXUserInterface.createCursor(cursorsFile, 2, 2),
-			GFXUserInterface.createCursor(cursorsFile, 4, 3),
-			GFXUserInterface.createCursor(cursorsFile, 3, 1),
-			GFXUserInterface.createCursor(cursorsFile, 2, 3),
-			GFXUserInterface.createCursor(cursorsFile, 4, 2),
-			GFXUserInterface.createCursor(cursorsFile, 3, 3),
-			GFXUserInterface.createCursor(cursorsFile, 3, 2)
+			GFXUserInterface.createCursor(cursorsFile, 1, 2, 12, 12),
+			GFXUserInterface.createCursor(cursorsFile, 1, 3, 12, 12),
+			GFXUserInterface.createCursor(cursorsFile, 2, 2, 12, 12),
+			GFXUserInterface.createCursor(cursorsFile, 4, 3, 12, 12),
+			GFXUserInterface.createCursor(cursorsFile, 3, 1, 12, 12),
+			GFXUserInterface.createCursor(cursorsFile, 2, 3, 12, 12),
+			GFXUserInterface.createCursor(cursorsFile, 4, 2, 12, 12),
+			GFXUserInterface.createCursor(cursorsFile, 3, 3, 12, 12),
+			GFXUserInterface.createCursor(cursorsFile, 3, 2, 12, 12)
 		};
 	}
 	
@@ -300,8 +295,6 @@ public class GFXUISelector extends UISelector implements ActionSelector, Seriali
 		}
 	}
 	
-	
-
 	public void activate() {
 		selectionActive = true;
 	}
