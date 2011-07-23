@@ -539,6 +539,11 @@ public class SwingSystemInterface implements Runnable{
 	public Font getFont() {
 		return sip.getGraphicsFont();
 	}
+
+	
+	public Cursor getCursor() {
+		return frameMain.getCursor();
+	}
 }
 
 class SwingInterfacePanel extends JPanel{

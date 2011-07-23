@@ -175,16 +175,13 @@ public class BorderedMenuBox extends AddornedBorderPanel {
 					si.getGraphics2D().drawRect(xpos, ypos, getWidth() - 15 - getBorderWidth(), this_.itemHeight);
 					si.getGraphics2D().drawRect(xpos+1, ypos+1, getWidth() - 15 - getBorderWidth() - 2, this_.itemHeight - 2);
 					si.refresh();
-					si.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+					si.setCursor(getHandCursor());
 				} else {
 					// No grid selected
 					si.refresh();
-					si.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
-					
+					si.setCursor(getDefaultCursor());
 				}
 			}
-
-			
 		};
 		
 		si.addMouseMotionListener(mml);
@@ -232,6 +229,14 @@ public class BorderedMenuBox extends AddornedBorderPanel {
 		si.removeMouseListener(cbml);
 		si.removeMouseMotionListener(mml);
 		return selection;
+	}
+	
+	protected Cursor getDefaultCursor() {
+		return Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR);
+	}
+
+	protected Cursor getHandCursor() {
+		return Cursor.getPredefinedCursor(Cursor.HAND_CURSOR);
 	}
 	
 	public Object getSelection(CharKey key) {
@@ -321,9 +326,6 @@ public class BorderedMenuBox extends AddornedBorderPanel {
 	public void setTitleColor(Color titleColor) {
 		this.titleColor = titleColor;
 	}
-
-
-	
 
 
 }

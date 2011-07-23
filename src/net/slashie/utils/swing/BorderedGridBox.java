@@ -101,19 +101,25 @@ public class BorderedGridBox extends AddornedBorderPanel {
 						defaultMenuItemPrint(item, 32, xpos, ypos, selectedItem.selectedIndex);
 					}
 					si.refresh();
-					si.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+					si.setCursor(getHandCursor());
 				} else {
 					// No grid selected
 					si.refresh();
-					si.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
-					
+					si.setCursor(getDefaultCursor());
 				}
 			}
-
-			
 		};
 		si.addMouseMotionListener(mml);
 	}
+	
+	protected Cursor getDefaultCursor() {
+		return Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR);
+	}
+
+	protected Cursor getHandCursor() {
+		return Cursor.getPredefinedCursor(Cursor.HAND_CURSOR);
+	}
+	
 	protected SelectedItem getSelectedItemByClick(Point point, int legendLines, int lineHeight) {
 		int pixelX = point.x;
 		int pixelY = point.y;
@@ -340,9 +346,6 @@ public class BorderedGridBox extends AddornedBorderPanel {
 			closeButton.removeActionListener(cbal);
 		return selection;
 	}
-	
-	
-	
 	
 	public void setTitle(String s){
 		title = s;
