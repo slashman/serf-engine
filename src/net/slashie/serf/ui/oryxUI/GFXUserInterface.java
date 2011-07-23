@@ -1065,35 +1065,26 @@ public abstract class GFXUserInterface extends UserInterface implements Runnable
 	}
 
 	public void processQuit(){
-		messageBox.setForeground(COLOR_LAST_MESSAGE);
-		messageBox.setText(getQuitMessage()+" (y/n)");
-		si.refresh();
-		if (prompt()){
+		if (promptChat(getQuitMessage())){
 			enterScreen();
-			//si.refresh();
 			player.getGameSessionInfo().setDeathCause(GameSessionInfo.QUIT);
 			informPlayerCommand(CommandListener.QUIT);
 		}
-		messageBox.clear();
-		si.refresh();
 	}
+	
 	
 	public void processSave(){
 		if (!player.getGame().canSave()){
 			level.addMessage("You cannot save your game here!");
 			return;
 		}
-		messageBox.setForeground(COLOR_LAST_MESSAGE);
-		messageBox.setText("Save your game? (y/n)");
-		si.refresh();
-		if (prompt()){
+		
+		if (promptChat("Save your game?")){
 			messageBox.setText("Saving... ");
 			si.refresh();
 			enterScreen();
 			informPlayerCommand(CommandListener.SAVE);
 		}
-		messageBox.clear();
-		si.refresh();
 	}
 
 	public boolean prompt (){
