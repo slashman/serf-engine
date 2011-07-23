@@ -106,6 +106,7 @@ public class STMidiPlayer implements Runnable {
 		        } catch(IOException ioe) {
 		        	addReport("I/O Error for "+currentMidiFile);
 		            ioe.printStackTrace();
+		            leave = true;
 		        }
         	}
         }
