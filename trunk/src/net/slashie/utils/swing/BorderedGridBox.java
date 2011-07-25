@@ -40,7 +40,7 @@ public class BorderedGridBox extends AddornedBorderPanel {
 	protected List<? extends GFXMenuItem> items;
 	private int currentPage;
 	private int pages;
-	private List<GFXMenuItem> shownItems;
+	protected List<GFXMenuItem> shownItems;
 	private MouseMotionListener mml;
 	protected boolean hoverDisabled;
 	
@@ -52,8 +52,8 @@ public class BorderedGridBox extends AddornedBorderPanel {
 	
 	public class SelectedItem{
 		public int selectedIndex;
-		int cursorX;
-		int cursorY;
+		public int cursorX;
+		public int cursorY;
 	}
 	
 	/*UPLEFT, UPRIGHT, DOWNLEFT, DOWNRIGHT*/
