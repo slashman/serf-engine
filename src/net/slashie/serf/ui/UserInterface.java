@@ -221,4 +221,5 @@ public abstract class UserInterface implements CommandListener {
 		// TODO Auto-generated method stub
 		
 	}
+	public void onPlayerDeath() {}
 }

@@ -439,6 +439,7 @@ public abstract class GFXUserInterface extends UserInterface implements Runnable
 		addornedTextArea.setBounds(xPos, yPos, width, height);
 		addornedTextArea.setText(text);
 		addornedTextArea.setVisible(true);
+		addornedTextArea.setCursor(getDefaultCursor());
 		
 		BlockingQueue<String> selectionQueue = new LinkedBlockingQueue<String>(1);
 		
@@ -515,7 +516,6 @@ public abstract class GFXUserInterface extends UserInterface implements Runnable
 	   si.saveBuffer();
 	   boolean ret = showTextBoxPrompt(text, x, y, w, h);
 	   si.refresh();
-	   //waitKey();
 	   si.restore();
 	   return ret;
 	}
@@ -680,8 +680,8 @@ public abstract class GFXUserInterface extends UserInterface implements Runnable
 	}*/
 	
 	private boolean isCursorEnabled = false;
-	private BufferedImage IMG_YES_BUTTON;
-	private BufferedImage IMG_NO_BUTTON;
+	protected BufferedImage IMG_YES_BUTTON;
+	protected BufferedImage IMG_NO_BUTTON;
 	
 	private void initProperties(Properties p){
 		xrange = PropertyFilters.inte(p.getProperty("XRANGE"));
@@ -1216,13 +1216,7 @@ public abstract class GFXUserInterface extends UserInterface implements Runnable
 		flipFacing = false;
 	}
 	
-    
-	
-	
-	
-	
-
-//	Runnable interface
+    // Runnable interface
 	public void run (){}
 	
 //	IO Utility    
