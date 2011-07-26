@@ -1,6 +1,7 @@
 package net.slashie.utils.swing;
 
 import java.awt.Cursor;
+import java.awt.Graphics;
 import java.awt.Image;
 
 import javax.swing.ImageIcon;
@@ -8,9 +9,11 @@ import javax.swing.JButton;
 
 public class CleanButton extends JButton{
 	private static final long serialVersionUID = 1L;
-
+	private Image backgroundImage;
+	
 	public CleanButton(ImageIcon icon, Cursor c){
-		super(icon);
+		//super(icon);
+		this.backgroundImage = icon.getImage();
 		clean();
 		setCursor(c);
 	}
@@ -27,6 +30,14 @@ public class CleanButton extends JButton{
 	
 	public CleanButton(Image image){
 		this (new ImageIcon(image));
+	}
+	
+	@Override
+	protected void paintComponent(Graphics g) {
+		if (backgroundImage != null) {
+			g.drawImage(backgroundImage, 0, 0, getWidth(), getHeight(), this);
+		}
+		super.paintComponent(g);
 	}
 	
 	public CleanButton(Image image, Cursor c){
