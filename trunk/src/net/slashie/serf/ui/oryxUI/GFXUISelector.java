@@ -10,6 +10,7 @@ import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.io.Serializable;
 import java.util.Properties;
+import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
@@ -76,6 +77,7 @@ public class GFXUISelector extends UISelector implements ActionSelector, Seriali
 		super.init(gameActions, advance, target, attack, ui,keyBindings);
 		this.si = psi;
 		selectionHandler = new LinkedBlockingQueue<String>();
+		//selectionHandler = new ArrayBlockingQueue<String>(1);
 		if (UIProperties.getProperty("useMouse").equals("true")){
 			useMouse = true;
 			psi.addMouseListener(getMouseClickListener(selectionHandler));
@@ -128,10 +130,13 @@ public class GFXUISelector extends UISelector implements ActionSelector, Seriali
 			private static final long serialVersionUID = 1L;
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
+				if (!selectionActive)
+					return;
 				int quadrant = defineQuadrant(mousePosition.x, mousePosition.y);
 				mouseDirection = QDIRECTIONS[quadrant-1];
 				try {
 					selectionHandler.put("MOUSE_MOVE:"+mouseDirection);
+					
 				} catch (InterruptedException e1) {}
 			}
 		};
@@ -146,6 +151,7 @@ public class GFXUISelector extends UISelector implements ActionSelector, Seriali
 					mouseDirection = QDIRECTIONS[quadrant-1];
 					try {
 						handler.put("MOUSE_MOVE:"+mouseDirection);
+						
 					} catch (InterruptedException e1) {}
 					gotoDirectionTimer.start();
 				} else if (e.getButton() == MouseEvent.BUTTON3){
@@ -305,6 +311,8 @@ public class GFXUISelector extends UISelector implements ActionSelector, Seriali
 	
 	public void deactivate() {
 		selectionActive = false;
+		// Empty the selection queue
+		selectionHandler.clear();
 	}
 
 	public String getID(){
