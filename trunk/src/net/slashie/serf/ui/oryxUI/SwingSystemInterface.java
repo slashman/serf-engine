@@ -17,6 +17,7 @@ import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
+import java.lang.reflect.InvocationTargetException;
 import java.util.Hashtable;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -24,6 +25,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 import javax.swing.JFrame;
 import javax.swing.JLayeredPane;
 import javax.swing.JPanel;
+import javax.swing.SwingUtilities;
 import javax.swing.border.LineBorder;
 
 import net.slashie.libjcsi.CharKey;
@@ -31,6 +33,7 @@ import net.slashie.serf.game.SworeGame;
 import net.slashie.utils.ImageUtils;
 import net.slashie.utils.Position;
 import net.slashie.utils.swing.CallbackKeyListener;
+import net.slashie.utils.swing.CallbackMouseListener;
 
 public class SwingSystemInterface implements Runnable{ 
 	public void run(){
@@ -382,19 +385,82 @@ public class SwingSystemInterface implements Runnable{
 		sip.flash(c);
 	}
 	
-	public void add(Component c){
-		sip.add(c);
-		sip.validate();
+	public void add(final Component c){
+		if (SwingUtilities.isEventDispatchThread()){
+			sip.add(c);
+			sip.validate();
+			if (c.isVisible())
+				sip.repaint();
+		} else {
+			monitor();
+			try {
+				SwingUtilities.invokeAndWait(new Runnable(){
+					@Override
+					public void run() {
+						sip.add(c);
+						sip.validate();
+						if (c.isVisible())
+							sip.repaint();
+					}
+				});
+			} catch (InterruptedException e) {
+			} catch (InvocationTargetException e) {
+				e.printStackTrace();
+			}
+		}
+		
+		/*sip.add(c);
+		sip.validate();*/
 	}
 	
-	public void changeZOrder(Component c, int zOrder){
-		sip.setComponentZOrder(c, zOrder);
-		sip.validate();
+	private void monitor(){
 	}
 	
-	public void remove(Component c){
-		sip.remove(c);
-		sip.validate();
+	public void changeZOrder(final Component c, final int zOrder){
+		if (SwingUtilities.isEventDispatchThread()){
+			sip.setComponentZOrder(c, zOrder);
+			sip.validate();
+		} else {
+			monitor();
+			try {
+				SwingUtilities.invokeAndWait(new Runnable(){
+					@Override
+					public void run() {
+						sip.setComponentZOrder(c, zOrder);
+						sip.validate();
+					}
+				});
+			} catch (InterruptedException e) {
+			} catch (InvocationTargetException e) {
+				e.printStackTrace();
+			}
+		}
+		
+		/*sip.setComponentZOrder(c, zOrder);
+		sip.validate();*/
+	}
+	
+	public void remove(final Component c){
+		if (SwingUtilities.isEventDispatchThread()){
+			sip.remove(c);
+			sip.validate();
+		} else {
+			monitor();
+			try {
+				SwingUtilities.invokeAndWait(new Runnable(){
+					@Override
+					public void run() {
+						sip.remove(c);
+						sip.validate();
+					}
+				});
+			} catch (InterruptedException e) {
+			} catch (InvocationTargetException e) {
+				e.printStackTrace();
+			}
+		}
+		/*sip.remove(c);
+		sip.validate();*/
 	}
 	
 	public void recoverFocus(){
@@ -567,6 +633,38 @@ public class SwingSystemInterface implements Runnable{
 			return CharKey.a + c - 'a';
 		}
 		return null;
+	}
+
+	public void waitKeyOrClick(final int keyCode) {
+		BlockingQueue<String> waitKeyOrClickHandler = new LinkedBlockingQueue<String>();
+		CallbackMouseListener<String> cbml = new CallbackMouseListener<String>(waitKeyOrClickHandler){
+			@Override
+			public void mousePressed(MouseEvent e) {
+				try {
+					handler.put("OK");
+				} catch (InterruptedException e1) {}
+			}
+		};
+		addMouseListener(cbml);
+		CallbackKeyListener<String> cbkl = new CallbackKeyListener<String>(waitKeyOrClickHandler){
+			@Override
+			public void keyPressed(KeyEvent e) {
+				try {
+					if (SwingSystemInterface.charCode(e) == keyCode)
+						handler.put("OK");
+				} catch (InterruptedException e1) {}
+			}
+		};
+		addKeyListener(cbkl);
+		String take = null;
+		while (take == null){
+			try {
+				take = waitKeyOrClickHandler.take();
+			} catch (InterruptedException e1) {}
+		};
+		removeMouseListener(cbml);
+		removeKeyListener(cbkl);
+		
 	}
 }
 
