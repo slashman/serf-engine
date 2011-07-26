@@ -295,7 +295,7 @@ public abstract class GFXUserInterface extends UserInterface implements Runnable
 		Actor lookedMonster = null;
 		while (true){
 			int cellHeight = 0;
-			Position browser = Position.add(player.getPosition(), offset);
+			Position browser = getRelativePosition(player.getPosition(), offset);
 			String looked = "";
 			si.restore();
 			if (FOVMask[PC_POS.x + offset.x][PC_POS.y + offset.y]){
@@ -370,11 +370,13 @@ public abstract class GFXUserInterface extends UserInterface implements Runnable
 	
 	}
 
-    public abstract void showDetailedInfo(Actor a);
+    protected Position getRelativePosition(Position position, Position offset) {
+		return Position.add(player.getPosition(), offset);
+	}
 
+	public abstract void showDetailedInfo(Actor a);
 
-    
-   public void chat (String message){
+    public void chat (String message){
 	   si.saveBuffer();
 	   showTextBox(message, 280, 30, 330, 170);
 	   si.refresh();
