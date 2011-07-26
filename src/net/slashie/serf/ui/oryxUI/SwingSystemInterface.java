@@ -8,22 +8,18 @@ import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
-import java.awt.GraphicsConfiguration;
-import java.awt.GraphicsDevice;
-import java.awt.GraphicsEnvironment;
 import java.awt.GridLayout;
 import java.awt.Image;
 import java.awt.Point;
 import java.awt.Toolkit;
-import java.awt.Transparency;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
-import java.awt.image.BufferedImage;
-import java.io.IOException;
 import java.util.Hashtable;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
 
 import javax.swing.JFrame;
 import javax.swing.JLayeredPane;
@@ -43,7 +39,8 @@ public class SwingSystemInterface implements Runnable{
 
 	private StrokeNClickInformer aStrokeInformer;
 	private Position caretPosition = new Position(0,0);
-	private Hashtable images = new Hashtable();
+	private Hashtable<String, Image> images = new Hashtable<String, Image>();
+	private BlockingQueue <Integer> inputQueue = new LinkedBlockingQueue<Integer>();
 	
 	//private JTextArea invTextArea;
 	private JFrame frameMain;
@@ -100,6 +97,18 @@ public class SwingSystemInterface implements Runnable{
 		frameMain.addKeyListener(aStrokeInformer);
 		frameMain.addMouseListener(aStrokeInformer);
 		sip.init();
+	
+		KeyListener kl = new CallbackKeyListener<Integer>(inputQueue){
+			
+			@Override
+			public void keyPressed(KeyEvent e) {
+				try {
+					handler.put(SwingSystemInterface.charCode(e));
+				} catch (InterruptedException e1) {}
+			}
+		};
+		
+		addKeyListener(kl);
 		
 		frameMain.addMouseMotionListener(new MouseMotionListener(){
 			public void mouseDragged(MouseEvent e) {
@@ -314,8 +323,13 @@ public class SwingSystemInterface implements Runnable{
 			restore();
 			printAtPixel(xpos, ypos, ret+"_", textColor);
 			refresh();
-			while (read.code == CharKey.NONE)
-				read = inkey();
+			Integer code = null;
+			while (code == null){
+				try {
+					code = inputQueue.take();
+				} catch (InterruptedException e) {}
+			}
+			read.code = code;
 			if (read.code == CharKey.ENTER)
 				break;
 			if (read.code == CharKey.BACKSPACE){
@@ -328,7 +342,6 @@ public class SwingSystemInterface implements Runnable{
 				else
 					ret = "";
                 caretPosition.x--;
-				//print(caretPosition.x, caretPosition.y, " ");
             }
 			else {
 				if (ret.length() >= maxLength){
@@ -340,9 +353,8 @@ public class SwingSystemInterface implements Runnable{
 					continue;
 				}
 					
-				String nuevo = read.toString();
-				//print(caretPosition.x, caretPosition.y, nuevo, Color.WHITE);
-				ret +=nuevo;
+				String new_ = read.toString();
+				ret += new_;
 				caretPosition.x++;
 			}
 			read.code = CharKey.NONE;
@@ -540,9 +552,21 @@ public class SwingSystemInterface implements Runnable{
 		return sip.getGraphicsFont();
 	}
 
-	
 	public Cursor getCursor() {
 		return frameMain.getCursor();
+	}
+	
+	public BlockingQueue<Integer> getInputQueue(){
+		return inputQueue;
+	}
+
+	public static Integer charCode(char c) {
+		if (c >= 'A' && c <= 'Z'){
+			return CharKey.A + c - 'A';
+		} else if (c >= 'a' && c <= 'z'){
+			return CharKey.a + c - 'a';
+		}
+		return null;
 	}
 }
 
