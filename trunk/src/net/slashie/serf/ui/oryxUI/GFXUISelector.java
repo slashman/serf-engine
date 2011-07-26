@@ -200,7 +200,7 @@ public class GFXUISelector extends UISelector implements ActionSelector, Seriali
 					selection = selectionHandler.take();
 				} catch (InterruptedException e) {}
 	    	}
-	    	System.out.println("Selection "+selection);
+	    	// System.out.println("Selection "+selection);
 	    	String[] commands = selection.split(":");
 	    	if (commands[0].equals("KEY")){
 	    		int key = Integer.parseInt(commands[1]);
