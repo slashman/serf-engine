@@ -238,6 +238,10 @@ public class GFXUISelector extends UISelector implements ActionSelector, Seriali
 	    		if (!useMouse){
 	    			continue;
 	    		}
+	    		if (target == null){
+	    			// No action set up for direct action
+	    			continue;
+	    		}
 	    		Position mousePosition = new Position(Integer.parseInt(commands[1]),Integer.parseInt(commands[2]));
 				if (level.isValidCoordinate(mousePosition)){
 					Action ret = target;
