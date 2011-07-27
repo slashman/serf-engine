@@ -55,15 +55,15 @@ public class GFXUISelector extends UISelector implements ActionSelector, Seriali
 	
 	private void initializeCursors (String cursorsFile){
 		QCURSORS = new Cursor[]{
-			GFXUserInterface.createCursor(cursorsFile, 1, 2, 12, 12),
-			GFXUserInterface.createCursor(cursorsFile, 1, 3, 12, 12),
-			GFXUserInterface.createCursor(cursorsFile, 2, 2, 12, 12),
-			GFXUserInterface.createCursor(cursorsFile, 4, 3, 12, 12),
+			GFXUserInterface.createCursor(cursorsFile, 1, 2, 4, 4),
+			GFXUserInterface.createCursor(cursorsFile, 1, 3, 12, 4),
+			GFXUserInterface.createCursor(cursorsFile, 2, 2, 20, 4),
+			GFXUserInterface.createCursor(cursorsFile, 4, 3, 4, 12),
 			GFXUserInterface.createCursor(cursorsFile, 3, 1, 12, 12),
-			GFXUserInterface.createCursor(cursorsFile, 2, 3, 12, 12),
-			GFXUserInterface.createCursor(cursorsFile, 4, 2, 12, 12),
-			GFXUserInterface.createCursor(cursorsFile, 3, 3, 12, 12),
-			GFXUserInterface.createCursor(cursorsFile, 3, 2, 12, 12)
+			GFXUserInterface.createCursor(cursorsFile, 2, 3, 20, 12),
+			GFXUserInterface.createCursor(cursorsFile, 4, 2, 4, 20),
+			GFXUserInterface.createCursor(cursorsFile, 3, 3, 12, 20),
+			GFXUserInterface.createCursor(cursorsFile, 3, 2, 20, 20)
 		};
 	}
 	
