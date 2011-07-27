@@ -4,14 +4,19 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Cursor;
 import java.awt.Dimension;
+import java.awt.DisplayMode;
 import java.awt.Font;
 import java.awt.FontMetrics;
+import java.awt.Frame;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.GraphicsDevice;
+import java.awt.GraphicsEnvironment;
 import java.awt.GridLayout;
 import java.awt.Image;
 import java.awt.Point;
 import java.awt.Toolkit;
+import java.awt.Window;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
@@ -76,17 +81,7 @@ public class SwingSystemInterface implements Runnable{
 	}
 	
 	public SwingSystemInterface (){
-		Dimension size = Toolkit.getDefaultToolkit().getScreenSize();
-		
-		frameMain = new JFrame();
-		frameMain.setBounds((size.width - 800)/2,(size.height-600)/2,800,600);
-		frameMain.getContentPane().setLayout(new GridLayout(1,1));
-		frameMain.setUndecorated(true);
-		frameMain.setVisible(true);
-		frameMain.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		frameMain.setBackground(Color.BLACK);
-		frameMain.setFocusable(true);
-		frameMain.getContentPane().setLayout(null);
+		Component grandPa = initFullScreen();
 		
 		JLayeredPane layeredPane = new JLayeredPane();
 		frameMain.getContentPane().add(layeredPane);
@@ -95,10 +90,9 @@ public class SwingSystemInterface implements Runnable{
 		sip.setBounds(0,0,800,600);
 		layeredPane.add(sip);
 		
-		
 		aStrokeInformer = new StrokeNClickInformer();
-		frameMain.addKeyListener(aStrokeInformer);
-		frameMain.addMouseListener(aStrokeInformer);
+		grandPa.addKeyListener(aStrokeInformer);
+		grandPa.addMouseListener(aStrokeInformer);
 		sip.init();
 	
 		KeyListener kl = new CallbackKeyListener<Integer>(inputQueue){
@@ -111,11 +105,13 @@ public class SwingSystemInterface implements Runnable{
 			}
 		};
 		
-		addKeyListener(kl);
+		grandPa.addKeyListener(kl);
 		
-		frameMain.addMouseMotionListener(new MouseMotionListener(){
+		grandPa.addMouseMotionListener(new MouseMotionListener(){
 			public void mouseDragged(MouseEvent e) {
-				if (e.getY() > 24)
+				/*if (e.getY() > 24 || e.getX() < 800 - 24)
+					return;*/
+				if (posClic.getY() > 26 || posClic.getX() < 800 - 26)
 					return;
 		        frameMain.setLocation(e.getX()-posClic.x+frameMain.getLocation().x, e.getY()-posClic.y+frameMain.getLocation().y);
 			}
@@ -123,7 +119,7 @@ public class SwingSystemInterface implements Runnable{
 			public void mouseMoved(MouseEvent e) {}
         	
         });
-		frameMain.addMouseListener(new MouseListener(){
+		grandPa.addMouseListener(new MouseListener(){
 
 			public void mouseClicked(MouseEvent e) {}
 
@@ -139,6 +135,59 @@ public class SwingSystemInterface implements Runnable{
         });
 	}
 	
+	private Component initFullScreen() {
+		GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
+		GraphicsDevice gs = ge.getDefaultScreenDevice();
+		
+		if (gs.isFullScreenSupported()){
+			System.out.println("Fullscreen supported");
+			
+			frameMain = new JFrame(gs.getDefaultConfiguration());
+			frameMain.setBounds(0,0,800,600);
+			frameMain.getContentPane().setLayout(new GridLayout(1,1));
+			frameMain.setUndecorated(true);
+			frameMain.setVisible(true);
+			frameMain.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+			frameMain.setBackground(Color.BLACK);
+			frameMain.setFocusable(true);
+			frameMain.getContentPane().setLayout(null);
+			
+			Window win = new Window(frameMain);
+    		//frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+    		gs.setFullScreenWindow(win);
+    		win.validate();
+    		boolean canChg = gs.isDisplayChangeSupported();
+    		if (canChg) {
+    			System.out.println("Can change screen size");
+    	        // Change the screen size and number of colors
+    	        DisplayMode displayMode = gs.getDisplayMode();
+    	        int screenWidth = 800;
+    	        int screenHeight = 600;
+    	        int bitDepth = 16;
+    	        displayMode = new DisplayMode(screenWidth, screenHeight, bitDepth, displayMode.getRefreshRate());
+    	        try {
+    	            gs.setDisplayMode(displayMode);
+    	        } catch (Throwable e) {
+    	        	System.out.println("Desired display mode is not supported; leave full-screen mode");
+    	            gs.setFullScreenWindow(null);
+    	        }
+    	    } 
+    		return win;
+    	} else {
+    		Dimension size = Toolkit.getDefaultToolkit().getScreenSize();
+    		frameMain = new JFrame();
+    		frameMain.setBounds((size.width - 800)/2,(size.height-600)/2,800,600);
+    		frameMain.getContentPane().setLayout(new GridLayout(1,1));
+    		frameMain.setUndecorated(true);
+    		frameMain.setVisible(true);
+    		frameMain.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+    		frameMain.setBackground(Color.BLACK);
+    		frameMain.setFocusable(true);
+    		frameMain.getContentPane().setLayout(null);
+    		return frameMain;
+    	}
+	}
+
 	/*public SwingSystemInterface(){
 		GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
 		GraphicsDevice  gs = ge.getDefaultScreenDevice();
