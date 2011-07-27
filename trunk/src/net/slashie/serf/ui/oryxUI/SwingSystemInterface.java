@@ -81,7 +81,23 @@ public class SwingSystemInterface implements Runnable{
 	}
 	
 	public SwingSystemInterface (){
-		Component grandPa = initFullScreen();
+		this(false);
+	}
+	public SwingSystemInterface (boolean fullScreen){
+		if (fullScreen)
+			initFullScreen();
+		else {
+			Dimension size = Toolkit.getDefaultToolkit().getScreenSize();
+    		frameMain = new JFrame();
+    		frameMain.setBounds((size.width - 800)/2,(size.height-600)/2,800,600);
+    		frameMain.getContentPane().setLayout(new GridLayout(1,1));
+    		frameMain.setUndecorated(true);
+    		frameMain.setVisible(true);
+    		frameMain.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+    		frameMain.setBackground(Color.BLACK);
+    		frameMain.setFocusable(true);
+    		frameMain.getContentPane().setLayout(null);
+		}
 		
 		JLayeredPane layeredPane = new JLayeredPane();
 		frameMain.getContentPane().add(layeredPane);
@@ -91,8 +107,8 @@ public class SwingSystemInterface implements Runnable{
 		layeredPane.add(sip);
 		
 		aStrokeInformer = new StrokeNClickInformer();
-		grandPa.addKeyListener(aStrokeInformer);
-		grandPa.addMouseListener(aStrokeInformer);
+		frameMain.addKeyListener(aStrokeInformer);
+		frameMain.addMouseListener(aStrokeInformer);
 		sip.init();
 	
 		KeyListener kl = new CallbackKeyListener<Integer>(inputQueue){
@@ -105,12 +121,12 @@ public class SwingSystemInterface implements Runnable{
 			}
 		};
 		
-		grandPa.addKeyListener(kl);
+		frameMain.addKeyListener(kl);
 		
-		grandPa.addMouseMotionListener(new MouseMotionListener(){
+		frameMain.addMouseMotionListener(new MouseMotionListener(){
 			public void mouseDragged(MouseEvent e) {
-				/*if (e.getY() > 24 || e.getX() < 800 - 24)
-					return;*/
+				if (isFullScreen)
+					return;
 				if (posClic.getY() > 26 || posClic.getX() < 800 - 26)
 					return;
 		        frameMain.setLocation(e.getX()-posClic.x+frameMain.getLocation().x, e.getY()-posClic.y+frameMain.getLocation().y);
@@ -119,7 +135,7 @@ public class SwingSystemInterface implements Runnable{
 			public void mouseMoved(MouseEvent e) {}
         	
         });
-		grandPa.addMouseListener(new MouseListener(){
+		frameMain.addMouseListener(new MouseListener(){
 
 			public void mouseClicked(MouseEvent e) {}
 
@@ -135,6 +151,7 @@ public class SwingSystemInterface implements Runnable{
         });
 	}
 	
+	private boolean isFullScreen = false;
 	private Component initFullScreen() {
 		GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
 		GraphicsDevice gs = ge.getDefaultScreenDevice();
@@ -142,6 +159,7 @@ public class SwingSystemInterface implements Runnable{
 		if (gs.isFullScreenSupported()){
 			System.out.println("Fullscreen supported");
 			
+			// frameMain = new JFrame(gs.getDefaultConfiguration());
 			frameMain = new JFrame(gs.getDefaultConfiguration());
 			frameMain.setBounds(0,0,800,600);
 			frameMain.getContentPane().setLayout(new GridLayout(1,1));
@@ -152,10 +170,11 @@ public class SwingSystemInterface implements Runnable{
 			frameMain.setFocusable(true);
 			frameMain.getContentPane().setLayout(null);
 			
-			Window win = new Window(frameMain);
-    		//frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-    		gs.setFullScreenWindow(win);
-    		win.validate();
+			//Window win = new Window(frameMain);
+			//gs.setFullScreenWindow(win);
+			//win.validate();
+			gs.setFullScreenWindow(frameMain);
+			frameMain.validate();
     		boolean canChg = gs.isDisplayChangeSupported();
     		if (canChg) {
     			System.out.println("Can change screen size");
@@ -167,12 +186,18 @@ public class SwingSystemInterface implements Runnable{
     	        displayMode = new DisplayMode(screenWidth, screenHeight, bitDepth, displayMode.getRefreshRate());
     	        try {
     	            gs.setDisplayMode(displayMode);
+    	            isFullScreen = true;
     	        } catch (Throwable e) {
     	        	System.out.println("Desired display mode is not supported; leave full-screen mode");
     	            gs.setFullScreenWindow(null);
     	        }
-    	    } 
-    		return win;
+    	    }
+    		try {
+				Thread.sleep(3000);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+    		return frameMain;
     	} else {
     		Dimension size = Toolkit.getDefaultToolkit().getScreenSize();
     		frameMain = new JFrame();
@@ -188,61 +213,6 @@ public class SwingSystemInterface implements Runnable{
     	}
 	}
 
-	/*public SwingSystemInterface(){
-		GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
-		GraphicsDevice  gs = ge.getDefaultScreenDevice();
-		// Determine if the display mode can be changed
-		/*boolean canChg = gs.isDisplayChangeSupported();
-		if (canChg) {
-			System.out.println("Can change screen size");
-	        // Change the screen size and number of colors
-	        DisplayMode displayMode = gs.getDisplayMode();
-	        int screenWidth = 800;
-	        int screenHeight = 600;
-	        int bitDepth = 8;
-	        displayMode = new DisplayMode(
-	            screenWidth, screenHeight, bitDepth, displayMode.getRefreshRate());
-	        try {
-	            gs.setDisplayMode(displayMode);
-	        } catch (Throwable e) {
-	        	System.out.println("Desired display mode is not supported; leave full-screen mode");
-	            gs.setFullScreenWindow(null);
-	        }
-	    //} 
-		if (gs.isFullScreenSupported()){
-			System.out.println("Fullscreen supported");
-    		Frame frame = new Frame(gs.getDefaultConfiguration());
-    		Window win = new Window(frame);
-    		frame.setLayout(new GridLayout(1,1));
-    		sip = new SwingInterfacePanel();
-    		frame.add(sip);
-    		frame.setVisible(true);
-    		//frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-    		aStrokeInformer = new StrokeInformer();
-    		frame.addKeyListener(aStrokeInformer);
-    		sip.init();
-    		gs.setFullScreenWindow(win);
-    		win.validate();
-    	} else {
-    		JFrame frame = new JFrame();
-    		frame.setBounds(0,0,800,600);
-    		frame.getContentPane().setLayout(new GridLayout(1,1));
-    		sip = new SwingInterfacePanel();
-    		frame.getContentPane().add(sip);
-    		frame.setVisible(true);
-    		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-    		aStrokeInformer = new StrokeInformer();
-    		frame.addKeyListener(aStrokeInformer);
-    		sip.init();
-    	}
-		
-		//frame.setBounds(0,0,800,600);
-		
-		invTextArea = new JTextArea();
-		invTextArea.setVisible(false);
-		add(invTextArea);
-		
-	}*/
 	
 	public void cls(){
 		sip.cls();
