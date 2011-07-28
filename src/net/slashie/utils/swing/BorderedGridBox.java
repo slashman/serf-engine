@@ -95,7 +95,7 @@ public class BorderedGridBox extends AddornedBorderPanel {
 					if (item instanceof CustomGFXMenuItem){
 						((CustomGFXMenuItem) item).drawMenuItem(si, xpos, ypos, selectedItem.selectedIndex, true);
 						if (((CustomGFXMenuItem) item).showTooltip()){
-							((CustomGFXMenuItem) item).drawTooltip(si, xpos, ypos);
+							((CustomGFXMenuItem) item).drawTooltip(si, xpos, ypos, selectedItem.selectedIndex);
 						}
 					} else {
 						defaultMenuItemPrint(item, 32, xpos, ypos, selectedItem.selectedIndex);
