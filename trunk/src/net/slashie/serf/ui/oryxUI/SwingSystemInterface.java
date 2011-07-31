@@ -54,6 +54,8 @@ public class SwingSystemInterface implements Runnable{
 	private JFrame frameMain;
 	private Point posClic;
 
+	private CallbackKeyListener<Integer> inputQueueKeyListener;
+
 	public void addMouseListener(MouseListener listener){
 		frameMain.removeMouseListener(listener);
 		frameMain.addMouseListener(listener);
@@ -111,7 +113,7 @@ public class SwingSystemInterface implements Runnable{
 		frameMain.addMouseListener(aStrokeInformer);
 		sip.init();
 	
-		KeyListener kl = new CallbackKeyListener<Integer>(inputQueue){
+		inputQueueKeyListener = new CallbackKeyListener<Integer>(inputQueue){
 			
 			@Override
 			public void keyPressed(KeyEvent e) {
@@ -120,8 +122,6 @@ public class SwingSystemInterface implements Runnable{
 				} catch (InterruptedException e1) {}
 			}
 		};
-		
-		frameMain.addKeyListener(kl);
 		
 		frameMain.addMouseMotionListener(new MouseMotionListener(){
 			public void mouseDragged(MouseEvent e) {
@@ -338,6 +338,7 @@ public class SwingSystemInterface implements Runnable{
 	}
 	
 	public String input(int xpos,int ypos, Color textColor, int maxLength){
+		frameMain.addKeyListener(inputQueueKeyListener);
 		String ret = "";
 		CharKey read = new CharKey(CharKey.NONE);
 		saveBuffer();
@@ -381,6 +382,7 @@ public class SwingSystemInterface implements Runnable{
 			}
 			read.code = CharKey.NONE;
 		}
+		frameMain.removeKeyListener(inputQueueKeyListener);
 		return ret;
 	}
 	
