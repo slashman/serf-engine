@@ -192,7 +192,7 @@ public abstract class GFXUserInterface extends UserInterface implements Runnable
 		
 	}
     
-    private void enterScreen(){
+    protected void enterScreen(){
     	messageBox.setVisible(false);
     	isCursorEnabled = false;
     }
@@ -387,7 +387,7 @@ public abstract class GFXUserInterface extends UserInterface implements Runnable
 	public void showTextBox(String text, int x, int y, int w, int h){
 		printTextBox(text, x, y, w, h);
 		
-		BlockingQueue<String> selectionQueue = new LinkedBlockingQueue<String>(1);
+		BlockingQueue<String> selectionQueue = new LinkedBlockingQueue<String>();
 		
 		CallbackKeyListener<String> cbkl = new CallbackKeyListener<String>(selectionQueue){
 			@Override
@@ -443,7 +443,7 @@ public abstract class GFXUserInterface extends UserInterface implements Runnable
 		addornedTextArea.setVisible(true);
 		addornedTextArea.setCursor(getDefaultCursor());
 		
-		BlockingQueue<String> selectionQueue = new LinkedBlockingQueue<String>(1);
+		BlockingQueue<String> selectionQueue = new LinkedBlockingQueue<String>();
 		
 		CallbackKeyListener<String> cbkl = new CallbackKeyListener<String>(selectionQueue){
 			@Override
@@ -1205,6 +1205,7 @@ public abstract class GFXUserInterface extends UserInterface implements Runnable
 	}
 	
 	public void showSystemMessage(String x){
+		messageBox.setVisible(true);
 		messageBox.setForeground(COLOR_LAST_MESSAGE);
 		messageBox.setText(x);
 		//si.refresh();
