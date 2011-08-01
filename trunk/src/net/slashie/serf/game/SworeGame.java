@@ -222,18 +222,17 @@ public abstract class SworeGame implements CommandListener, PlayerEventListener,
 				currentLevel.setPlayer(player);
 				ui.setPlayer(player);
 				uiSelector.setPlayer(player);
+				if(currentLevel.getExitFor(formerLevelID) != null){
+					player.setPosition(currentLevel.getExitFor(formerLevelID));
+				} else if(currentLevel.getExitFor("_START") != null) {
+					player.setPosition(currentLevel.getExitFor("_START"));
+				}
 				onLevelLoad(currentLevel);
 			} catch (SworeException sworee){
 				crash("Error while creating level "+levelID, sworee);
 			}
 		}
 		player.setLevel(currentLevel);
-		
-		if(currentLevel.getExitFor(formerLevelID) != null){
-			player.setPosition(currentLevel.getExitFor(formerLevelID));
-		} else if(currentLevel.getExitFor("_START") != null) {
-			player.setPosition(currentLevel.getExitFor("_START"));
-		}
 		
 		dispatcher = currentLevel.getDispatcher();
 		
@@ -347,6 +346,10 @@ public abstract class SworeGame implements CommandListener, PlayerEventListener,
 		if (FileUtil.fileExists(filename)) {
 			FileUtil.deleteFile(filename);
 		}
+	}
+	
+	public boolean isGameOver(){
+		return endGame;
 	}
 	
 }
