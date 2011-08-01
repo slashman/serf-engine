@@ -26,14 +26,13 @@ import net.slashie.utils.Position;
  */
 
 public class FOV {
-	private int scale;
+	private final static boolean DEBUG = false;
+	private int xScale = 1;
+	private int yScale = 1;
 	
-	public int getScale() {
-		return scale;
-	}
-
-	public void setScale(int scale) {
-		this.scale = scale;
+	public void setScale(int xScale, int yScale) {
+		this.xScale = xScale;
+		this.yScale = yScale;
 	}
 
 	double slope(double x1, double y1, double x2, double y2){
@@ -898,19 +897,37 @@ public class FOV {
 		}
 	}
 	
-	private int maxRadiusX;
+	private int maxRadius;
 	private int startX, startY;
 	private boolean circle;
 	
-	public void startCircle(FOVMap map, int x, int y, int maxRadius){
+	public void startCircle(FOVMap map, int x, int y, int range){
 		circle = true;
-		this.maxRadiusX = maxRadius;
 		startX = x;
 		startY = y;
-		start(map, x, y, maxRadius);
+		maxRadius = range;
+		start(map, x, y, range);
+		if (DEBUG){
+			printApplied();
+			applied = new String[50][50];
+		}
 	}
 	
-	public void start(FOVMap map, int x, int y, int maxRadius)
+	private void printApplied(){
+		System.out.print("Max Radius "+maxRadius);
+		for (int x = 0; x < 50; x++){
+			for (int y = 0; y < 50; y++){
+				if (applied[x][y] == null){
+					System.out.print("-");
+				} else {
+					System.out.print(applied[x][y]);
+				}
+			}
+			System.out.println();
+		}
+	}
+	
+	private void start(FOVMap map, int x, int y, int maxRadius)
 	{
 		if(map == null)
 		{
@@ -1088,31 +1105,32 @@ public class FOV {
 	
 	boolean scanCell(FOVMap map, int x, int y)
 	{
-		int gridX = x;
-		int gridY = y;
-		if (scale != 1){
-			gridX = startX + (startX - x) * scale;
-			gridY = startY + (startY - y) * scale;
-		}
-		if (!circle)
-			return map.blockLOS(gridX,gridY);
-		else {
-			if (Position.flatDistance(gridX,gridY, startX, startY) >= maxRadiusX)
-				return true;
-			else
-				return map.blockLOS(gridX,gridY);
-		}
+		int relx = x - startX;
+		int rely = y - startY;
+		int gridX = startX + relx * xScale;
+		int gridY = startY + rely * yScale;
 		
+		return map.blockLOS(gridX,gridY);
 	}
+	
+	
 	void applyCell(FOVMap map, int x, int y)
 	{
-		int gridX = x;
-		int gridY = y;
-		if (scale != 1){
-			gridX = startX + (startX - x) * scale;
-			gridY = startY + (startY - y) * scale;
+		int relx = x - startX;
+		int rely = y - startY;
+		int gridX = startX + relx * xScale;
+		int gridY = startY + rely * yScale;
+		
+		if (circle){
+			int distance = Position.flatDistanceRound(relx, rely, 0, 0);
+			if (distance > maxRadius)
+				return;
+			if (DEBUG)
+				applied[relx + 25][rely + 25] = distance+"";
 		}
 		map.setSeen(gridX,gridY);
+
 	}
+	private String [][] applied = new String[50][50];
 
 }
