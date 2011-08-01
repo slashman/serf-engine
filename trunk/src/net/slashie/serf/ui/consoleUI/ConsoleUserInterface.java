@@ -175,7 +175,10 @@ public abstract class ConsoleUserInterface extends UserInterface implements Comm
 		AbstractCell[] [] rcells = level.getMemoryCellsAround(player.getPosition().x,player.getPosition().y, player.getPosition().z, xrange,yrange);
 		AbstractCell[] [] vcells = level.getVisibleCellsAround(player, player.getPosition().x,player.getPosition().y, player.getPosition().z, xrange,yrange);
 		
-		Position runner = new Position(player.getPosition().x - xrange, player.getPosition().y-yrange, player.getPosition().z);
+		int xScale = getXScale();
+		int yScale = getYScale();
+		
+		Position runner = new Position(player.getPosition().x - xrange * xScale, player.getPosition().y-yrange * yScale, player.getPosition().z);
 		
 		for (int x = 0; x < rcells.length; x++){
 			for (int y=0; y<rcells[0].length; y++){
@@ -187,15 +190,15 @@ public abstract class ConsoleUserInterface extends UserInterface implements Comm
 				} else if (vcells[x][y] == null || vcells[x][y].getID().equals("AIR")){
 					si.print(PC_POS.x-xrange+x,PC_POS.y-yrange+y, CharAppearance.getVoidAppearance().getChar(), CharAppearance.BLACK);
 				}
-				runner.y++;
+				runner.y+=yScale;
 			}
-			runner.y = player.getPosition().y-yrange;
-			runner.x ++;
+			runner.y = player.getPosition().y-yrange*yScale;
+			runner.x += xScale;
 		}
 		
 		
-		runner.x = player.getPosition().x - xrange;
-		runner.y = player.getPosition().y-yrange;
+		runner.x = player.getPosition().x - xrange * xScale;
+		runner.y = player.getPosition().y-yrange * yScale;
 		
 		monstersOnSight.removeAllElements();
 		featuresOnSight.removeAllElements();
@@ -276,10 +279,10 @@ public abstract class ConsoleUserInterface extends UserInterface implements Comm
 				} else {
 					
 				}
-				runner.y++;
+				runner.y += yScale;
 			}
-			runner.y = player.getPosition().y-yrange;
-			runner.x ++;
+			runner.y = player.getPosition().y-yrange * yScale;
+			runner.x += xScale;
 		}
 		
 		idList.clear();
@@ -289,6 +292,14 @@ public abstract class ConsoleUserInterface extends UserInterface implements Comm
 		idList.addElements(featuresOnSight);
 	}
 	
+	protected int getXScale() {
+		return 1;
+	}
+	
+	protected int getYScale() {
+		return 1;
+	}
+
 	public void drawAfterCells(Position runner, int x, int y) {
 		
 	}
