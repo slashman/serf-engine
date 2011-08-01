@@ -10,9 +10,17 @@ import javax.swing.JButton;
 public class CleanButton extends JButton{
 	private static final long serialVersionUID = 1L;
 	private Image backgroundImage;
+	private String popupText;
+	
+	public void setPopupText(String popupText) {
+		this.popupText = popupText;
+	}
+	
+	public void setBackgroundImage(Image backgroundImage) {
+		this.backgroundImage = backgroundImage;
+	}
 	
 	public CleanButton(ImageIcon icon, Cursor c){
-		//super(icon);
 		this.backgroundImage = icon.getImage();
 		clean();
 		setCursor(c);
@@ -34,7 +42,7 @@ public class CleanButton extends JButton{
 	
 	@Override
 	protected void paintComponent(Graphics g) {
-		if (backgroundImage != null) {
+		if (isVisible() && backgroundImage != null) {
 			g.drawImage(backgroundImage, 0, 0, getWidth(), getHeight(), this);
 		}
 		super.paintComponent(g);
@@ -53,5 +61,9 @@ public class CleanButton extends JButton{
 		setOpaque(false);
 		setFocusable(false);
 		setBorder(null);		
+	}
+
+	public String getPopupText() {
+		return popupText;
 	}
 }
