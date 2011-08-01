@@ -81,7 +81,7 @@ public class ConsoleUISelector extends UISelector {
 						return advance;
 					}
 				}
-			} else if (input.code == WEAPONCODE){
+			} else if (input.code == WEAPONCODE && target != null){
     			try {
     				target.setPerformer(player);
 					ui().setTargets(target);
