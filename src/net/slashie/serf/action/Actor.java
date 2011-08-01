@@ -69,6 +69,8 @@ public abstract class Actor implements Cloneable, java.io.Serializable, Priority
 			hashCounters.remove(key);
 		}
 	}
+	
+
 
 	public abstract String getDescription();
 
@@ -203,6 +205,10 @@ public abstract class Actor implements Cloneable, java.io.Serializable, Priority
 	protected Map<String, Integer> hashCounters = new Hashtable<String, Integer>();
 	public void setCounter(String counterID, int turns){
 		hashCounters.put(counterID, new Integer(turns));
+	}
+	
+	public void removeCounter(String counterID){
+		hashCounters.remove(counterID);
 	}
 	
 	public int getCounter(String counterID){
