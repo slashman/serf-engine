@@ -687,6 +687,26 @@ public class SwingSystemInterface implements Runnable{
 		removeKeyListener(cbkl);
 		
 	}
+
+	
+	public void revalidate() {
+		if (SwingUtilities.isEventDispatchThread()){
+			sip.revalidate();
+		} else {
+			try {
+				SwingUtilities.invokeAndWait(new Runnable(){
+					@Override
+					public void run() {
+						sip.revalidate();
+					}
+				});
+			} catch (InterruptedException e) {
+			} catch (InvocationTargetException e) {
+				e.printStackTrace();
+			}
+		}
+		
+	}
 }
 
 class SwingInterfacePanel extends JPanel{
