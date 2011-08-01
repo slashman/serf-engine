@@ -82,30 +82,13 @@ public abstract class AbstractLevel implements FOVMap, Serializable{
 		UserInterface.getUI().addMessage(what);
 	}
 
-	private String lastMessage;
-	private int sameMessageCount = 1;
 	public void addMessage(String what){
-		if (what.equals(lastMessage)) {
-			sameMessageCount++;
-			what = "(x"+sameMessageCount+")";
-		} else {
-			sameMessageCount = 1;
-			lastMessage = what;
-		}
 		addMessage(new Message(what, player.getPosition()));
 	}
 
 	public void addMessage(String what, Position where){
-		if (what.equals(lastMessage)) {
-			sameMessageCount++;
-			what = "(x"+sameMessageCount+")";
-		} else {
-			sameMessageCount = 1;
-			lastMessage = what;
-		}
 		addMessage(new Message(what, where));
 	}
-
 
 	public void addActor (Actor what){
 		Debug.doAssert(what != null, "Tried to add a null actor to the world");
