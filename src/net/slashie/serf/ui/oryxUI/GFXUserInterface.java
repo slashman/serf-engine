@@ -77,7 +77,7 @@ public abstract class GFXUserInterface extends UserInterface implements Runnable
 	
 	private boolean eraseOnArrival; // Erase the buffer upon the arrival of a new msg
 	private boolean flipFacing;
-	private Vector messageHistory = new Vector(10);
+	private Vector<String> messageHistory = new Vector<String>(10);
 	
 	// Relations
 
@@ -653,23 +653,40 @@ public abstract class GFXUserInterface extends UserInterface implements Runnable
 		Debug.exitMethod();
 	}
 	
+	private String lastMessage;
+	private String currentText;
+	private int sameMessageCount = 1;
 	public void addMessage(Message message){
-		Debug.enterMethod(this, "addMessage", message);
-		if (eraseOnArrival){
-	 		messageBox.clear();
-	 		messageBox.setForeground(COLOR_LAST_MESSAGE);
-	 		eraseOnArrival = false;
-		}
 		if (message.getLocation().z != player.getPosition().z || !insideViewPort(getAbsolutePosition(message.getLocation()))){
-			Debug.exitMethod();
 			return;
 		}
-		messageHistory.add(message.getText());
-		if (messageHistory.size()>500)
-			messageHistory.removeElementAt(0);
-		messageBox.addText(message.getText());
+		
+		if (message.getText().equals(lastMessage)) {
+			sameMessageCount++;
+			String multiplier = "(x"+sameMessageCount+")";
+			messageHistory.remove(messageHistory.size()-1);
+			messageHistory.add(message.getText()+multiplier);
+			if (currentText.equals("")){
+				messageBox.setText(message.getText()+" "+multiplier);
+			} else {
+				messageBox.setText(currentText+". " + message.getText()+" "+multiplier);
+			}
+		} else {
+			sameMessageCount = 1;
+			lastMessage = message.getText();
+			if (eraseOnArrival){
+		 		messageBox.clear();
+		 		messageBox.setForeground(COLOR_LAST_MESSAGE);
+		 		eraseOnArrival = false;
+			}
+			currentText = messageBox.getText();
+			messageHistory.add(message.getText());
+			if (messageHistory.size()>500)
+				messageHistory.removeElementAt(0);
+			messageBox.addText(message.getText());
+		}
+		
 		dimMsg = 0;
-		Debug.exitMethod();
 	}
 
 	/*private void drawCursor(){
