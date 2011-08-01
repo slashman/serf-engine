@@ -6,10 +6,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import net.slashie.serf.game.SworeGame;
 import net.slashie.serf.level.AbstractLevel;
 import net.slashie.serf.sound.SFXManager;
 import net.slashie.serf.ui.Appearance;
 import net.slashie.serf.ui.AppearanceFactory;
+import net.slashie.serf.ui.UserInterface;
 import net.slashie.utils.Debug;
 import net.slashie.utils.Position;
 import net.slashie.utils.PriorityEnqueable;
@@ -118,6 +120,8 @@ public abstract class Actor implements Cloneable, java.io.Serializable, Priority
 		} else {
 			x = getSelector().selectAction(this);
 		}
+		if (UserInterface.getUI().getPlayer().getGame().isGameOver())
+			return false;
 		previousAction = x;
 		return execute(x);
 	}
