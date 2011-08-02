@@ -1307,8 +1307,13 @@ public abstract class GFXUserInterface extends UserInterface implements Runnable
 					return super.getHandCursor();
 			}
 		};
-   		selectionBox.setItemsPerPage(8);
-   		selectionBox.setBounds(80, 300, 640,250);
+   		selectionBox.setItemsPerPage(options.length);
+   		if (options.length < 5)
+   			selectionBox.setBounds(80, 300, 640,250);
+   		else {
+   			int add = options.length - 5;
+   			selectionBox.setBounds(80, 300 - add * 24, 640,250 + add * 24);
+   		}
   		Vector<GFXMenuItem> menuItems = new Vector<GFXMenuItem>();
   		int i = 0;
   		for (String option: options){
