@@ -3,57 +3,92 @@ package net.slashie.utils.swing;
 import java.awt.Cursor;
 import java.awt.Graphics;
 import java.awt.Image;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 
-import javax.swing.ImageIcon;
 import javax.swing.JButton;
 
 public class CleanButton extends JButton{
 	private static final long serialVersionUID = 1L;
-	private Image backgroundImage;
+	private Image background;
+	private Image face;
+	private int faceX, faceY;
+	private Image hover;
 	private String popupText;
+	private boolean onHover = false;
+	
+	public void setFace(Image face){
+		this.face = face;
+		if (face != null){
+			faceX = (int)Math.floor((getWidth() - face.getWidth(null))/2.0d);
+			faceY = (int)Math.floor((getHeight() - face.getHeight(null))/2.0d);
+		}
+	}
+	
+	public void setHover(Image hover){
+		this.hover = hover;
+		if (hover != null){
+			this.addMouseListener(new MouseAdapter(){
+				@Override
+				public void mouseEntered(MouseEvent e) {
+					onHover = true;
+				}
+				
+				@Override
+				public void mouseExited(MouseEvent e) {
+					onHover = false;
+				}
+			});
+		}
+	}
 	
 	public void setPopupText(String popupText) {
 		this.popupText = popupText;
 	}
 	
-	public void setBackgroundImage(Image backgroundImage) {
-		this.backgroundImage = backgroundImage;
+	public void setBackground(Image background) {
+		this.background = background;
 	}
 	
-	public CleanButton(ImageIcon icon, Cursor c){
-		this.backgroundImage = icon.getImage();
-		clean();
+	public CleanButton(Image background, Image hover, Image face, Cursor c, String text){
+		setBackground(background);
+		setSize(background.getWidth(null), background.getHeight(null));
+		setPreferredSize(getSize());
+		setHover(hover);
+		setFace(face);
 		setCursor(c);
-	}
-	
-	public CleanButton(Cursor c){
-		super();
+		setText(text);
 		clean();
-		setCursor(c);
 	}
 	
-	public CleanButton(ImageIcon icon){
-		this(icon, Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+	public CleanButton(Image background, Image hover, Image face, Cursor c){
+		this(background, hover, face, c, "");
 	}
 	
-	public CleanButton(Image image){
-		this (new ImageIcon(image));
+	public CleanButton(Image background, Cursor c, String text){
+		this(background, null, null, c, text);
+	}
+	
+	public CleanButton(Image background, Cursor c){
+		this(background, c, "");
+	}
+	
+	public CleanButton(Image background){
+		this(background, Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
 	}
 	
 	@Override
 	protected void paintComponent(Graphics g) {
-		if (isVisible() && backgroundImage != null) {
-			g.drawImage(backgroundImage, 0, 0, getWidth(), getHeight(), this);
+		if (isVisible()){
+			if (hover != null && onHover)
+				g.drawImage(hover, 0, 0, getWidth(), getHeight(), this);
+			else if (background != null)
+				g.drawImage(background, 0, 0, getWidth(), getHeight(), this);
+			
+			if (face != null)
+				g.drawImage(face, faceX, faceY, this);	
 		}
 		super.paintComponent(g);
-	}
-	
-	public CleanButton(Image image, Cursor c){
-		this (new ImageIcon(image), c);
-	}
-	
-	public CleanButton(){
-		this(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
 	}
 	
 	private void clean(){
@@ -66,4 +101,5 @@ public class CleanButton extends JButton{
 	public String getPopupText() {
 		return popupText;
 	}
+	
 }

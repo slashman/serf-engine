@@ -458,7 +458,8 @@ public abstract class GFXUserInterface extends UserInterface implements Runnable
 			}
 		};
 		
-		CleanButton yesButton = new CleanButton(new ImageIcon(IMG_YES_BUTTON), getHandCursor());
+		CleanButton yesButton = new CleanButton(IMG_YES_BUTTON, getHandCursor());
+		yesButton.setHover(IMG_YES_HOVER_BUTTON);
 		yesButton.setBounds(xPos + (int)Math.round((double)width / 2.0d) - IMG_YES_BUTTON.getWidth() - 20,
 				yPos + height - IMG_YES_BUTTON.getHeight() - 20,
 				IMG_YES_BUTTON.getWidth(),
@@ -468,7 +469,8 @@ public abstract class GFXUserInterface extends UserInterface implements Runnable
 		si.add(yesButton);
 		si.changeZOrder(yesButton, 1);
 
-		CleanButton noButton = new CleanButton(new ImageIcon(IMG_NO_BUTTON), getHandCursor());
+		CleanButton noButton = new CleanButton(IMG_NO_BUTTON, getHandCursor());
+		noButton.setHover(IMG_NO_HOVER_BUTTON);
 		noButton.setBounds(xPos + (int)Math.round((double)width / 2.0d) + 20,
 				yPos + height - IMG_NO_BUTTON.getHeight() - 20,
 				IMG_NO_BUTTON.getWidth(),
@@ -701,6 +703,8 @@ public abstract class GFXUserInterface extends UserInterface implements Runnable
 	private boolean isCursorEnabled = false;
 	protected BufferedImage IMG_YES_BUTTON;
 	protected BufferedImage IMG_NO_BUTTON;
+	protected BufferedImage IMG_YES_HOVER_BUTTON;
+	protected BufferedImage IMG_NO_HOVER_BUTTON;
 	
 	private void initProperties(Properties p){
 		xrange = PropertyFilters.inte(p.getProperty("XRANGE"));
@@ -757,6 +761,8 @@ public abstract class GFXUserInterface extends UserInterface implements Runnable
 			
 			IMG_YES_BUTTON = PropertyFilters.getImage(p.getProperty("IMG_UI"), p.getProperty("BTN_YES_BOUNDS"));
 			IMG_NO_BUTTON = PropertyFilters.getImage(p.getProperty("IMG_UI"), p.getProperty("BTN_NO_BOUNDS"));
+			IMG_YES_HOVER_BUTTON = PropertyFilters.getImage(p.getProperty("IMG_UI"), p.getProperty("BTN_YES_HOVER_BOUNDS"));
+			IMG_NO_HOVER_BUTTON = PropertyFilters.getImage(p.getProperty("IMG_UI"), p.getProperty("BTN_NO_HOVER_BOUNDS"));
 			
 		} catch (Exception e){
 			SworeGame.crash(e.getMessage(),e);
