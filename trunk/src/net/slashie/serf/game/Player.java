@@ -43,7 +43,7 @@ public abstract class Player extends AwareActor {
 	}
 
 
-	private Hashtable<String, Equipment> inventory = new Hashtable<String, Equipment>();
+	protected Hashtable<String, Equipment> inventory = new Hashtable<String, Equipment>();
 	protected boolean HANDLE_FEATURES = true;
 
 	public void addItem(AbstractItem toAdd, int quantity){
