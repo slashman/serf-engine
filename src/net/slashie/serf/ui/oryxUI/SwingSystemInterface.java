@@ -653,6 +653,8 @@ public class SwingSystemInterface implements Runnable{
 		} else if (c >= 'a' && c <= 'z'){
 			return CharKey.a + c - 'a';
 		}
+		if (c == ' ')
+			return CharKey.SPACE;
 		return null;
 	}
 
