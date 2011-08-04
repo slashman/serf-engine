@@ -1,11 +1,14 @@
 package net.slashie.serf.game;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
+import java.io.PrintStream;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.Hashtable;
 import java.util.List;
 
@@ -275,13 +278,20 @@ public abstract class SworeGame implements CommandListener, PlayerEventListener,
     	System.out.println("Serf runtime "+ getVersion()+": Unrecoverable Error: "+message);
         System.out.println(exception.getMessage());
         exception.printStackTrace();
+        
+		try {
+			//FileOutputStream fos = new FileOutputStream(new File("critical-error-"+new Date().toString()+".txt"));
+			FileOutputStream fos = new FileOutputStream(new File("critical-error-"+System.currentTimeMillis()+".txt"));
+			PrintStream ps = new PrintStream(fos);
+	        exception.printStackTrace(ps);
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		}  
         System.exit(-1);
     }
 	
 	public static void crash(String message){
-		System.out.println("Serf runtime "+ getVersion()+": Unrecoverable Error");
-        System.out.println(message);
-        throw new RuntimeException(message);
+		crash(message,new RuntimeException(message));
     }
 	
 	private static List<String> reports = new ArrayList<String>();
