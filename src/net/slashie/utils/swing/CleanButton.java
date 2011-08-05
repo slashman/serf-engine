@@ -120,4 +120,13 @@ public class CleanButton extends JButton{
 		return popupText;
 	}
 	
+	@Override
+	public void setVisible(boolean flag) {
+		super.setVisible(flag);
+		if (!flag){
+			legendLabel.setVisible(false);
+		}
+	}
+	
+	
 }
