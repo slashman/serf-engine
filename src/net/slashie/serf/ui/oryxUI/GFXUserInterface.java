@@ -1326,6 +1326,9 @@ public abstract class GFXUserInterface extends UserInterface implements Runnable
   			menuItems.add(new SimpleGFXMenuItem(option,i));
   			i++;
   		}
+  		
+  		si.saveBuffer();
+  		
   		selectionBox.setMenuItems(menuItems);
   		selectionBox.setLegend(prompt);
   		selectionBox.setTitle(title);
@@ -1338,8 +1341,12 @@ public abstract class GFXUserInterface extends UserInterface implements Runnable
 			SimpleGFXMenuItem itemChoice = ((SimpleGFXMenuItem)selectionBox.getSelection());
 			if (itemChoice == null)
 				break;
+			si.restore();
+			si.refresh();
 			return itemChoice.getValue();
 		}
+		si.restore();
+		si.refresh();
 		return -1;
 	}
 	
