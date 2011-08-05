@@ -1,5 +1,6 @@
 package net.slashie.utils.swing;
 
+import java.awt.Component;
 import java.awt.Cursor;
 import java.awt.Graphics;
 import java.awt.Image;
@@ -7,6 +8,9 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
 import javax.swing.JButton;
+import javax.swing.JLabel;
+
+import net.slashie.serf.ui.oryxUI.SwingSystemInterface;
 
 public class CleanButton extends JButton{
 	private static final long serialVersionUID = 1L;
@@ -15,7 +19,16 @@ public class CleanButton extends JButton{
 	private int faceX, faceY;
 	private Image hover;
 	private String popupText;
+
 	private boolean onHover = false;
+	
+	private static JLabel legendLabel;
+	private static SwingSystemInterface ssi;
+	
+	public static void init(JLabel legendLabel, SwingSystemInterface ssi){
+		CleanButton.legendLabel = legendLabel;
+		CleanButton.ssi = ssi;
+	}
 	
 	public void setFace(Image face){
 		this.face = face;
@@ -32,11 +45,16 @@ public class CleanButton extends JButton{
 				@Override
 				public void mouseEntered(MouseEvent e) {
 					onHover = true;
+					Component b = (Component) e.getSource();
+					legendLabel.setText(getPopupText());
+					legendLabel.setLocation(b.getLocationOnScreen().x+36-ssi.getScreenPosition().x, b.getLocationOnScreen().y+18-ssi.getScreenPosition().y);
+					legendLabel.setVisible(true);
 				}
 				
 				@Override
 				public void mouseExited(MouseEvent e) {
 					onHover = false;
+					legendLabel.setVisible(false);
 				}
 			});
 		}
