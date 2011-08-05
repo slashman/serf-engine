@@ -709,6 +709,11 @@ public class SwingSystemInterface implements Runnable{
 		}
 		
 	}
+
+	
+	public Point getScreenPosition() {
+		return frameMain.getLocationOnScreen();
+	}
 }
 
 class SwingInterfacePanel extends JPanel{
