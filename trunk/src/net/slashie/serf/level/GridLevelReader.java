@@ -134,6 +134,8 @@ public class GridLevelReader extends AbstractLevel {
             	yr++;
             }
             
+            raf.close();
+            
             AbstractCell [][] ret = new AbstractCell[map[0].length()][map.length];
     	    Position where = new Position(bigX*gridWidth,bigY*gridHeight,0);
     	    
