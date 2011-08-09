@@ -38,6 +38,5 @@ public class GFXCircleBlastEffect extends GFXEffect{
 		g.setStroke(oldStroke);
 		si.cls(getDrawLayer());
 		si.loadLayer(getDrawLayer());
-		si.commitLayer(getDrawLayer());
 	}
 }

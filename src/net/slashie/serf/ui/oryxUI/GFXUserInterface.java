@@ -381,7 +381,6 @@ public abstract class GFXUserInterface extends UserInterface implements Runnable
     public void chat (String message){
 	   saveMapLayer();
 	   showTextBox(message, 280, 30, 330, 170);
-	   si.commitLayer(getUILayer());
 	   resetMapLayer();
 	}
    
@@ -1388,16 +1387,14 @@ public abstract class GFXUserInterface extends UserInterface implements Runnable
 	 * Saves the contents of the map and UI Layer in order to reset 
 	 * them after using the UILayer  
 	 */
-	private void saveMapLayer(){
+	protected void saveMapLayer(){
 		si.saveLayer(getUILayer());
 		si.saveLayer(getMapLayer());
 	}
 	
-	private void resetMapLayer(){
-		si.loadLayer(getUILayer());
+	protected void resetMapLayer(){
 		si.loadLayer(getMapLayer());
-		si.commitLayer(getUILayer());
-		si.commitLayer(getMapLayer());
+		si.loadLayer(getUILayer());
 	}
 }
 
