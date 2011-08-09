@@ -58,12 +58,15 @@ public class MenuBox {
 	}
 	
 	
+	public int getDrawingLayer(){
+		return 0;
+	}
 	
 	public void draw(){
 		pages = (int)(Math.floor((items.size()-1) / (itemsPerPage)) +1);
-		int fontSize = si.getDrawingGraphics().getFont().getSize();
+		int fontSize = si.getDrawingGraphics(getDrawingLayer()).getFont().getSize();
 
-		si.print(xpos, ypos, title, Color.BLUE);
+		si.print(getDrawingLayer(), xpos, ypos, title, Color.BLUE);
 		List<GFXMenuItem> shownItems = Util.page(items, itemsPerPage, currentPage);
 		
 		if (ordinal ){
@@ -75,19 +78,19 @@ public class MenuBox {
 			
 			GFXMenuItem item = shownItems.get(i);
 			if (!ordinal && isShowOptions()){
-				si.printAtPixel(xpos*10, (ypos+1)*24+i*gap, ((char) (97 + i))+"." , Color.BLUE);
+				si.printAtPixel(getDrawingLayer(), xpos*10, (ypos+1)*24+i*gap, ((char) (97 + i))+"." , Color.BLUE);
 			}
 			if (box != null){
-				si.drawImage((xpos+2)*10+1, ypos*24+ i * gap + (int)(gap * 0.3D)-4, box);
+				si.drawImage(getDrawingLayer(), (xpos+2)*10+1, ypos*24+ i * gap + (int)(gap * 0.3D)-4, box);
 			}
 			if (item.getMenuImage() != null)
-				si.drawImage((xpos+2)*10+5, ypos*24+ i * gap + (int)(gap * 0.3D), item.getMenuImage());
+				si.drawImage(getDrawingLayer(), (xpos+2)*10+5, ypos*24+ i * gap + (int)(gap * 0.3D), item.getMenuImage());
 			String description = item.getMenuDescription();
 			String detail = item.getMenuDetail();
 			
-			si.printAtPixel((xpos+6)*10, (ypos+1)*24 + i*gap, description, Color.WHITE);
+			si.printAtPixel(getDrawingLayer(), (xpos+6)*10, (ypos+1)*24 + i*gap, description, Color.WHITE);
 			if (detail != null && !detail.equals("")){
-				si.printAtPixel((xpos+6)*10, (ypos+1)*24 + i*gap + fontSize - 10, detail, Color.WHITE);
+				si.printAtPixel(getDrawingLayer(), (xpos+6)*10, (ypos+1)*24 + i*gap + fontSize - 10, detail, Color.WHITE);
 			}
 		}
 		ordinal = false;
@@ -95,7 +98,7 @@ public class MenuBox {
 		/*for (; i < inHeight-promptSize; i++){
 			si.print(inPosition.x, inPosition.y+i+promptSize+1, spaces);
 		}*/
-		si.refresh();
+		si.commitLayer(getDrawingLayer());
 	}
 
 	public void setBounds(int x, int y, int width, int height){
@@ -135,7 +138,7 @@ public class MenuBox {
 			else
 			if (key.code >= CharKey.a && key.code <= CharKey.a + shownItems.size()-1)
 				return shownItems.get(key.code - CharKey.a);
-			si.loadLayer();
+			si.loadLayer(getDrawingLayer());
 
 		}
 	}

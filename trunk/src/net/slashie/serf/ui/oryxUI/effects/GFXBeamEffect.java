@@ -10,7 +10,7 @@ public class GFXBeamEffect extends GFXDirectedEffect {
 	private Image [] missile;
 	
 	public void drawEffect(GFXUserInterface ui, SwingSystemInterface si){
-		si.saveLayer();
+		si.saveLayer(getDrawLayer());
 		int too = 0;
 		for (int i = 0; i < depth; i++){
 			Position next = effectLine.next();
@@ -24,11 +24,11 @@ public class GFXBeamEffect extends GFXDirectedEffect {
 			Position toPrint = Position.add(ui.PC_POS, relative);
 			if (!ui.insideViewPort(toPrint))
 				break;
-			si.drawImage(toPrint.x()*32, toPrint.y()*32-4*height, missile[too]);
-			si.refresh();
+			si.drawImage(getDrawLayer(), toPrint.x()*32, toPrint.y()*32-4*height, missile[too]);
+			si.commitLayer(getDrawLayer());
 			animationPause();
 		}
-		si.loadLayer();
+		si.loadLayer(getDrawLayer());
 	}
 
 	public GFXBeamEffect(String ID, Image[] missile, int delay){

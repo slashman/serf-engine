@@ -265,7 +265,6 @@ public class GFXUISelector extends UISelector implements ActionSelector, Seriali
                     	return ret;
 					} catch (ActionCancelException ace){
 		 				ui().addMessage(new Message("- Cancelled", player.getPosition()));
-		 				si.refresh();
 						continue;
 					}
 				}

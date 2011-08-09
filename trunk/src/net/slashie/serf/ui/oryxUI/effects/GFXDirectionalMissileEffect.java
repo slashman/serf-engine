@@ -41,7 +41,7 @@ public class GFXDirectionalMissileEffect extends GFXDirectedEffect {
 	
 	public void drawEffect(GFXUserInterface ui, SwingSystemInterface si){
 		Image icon = null;
-		si.saveLayer();
+		si.saveLayer(getDrawLayer());
 		setAnimationDelay(animationDelay);
 		Position oldPoint = effectLine.next();
 		for (int i = 0; i < depth; i++){
@@ -83,10 +83,10 @@ public class GFXDirectionalMissileEffect extends GFXDirectedEffect {
 			Position toPrint = Position.add(ui.PC_POS, relative);
 			if (!ui.insideViewPort(toPrint))
 				break;
-			si.drawImage(toPrint.x()*32, toPrint.y()*32-4*height, icon);
-			si.refresh();
+			si.drawImage(getDrawLayer(), toPrint.x()*32, toPrint.y()*32-4*height, icon);
+			si.commitLayer(getDrawLayer());
 			animationPause();
-			si.loadLayer();
+			si.loadLayer(getDrawLayer());
 		}
 		
 		/*

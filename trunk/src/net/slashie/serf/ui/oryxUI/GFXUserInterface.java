@@ -134,12 +134,12 @@ public abstract class GFXUserInterface extends UserInterface implements Runnable
     private void examineLevelMap(){
 		messageBox.setVisible(false);
 		isCursorEnabled = false;
-		si.saveLayer();
+		si.saveLayer(getUILayer());
 		int lw = level.getWidth();
 		int lh = level.getHeight();
 		int remnantx = (int)((740 - (lw * 3))/2.0d); 
 		int remnanty = (int)((480 - (lh * 3))/2.0d);
-		Graphics2D g = si.getDrawingGraphics();
+		Graphics2D g = si.getDrawingGraphics(getUILayer());
 		g.setColor(TRANSPARENT_GRAY);
 		g.fillRect(0,0,800,600);
 		Color cellColor = null;
@@ -181,14 +181,14 @@ public abstract class GFXUserInterface extends UserInterface implements Runnable
 				//g.fillOval(30+remnantx+x*5, 30+remnanty+y*5, 5,5);
 				g.fillRect(30+remnantx+x*3, 30+remnanty+y*3, 3,3);
 			}
-			si.refresh();	
+			si.commitLayer(getUILayer());	
 		
 		
 		si.waitKeys(CharKey.SPACE, CharKey.ESC);
 		messageBox.setVisible(true);
 		isCursorEnabled = true;
-		si.loadLayer();
-		si.refresh();
+		si.loadLayer(getUILayer());
+		si.commitLayer(getUILayer());
 		
 	}
     
@@ -202,22 +202,30 @@ public abstract class GFXUserInterface extends UserInterface implements Runnable
     	isCursorEnabled = true;
     }
     
+    public int getUILayer(){
+    	return 0;
+    }
+    
+    public int getMapLayer(){
+    	return 0;
+    }
+    
     public void showMessageHistory(){
     	enterScreen();
-		si.saveLayer();
-		si.drawImage(IMG_STATUSSCR_BGROUND);
-		si.print(1, 1, "Message Buffer", COLOR_BOLD);
+		si.saveLayer(getUILayer());
+		si.drawImage(getUILayer(), IMG_STATUSSCR_BGROUND);
+		si.print(getUILayer(), 1, 1, "Message Buffer", COLOR_BOLD);
 		for (int i = 0; i < 22; i++){
 			if (i >= messageHistory.size())
 				break;
-			si.print(1,i+2, (String)messageHistory.elementAt(messageHistory.size()-1-i), Color.WHITE);
+			si.print(getUILayer(), 1,i+2, (String)messageHistory.elementAt(messageHistory.size()-1-i), Color.WHITE);
 		}
 		
-		si.print(55, 24, "[ Space to Continue ]", Color.WHITE);
-		si.refresh();
+		si.print(getUILayer(), 55, 24, "[ Space to Continue ]", Color.WHITE);
+		si.commitLayer(getUILayer());
 		si.waitKeys(CharKey.SPACE, CharKey.ESC);
-		si.loadLayer();
-		si.refresh();
+		si.loadLayer(getUILayer());
+		si.commitLayer(getUILayer());
 		leaveScreen();
 	}
     
@@ -291,13 +299,13 @@ public abstract class GFXUserInterface extends UserInterface implements Runnable
     	
     	Position offset = new Position (0,0);
 		messageBox.setForeground(COLOR_LAST_MESSAGE);
-		si.saveLayer();
+		si.saveLayer(getUILayer());
 		Actor lookedMonster = null;
 		while (true){
 			int cellHeight = 0;
 			Position browser = getRelativePosition(player.getPosition(), offset);
 			String looked = "";
-			si.loadLayer();
+			si.loadLayer(getUILayer());
 			if (FOVMask[PC_POS.x + offset.x][PC_POS.y + offset.y]){
 				AbstractCell choosen = level.getMapCell(browser);
 				if (choosen != null)
@@ -327,8 +335,8 @@ public abstract class GFXUserInterface extends UserInterface implements Runnable
 				}
 			}
 			messageBox.setText(message+looked);
-			si.drawImage((PC_POS.x + offset.x)*tileSize, ((PC_POS.y + offset.y)*tileSize), TILE_SCAN);
-			si.refresh();
+			si.drawImage(getUILayer(), (PC_POS.x + offset.x)*tileSize, ((PC_POS.y + offset.y)*tileSize), TILE_SCAN);
+			si.commitLayer(getUILayer());
 			String command = null;
 			while (command == null){
 				try {
@@ -336,7 +344,7 @@ public abstract class GFXUserInterface extends UserInterface implements Runnable
 				} catch (InterruptedException e1) {}
 			}
 			if (command.equals("BREAK")){
-				si.loadLayer();
+				si.loadLayer(getUILayer());
 				break;
 			} else if (command.equals("MORE")){
 				if (lookedMonster != null)
@@ -364,8 +372,8 @@ public abstract class GFXUserInterface extends UserInterface implements Runnable
     		si.removeMouseListener(cbml);
     	}
     	((GFXUISelector)getPlayer().getSelector()).activate();
-		si.loadLayer();
-		si.refresh();
+		si.loadLayer(getUILayer());
+		si.commitLayer(getUILayer());
 		
 	
 	}
@@ -377,11 +385,10 @@ public abstract class GFXUserInterface extends UserInterface implements Runnable
 	public abstract void showDetailedInfo(Actor a);
 
     public void chat (String message){
-	   si.saveLayer();
+	   si.saveLayer(getUILayer());
 	   showTextBox(message, 280, 30, 330, 170);
-	   si.refresh();
-	   //waitKey();
-	   si.loadLayer();
+	   si.commitLayer(getUILayer());
+	   si.loadLayer(getUILayer());
 	}
    
 	public void showTextBox(String text, int x, int y, int w, int h){
@@ -496,7 +503,7 @@ public abstract class GFXUserInterface extends UserInterface implements Runnable
 		});
 		si.add(noButton);
 		si.changeZOrder(noButton, 1);
-		si.refresh();
+		si.commitLayer(getUILayer());
 
 
 		si.addKeyListener(cbkl);
@@ -517,10 +524,10 @@ public abstract class GFXUserInterface extends UserInterface implements Runnable
 	}
    
    public boolean promptChat (String text, int x, int y, int w, int h){
-	   si.saveLayer();
+	   si.saveLayer(getUILayer());
 	   boolean ret = showTextBoxPrompt(text, x, y, w, h);
-	   si.refresh();
-	   si.loadLayer();
+	   si.commitLayer(getUILayer());
+	   si.loadLayer(getUILayer());
 	   return ret;
 	}
 
@@ -546,10 +553,7 @@ public abstract class GFXUserInterface extends UserInterface implements Runnable
 	}
 
 	private synchronized void drawLevel(){
-		Debug.enterMethod(this, "drawLevel");
-		//Cell[] [] cells = level.getCellsAround(player.getPosition().x,player.getPosition().y, player.getPosition().z, range);
 		AbstractCell[] [] rcells = level.getMemoryCellsAround(player.getPosition().x,player.getPosition().y, player.getPosition().z, xrange,yrange);
-		//AbstractCell[] [] vcells = level.getVisibleCellsAround(player.getPosition().x,player.getPosition().y, player.getPosition().z, xrange,yrange);
 		AbstractCell[] [] vcells = player.getVisibleCellsAround(xrange,yrange);
 
 		int xScale = getXScale();
@@ -560,23 +564,19 @@ public abstract class GFXUserInterface extends UserInterface implements Runnable
 		featuresOnSight.removeAllElements();
 		itemsOnSight.removeAllElements();
 		
-		
-		/*for (int x = 0; x < vcells.length; x++){
-			for (int y=0; y<vcells[0].length; y++){*/
 		for (int y = 0; y < vcells[0].length; y++){
 			for (int x=0; x<vcells.length; x++){
 				FOVMask[PC_POS.x-xrange+x][PC_POS.y-yrange+y] = false;
-				int cellHeight = 0;
 				if (vcells[x][y] == null || vcells[x][y].getID().equals("AIR")){
 					if (rcells[x][y] != null && !rcells[x][y].getAppearance().getID().equals("NOTHING")){
 						GFXAppearance app = (GFXAppearance)rcells[x][y].getAppearance();
 						try {
-							si.drawImage((PC_POS.x-xrange+x)*tileSize,(PC_POS.y-yrange+y)*tileSize-app.getSuperHeight(), app.getDarkImage());
+							si.drawImage(getMapLayer(),(PC_POS.x-xrange+x)*tileSize,(PC_POS.y-yrange+y)*tileSize-app.getSuperHeight(), app.getDarkImage());
 						} catch (NullPointerException npe){
-							Color c = si.getDrawingGraphics().getColor();
-							si.getDrawingGraphics().setColor(Color.RED);
-							si.getDrawingGraphics().fillRect((PC_POS.x-xrange+x)*tileSize,(PC_POS.y-yrange+y)*tileSize-app.getSuperHeight(), tileSize,49);
-							si.getDrawingGraphics().setColor(c);
+							Color c = si.getDrawingGraphics(0).getColor();
+							si.getDrawingGraphics(getMapLayer()).setColor(Color.RED);
+							si.getDrawingGraphics(getMapLayer()).fillRect((PC_POS.x-xrange+x)*tileSize,(PC_POS.y-yrange+y)*tileSize-app.getSuperHeight(), tileSize,49);
+							si.getDrawingGraphics(getMapLayer()).setColor(c);
 						}
 					} else {
 						//Draw nothing
@@ -584,10 +584,9 @@ public abstract class GFXUserInterface extends UserInterface implements Runnable
 						//si.print(PC_POS.x-xrange+x,PC_POS.y-yrange+y, CharAppearance.getVoidAppearance().getChar(), CharAppearance.getVoidAppearance().BLACK);
 					}
 				} else {
-					cellHeight = vcells[x][y].getHeight();
 					FOVMask[PC_POS.x-xrange+x][PC_POS.y-yrange+y] = true;
 					GFXAppearance cellApp = (GFXAppearance)vcells[x][y].getAppearance();
-					si.drawImage((PC_POS.x-xrange+x)*tileSize,(PC_POS.y-yrange+y)*tileSize-cellApp.getSuperHeight(), cellApp.getImage());
+					si.drawImage(getMapLayer(), (PC_POS.x-xrange+x)*tileSize,(PC_POS.y-yrange+y)*tileSize-cellApp.getSuperHeight(), cellApp.getImage());
 				}
 			}
 			runner.x = player.getPosition().x-xrange*xScale;
@@ -600,7 +599,7 @@ public abstract class GFXUserInterface extends UserInterface implements Runnable
 						for (AbstractFeature feat: feats){
 							if (feat.isVisible()) {
 								GFXAppearance featApp = (GFXAppearance)feat.getAppearance();
-								si.drawImage((PC_POS.x-xrange+x)*tileSize-featApp.getSuperWidth(),(PC_POS.y-yrange+y)*tileSize-4*cellHeight-featApp.getSuperHeight(), featApp.getImage());
+								si.drawImage(getMapLayer(), (PC_POS.x-xrange+x)*tileSize-featApp.getSuperWidth(),(PC_POS.y-yrange+y)*tileSize-4*cellHeight-featApp.getSuperHeight(), featApp.getImage());
 							}
 						}
 					}
@@ -614,13 +613,13 @@ public abstract class GFXUserInterface extends UserInterface implements Runnable
 					if (item != null){
 						if (item.isVisible()){
 							GFXAppearance itemApp = (GFXAppearance)item.getAppearance();
-							si.drawImage((PC_POS.x-xrange+x)*tileSize-itemApp.getSuperWidth(),(PC_POS.y-yrange+y)*tileSize-4*cellHeight -itemApp.getSuperHeight(), itemApp.getImage());
+							si.drawImage(getMapLayer(), (PC_POS.x-xrange+x)*tileSize-itemApp.getSuperWidth(),(PC_POS.y-yrange+y)*tileSize-4*cellHeight -itemApp.getSuperHeight(), itemApp.getImage());
 						}
 					}
 					
 					if (yrange == y && x == xrange){
 						if (player.isInvisible()){
-							si.drawImage(PC_POS.x*tileSize,PC_POS.y*tileSize-4*cellHeight, ((GFXAppearance)AppearanceFactory.getAppearanceFactory().getAppearance("SHADOW")).getImage());
+							si.drawImage(getMapLayer(), PC_POS.x*tileSize,PC_POS.y*tileSize-4*cellHeight, ((GFXAppearance)AppearanceFactory.getAppearanceFactory().getAppearance("SHADOW")).getImage());
 						}else{
 							GFXAppearance playerAppearance = (GFXAppearance)player.getAppearance();
 							BufferedImage playerImage = (BufferedImage)playerAppearance.getImage();
@@ -630,29 +629,24 @@ public abstract class GFXUserInterface extends UserInterface implements Runnable
 							}
 							if (level.getMapCell(player.getPosition())!= null && level.getMapCell(player.getPosition()).isShallowWater())
 								//si.drawImage(PC_POS.x*tileSize-playerAppearance.getSuperWidth(),PC_POS.y*tileSize-4*cellHeight-playerAppearance.getSuperHeight()+16/, playerImage);
-								si.drawImage(PC_POS.x*tileSize-playerAppearance.getSuperWidth(),PC_POS.y*tileSize-playerAppearance.getSuperHeight()+16, playerImage);
+								si.drawImage(getMapLayer(), PC_POS.x*tileSize-playerAppearance.getSuperWidth(),PC_POS.y*tileSize-playerAppearance.getSuperHeight()+16, playerImage);
 							else
 								//si.drawImage(PC_POS.x*tileSize-playerAppearance.getSuperWidth(),PC_POS.y*tileSize-4*cellHeight-playerAppearance.getSuperHeight(), playerImage);
-								si.drawImage(PC_POS.x*tileSize-playerAppearance.getSuperWidth(),PC_POS.y*tileSize-playerAppearance.getSuperHeight(), playerImage);
+								si.drawImage(getMapLayer(), PC_POS.x*tileSize-playerAppearance.getSuperWidth(),PC_POS.y*tileSize-playerAppearance.getSuperHeight(), playerImage);
 						}
 					}
 					Actor monster = level.getActorAt(runner);
 					
 					if (monster != null && !monster.isInvisible()){
 						GFXAppearance monsterApp = (GFXAppearance) monster.getAppearance();
-						si.drawImage((PC_POS.x-xrange+x)*tileSize-monsterApp.getSuperWidth(),(PC_POS.y-yrange+y)*tileSize-4*cellHeight-monsterApp.getSuperHeight(), monsterApp.getImage());
+						si.drawImage(getMapLayer(), (PC_POS.x-xrange+x)*tileSize-monsterApp.getSuperWidth(),(PC_POS.y-yrange+y)*tileSize-4*cellHeight-monsterApp.getSuperHeight(), monsterApp.getImage());
 					}
 				}
-				//runner.y++;
 				runner.x+=xScale;
 			} 
-			/*runner.y = player.getPosition().y-yrange;
-			runner.x ++;*/
 			runner.x = player.getPosition().x-xrange*xScale;
 			runner.y += yScale;
 		}
-		
-		Debug.exitMethod();
 	}
 	
 	private String lastMessage;
@@ -696,7 +690,7 @@ public abstract class GFXUserInterface extends UserInterface implements Runnable
 			si.restore();
 			Cell underlying = player.getLevel().getMapCell(tempCursorPosition);
 			si.drawImage((PC_POS.x+tempCursorPositionScr.x)*tileSize,(PC_POS.y+tempCursorPositionScr.y)*tileSize-4*underlying.getHeight(), TILE_SCAN);
-			si.refresh();
+			si.commitLayer(getUILayer());
 		}
 	}*/
 	
@@ -777,7 +771,6 @@ public abstract class GFXUserInterface extends UserInterface implements Runnable
 	private boolean useMouse = false;
 	
 	public void init(SwingSystemInterface psi, String title, UserCommand[] gameCommands, Properties UIProperties, Action target){
-		Debug.enterMethod(this, "init");
 		super.init(gameCommands);
 		this.target = target;
 		tileSize = PropertyFilters.inte(UIProperties.getProperty("TILE_SIZE"));
@@ -816,9 +809,9 @@ public abstract class GFXUserInterface extends UserInterface implements Runnable
 		/*-- Assign values */
 		si = psi;
 		FOVMask = new boolean[80][25];
-		si.getDrawingGraphics().setColor(Color.BLACK);
-		si.getDrawingGraphics().fillRect(0,0,800,600);
-		si.refresh();
+		si.getDrawingGraphics(getMapLayer()).setColor(Color.BLACK);
+		si.getDrawingGraphics(getMapLayer()).fillRect(0,0,800,600);
+		si.commitLayer(getMapLayer());
 		
 		si.setIcon(IMG_ICON);
 		si.setTitle(title);
@@ -852,8 +845,6 @@ public abstract class GFXUserInterface extends UserInterface implements Runnable
 		LOOK_CURSOR = createCursor(UIProperties.getProperty("IMG_CURSORS"), 6, 2, 10, 4);
 		
 		si.setVisible(true);
-		
-		Debug.exitMethod();
 	}
 	
 	public void setPersistantMessage(String description) {
@@ -879,7 +870,6 @@ public abstract class GFXUserInterface extends UserInterface implements Runnable
     }
 
     private Position pickPosition(String prompt, int fireKeyCode) throws ActionCancelException{
-    	Debug.enterMethod(this, "pickPosition");
     	messageBox.setForeground(COLOR_LAST_MESSAGE);
     	messageBox.setText(prompt);
     	Position defaultTarget = null; 
@@ -906,11 +896,11 @@ public abstract class GFXUserInterface extends UserInterface implements Runnable
     	/*if (!insideViewPort(offset))
     		offset = new Position (0,0);*/
     	
-		si.refresh();
-		si.saveLayer();
+		si.commitLayer(getUILayer());
+		si.saveLayer(getUILayer());
 		
 		while (true){
-			si.loadLayer();
+			si.loadLayer(getUILayer());
 			int cellHeight = 0;
 			browser = Position.add(player.getPosition(), offset);
 			String looked = "";
@@ -942,19 +932,19 @@ public abstract class GFXUserInterface extends UserInterface implements Runnable
 			//si.print(PC_POS.x + offset.x, PC_POS.y + offset.y, '_', ConsoleSystemInterface.RED);
 			drawStepsTo(PC_POS.x + offset.x, (PC_POS.y + offset.y), TILE_LINE_STEPS, cellHeight);
 			
-			si.drawImage((PC_POS.x + offset.x)*tileSize-2, ((PC_POS.y + offset.y)*tileSize-2) -4*cellHeight, TILE_LINE_AIM);
-			si.refresh();
+			si.drawImage(getUILayer(), (PC_POS.x + offset.x)*tileSize-2, ((PC_POS.y + offset.y)*tileSize-2) -4*cellHeight, TILE_LINE_AIM);
+			si.commitLayer(getUILayer());
 			CharKey x = new CharKey(CharKey.NONE);
 			while (x.code != CharKey.SPACE && x.code != CharKey.ESC && x.code != fireKeyCode &&
 				   ! x.isArrow())
 				x = si.inkey();
 			if (x.code == CharKey.ESC){
-				si.loadLayer();
-				si.refresh();
+				si.loadLayer(getUILayer());
+				si.commitLayer(getUILayer());
 				throw new ActionCancelException();
 			}
 			if (x.code == CharKey.SPACE || x.code == fireKeyCode){
-				si.loadLayer();
+				si.commitLayer(getUILayer());
 				return browser;
 			}
 			offset.add(Action.directionToVariation(GFXUISelector.toIntDirection(x)));
@@ -969,11 +959,9 @@ public abstract class GFXUserInterface extends UserInterface implements Runnable
     }
 
 	private int pickDirection(String prompt) throws ActionCancelException{
-		Debug.enterMethod(this, "pickDirection");
-		//refresh();
 		leaveScreen();
 		messageBox.setText(prompt);
-		//si.refresh();
+		//si.commitLayer(getUILayer());
 		//refresh();
 
 		CharKey x = new CharKey(CharKey.NONE);
@@ -981,12 +969,10 @@ public abstract class GFXUserInterface extends UserInterface implements Runnable
 			x = si.inkey();
 		if (x.isArrow()){
 			int ret = GFXUISelector.toIntDirection(x);
-        	Debug.exitMethod(ret);
         	return ret;
 		} else {
 			ActionCancelException ret = new ActionCancelException(); 
-			Debug.exitExceptionally(ret);
-			si.refresh();
+			si.commitLayer(getUILayer());
 			throw ret; 
 		}
 	}
@@ -999,7 +985,6 @@ public abstract class GFXUserInterface extends UserInterface implements Runnable
 		if (equipped.size() == 0){
   			level.addMessage("Nothing equipped");
   			ActionCancelException ret = new ActionCancelException();
-			Debug.exitExceptionally(ret);
 			throw ret;
   		}
   		
@@ -1009,18 +994,17 @@ public abstract class GFXUserInterface extends UserInterface implements Runnable
   		menuBox.setBounds(6,4,70,12);
   		menuBox.setMenuItems(equipped);
   		menuBox.setTitle(prompt);
-  		si.saveLayer();
+  		si.saveLayer(getUILayer());
   		//menuBox.draw();
   		AbstractItem equiped = (AbstractItem)menuBox.getSelection();
 		if (equiped == null){
 			ActionCancelException ret = new ActionCancelException();
-			Debug.exitExceptionally(ret);
-			si.loadLayer();
-			si.refresh();
+			si.loadLayer(getUILayer());
+			si.commitLayer(getUILayer());
 			throw ret;
 		}
-		si.loadLayer();
-		si.refresh();
+		si.loadLayer(getUILayer());
+		si.commitLayer(getUILayer());
 		leaveScreen();
 		return equiped;
 	}
@@ -1034,20 +1018,19 @@ public abstract class GFXUserInterface extends UserInterface implements Runnable
   		menuBox.setItemsPerPage(12);
   		menuBox.setMenuItems(inventory);
   		menuBox.setTitle(prompt);
-  		si.saveLayer();
+  		si.saveLayer(getUILayer());
   		//menuBox.draw();
 		Equipment equipment = (Equipment)menuBox.getSelection();
-		si.loadLayer();
+		si.loadLayer(getUILayer());
 		if (equipment == null){
 			ActionCancelException ret = new ActionCancelException();
-			Debug.exitExceptionally(ret);
-			si.loadLayer();
-			si.refresh();
+			si.loadLayer(getUILayer());
+			si.commitLayer(getUILayer());
 			leaveScreen();
 			throw ret;
 		}
-		si.loadLayer();
-		si.refresh();
+		si.loadLayer(getUILayer());
+		si.commitLayer(getUILayer());
 		leaveScreen();
 		return equipment.getItem();
 	}
@@ -1071,7 +1054,7 @@ public abstract class GFXUserInterface extends UserInterface implements Runnable
   		selectedBox.setMenuItems(ret);
   		//selectedBox.setForeColor(ConsoleSystemInterface.RED);
   		
-  		si.saveLayer();
+  		si.saveLayer(getUILayer());
   		
 		while (true){
 			selectedBox.draw();
@@ -1084,7 +1067,7 @@ public abstract class GFXUserInterface extends UserInterface implements Runnable
 			if (!ret.contains(equipment.getItem()))
 				ret.add(equipment.getItem());
 		}
-		si.loadLayer();
+		si.loadLayer(getUILayer());
 		//Equipment.eqMode = false;
 		return ret;
 	}
@@ -1106,7 +1089,7 @@ public abstract class GFXUserInterface extends UserInterface implements Runnable
 		
 		if (promptChat("Save your game?")){
 			messageBox.setText("Saving... ");
-			si.refresh();
+			si.commitLayer(getUILayer());
 			enterScreen();
 			informPlayerCommand(CommandListener.SAVE);
 		}
@@ -1123,11 +1106,13 @@ public abstract class GFXUserInterface extends UserInterface implements Runnable
 	private int dimMsg = 0;
 	public synchronized void refresh(){
 		synchronized (si) {
-			si.cls();
+			si.cleanLayer(getUILayer());
+			si.cls(getMapLayer());
 			beforeDrawLevel();
 		 	drawLevel();
 			beforeRefresh();
-			si.refresh();
+			si.commitLayer(getUILayer());
+			si.commitLayer(getMapLayer());
 			leaveScreen();
 			if (dimMsg == 3){
 				messageBox.setForeground(COLOR_OLD_MESSAGE);
@@ -1136,7 +1121,7 @@ public abstract class GFXUserInterface extends UserInterface implements Runnable
 			dimMsg++;
 		  	if (!player.getFlag("KEEPMESSAGES"))
 		  		eraseOnArrival = true;
-		  	si.saveLayer(); //sz040507
+		  	si.saveLayer(getMapLayer());
 		}
 	  	
     }
@@ -1182,20 +1167,19 @@ public abstract class GFXUserInterface extends UserInterface implements Runnable
   		menuBox.setBounds(6,4,70,12);
   		menuBox.setMenuItems(items);
   		menuBox.setTitle(prompt);
-  		si.saveLayer();
+  		si.saveLayer(getUILayer());
   		//menuBox.draw();
 		AbstractItem item = (AbstractItem)menuBox.getSelection();
 		
 		if (item == null){
 			ActionCancelException ret = new ActionCancelException();
-			Debug.exitExceptionally(ret);
-			si.loadLayer();
-			si.refresh();
+			si.loadLayer(getUILayer());
+			si.commitLayer(getUILayer());
 			leaveScreen();
 			throw ret;
 		}
-		si.loadLayer();
-		si.refresh();
+		si.loadLayer(getUILayer());
+		si.commitLayer(getUILayer());
 		leaveScreen();
 		return item;
 	}
@@ -1221,7 +1205,7 @@ public abstract class GFXUserInterface extends UserInterface implements Runnable
 	public void showMessage(String x){
 		messageBox.setForeground(COLOR_LAST_MESSAGE);
 		messageBox.setText(x);
-		//si.refresh();
+		//si.commitLayer(getUILayer());
 	}
 	
 	public void showImportantMessage(String x){
@@ -1233,7 +1217,7 @@ public abstract class GFXUserInterface extends UserInterface implements Runnable
 		messageBox.setVisible(true);
 		messageBox.setForeground(COLOR_LAST_MESSAGE);
 		messageBox.setText(x);
-		//si.refresh();
+		//si.commitLayer(getUILayer());
 		si.waitKeys(CharKey.SPACE, CharKey.ESC);
 	}
 	
@@ -1261,7 +1245,7 @@ public abstract class GFXUserInterface extends UserInterface implements Runnable
 		Position tmp = line.next();
 		while (!tmp.equals(target)){
 			tmp = line.next();
-			si.drawImage(tmp.x*tileSize+13, (tmp.y*tileSize+13)-4*cellHeight, tile);
+			si.drawImage(getUILayer(), tmp.x*tileSize+13, (tmp.y*tileSize+13)-4*cellHeight, tile);
 		}
 		
 	}
@@ -1279,12 +1263,10 @@ public abstract class GFXUserInterface extends UserInterface implements Runnable
 	}
 	
 	public Action selectCommand (CharKey input){
-		Debug.enterMethod(this, "selectCommand", input);
 		int com = getRelatedCommand(input.code);
 		informPlayerCommand(com);
 		Action ret = actionSelectedByCommand;
 		actionSelectedByCommand = null;
-		Debug.exitMethod(ret);
 		return ret;
 	}
 
@@ -1314,6 +1296,11 @@ public abstract class GFXUserInterface extends UserInterface implements Runnable
 				else
 					return super.getHandCursor();
 			}
+			
+			@Override
+			public int getDrawingLayer() {
+				return getUILayer();
+			}
 		};
    		selectionBox.setItemsPerPage(options.length);
    		if (options.length < 5)
@@ -1329,7 +1316,7 @@ public abstract class GFXUserInterface extends UserInterface implements Runnable
   			i++;
   		}
   		
-  		si.saveLayer();
+  		si.saveLayer(getUILayer());
   		
   		selectionBox.setMenuItems(menuItems);
   		selectionBox.setLegend(prompt);
@@ -1339,16 +1326,16 @@ public abstract class GFXUserInterface extends UserInterface implements Runnable
   		selectionBox.draw();
   		
 		while (true) {
-			si.refresh();
+			si.commitLayer(getUILayer());
 			SimpleGFXMenuItem itemChoice = ((SimpleGFXMenuItem)selectionBox.getSelection());
 			if (itemChoice == null)
 				break;
-			si.loadLayer();
-			si.refresh();
+			si.loadLayer(getUILayer());
+			si.commitLayer(getUILayer());
 			return itemChoice.getValue();
 		}
-		si.loadLayer();
-		si.refresh();
+		si.loadLayer(getUILayer());
+		si.commitLayer(getUILayer());
 		return -1;
 	}
 	

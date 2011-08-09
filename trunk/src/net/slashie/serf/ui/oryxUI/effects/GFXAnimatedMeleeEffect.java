@@ -14,7 +14,7 @@ public class GFXAnimatedMeleeEffect extends GFXDirectionalEffect{
 	public void drawEffect(GFXUserInterface ui, SwingSystemInterface si){
 		BufferedImage[] sequence = null;
 		Position[] vars = null;
-		si.saveLayer();
+		si.saveLayer(getDrawLayer());
 		setAnimationDelay(animationDelay);
 		
 		switch (direction){
@@ -52,8 +52,8 @@ public class GFXAnimatedMeleeEffect extends GFXDirectionalEffect{
 			break;
 		}
 		if (sequence == null){
-			si.loadLayer();
-			si.refresh();
+			si.loadLayer(getDrawLayer());
+			si.commitLayer(getDrawLayer());
 			return;
 		}
 			
@@ -68,10 +68,10 @@ public class GFXAnimatedMeleeEffect extends GFXDirectionalEffect{
 				break;*/
 			toPrint = new Position(toPrint.x()*32, toPrint.y()*32-4*height);
 			toPrint = Position.add(toPrint, vars[i]);
-			si.drawImage(toPrint.x(), toPrint.y(), sequence[i]);
-			si.refresh();
+			si.drawImage(getDrawLayer(), toPrint.x(), toPrint.y(), sequence[i]);
+			si.commitLayer(getDrawLayer());
 			animationPause();
-			si.loadLayer();
+			si.loadLayer(getDrawLayer());
 		}
 		
 	}

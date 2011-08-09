@@ -238,11 +238,11 @@ public class SwingSystemInterface implements Runnable{
 
 	// Drawing Methods
 	
-	public synchronized void cls(){
-		sip.cls();
+	public void cls(int layer){
+		sip.cls(layer);
 	}
 	
-	public void drawImage(String filename){
+	public void drawImage(int layer, String filename){
 		Image im = (Image)images.get(filename);
 		if (im == null){
 			try {
@@ -252,45 +252,42 @@ public class SwingSystemInterface implements Runnable{
 			}
 			images.put(filename, im);
 		}
-		sip.drawImage(im);
+		sip.drawImage(layer, im);
 		//sip.repaint();
 	}
 	
-	public void drawImage(Image image){
-		sip.drawImage(image);
-		//sip.repaint();
+	public void drawImage(int layer, Image image){
+		sip.drawImage(layer, image);
 	}
 	
-	public void printAtPixel(int x, int y, String text){
-		sip.print(x, y, text);
+	public void printAtPixel(int layer, int x, int y, String text, Color color){
+		sip.print(layer, x, y, text, color);
 	}
 	
-	public void printAtPixel(int x, int y, String text, Color color){
-		sip.print(x, y, text, color);
+	public void printAtPixel(int layer, int x, int y, String text){
+		sip.print(layer, x, y, text);
 	}
 	
-	public void printCentered(int y, String text, Color color){
-		FontMetrics metrics = getDrawingGraphics().getFontMetrics(sip.getFont());
-		printAtPixel((int)(sip.getWidth()/2.0d)-(int)(metrics.stringWidth(text)), y, text, color);
+	
+	public void printCentered(int layer, int y, String text, Color color){
+		FontMetrics metrics = getDrawingGraphics(layer).getFontMetrics(sip.getFont());
+		printAtPixel(layer, (int)(sip.getWidth()/2.0d)-(int)(metrics.stringWidth(text)), y, text, color);
 	}
 
-	public void print(int x, int y, String text, Color color){
-		sip.print(x*10, y*24, text, color);
+	
+	public void print(int layer, int x, int y, String text, Color color){
+		sip.print(layer, x*10, y*24, text, color);
 	}
 	
-	public void print(int x, int y, String text){
-		sip.print(x*10, y*24, text);
-	}
-	
-	public void drawImage(int scrX, int scrY, Image img){
-		drawImage(0, scrX, scrY, img);
+	public void print(int layer, int x, int y, String text){
+		sip.print(layer, x*10, y*24, text);
 	}
 	
 	public synchronized void drawImage(int layer, int scrX, int scrY, Image img){
 		sip.drawImage(layer, scrX, scrY, img);
 	}
 	
-	public void drawImage(int scrX, int scrY, String filename){
+	public void drawImage(int layer, int scrX, int scrY, String filename){
 		//System.out.println("Inadequate drawImage "+filename);
 		Image im = (Image)images.get(filename);
 		if (im == null){
@@ -301,27 +298,27 @@ public class SwingSystemInterface implements Runnable{
 			}
 			images.put(filename, im);
 		}
-		sip.drawImage(scrX, scrY, im);
+		sip.drawImage(layer, scrX, scrY, im);
 	}
 
-	public void drawImageCC(int consoleX, int consoleY, Image img){
-		drawImage(consoleX*10, consoleY*24, img);
+	public void drawImageCC(int layer, int consoleX, int consoleY, Image img){
+		drawImage(layer, consoleX*10, consoleY*24, img);
 	}
 
-	public void drawImageCC(int consoleX, int consoleY, String img){
-		drawImage(consoleX*10, consoleY*24, img);
+	public void drawImageCC(int layer, int consoleX, int consoleY, String img){
+		drawImage(layer, consoleX*10, consoleY*24, img);
 	}
 	
-	public Graphics2D getDrawingGraphics(){
-		return sip.getDrawingGraphics();
+	public Graphics2D getDrawingGraphics(int layer){
+		return sip.getDrawingGraphics(layer);
 	}
 	
-	public void setFont(Font fnt){
-		sip.setFontFace(fnt);
+	public void setFont(int layer, Font fnt){
+		sip.setFontFace(fnt, layer);
 	}
 	
-	public void setColor(Color color){
-		sip.setColor(color);
+	public void setColor(int layer, Color color){
+		sip.setColor(layer, color);
 	}
 	
 	public synchronized void cleanLayer(int layer){
@@ -333,18 +330,17 @@ public class SwingSystemInterface implements Runnable{
 	}
 	
 	// Board Operations
-	
-	public void saveLayer(){
+	/*public void saveLayer(){
 		saveLayer(0);
-	}
+	}*/
 	
 	public void saveLayer(int layer){
 		sip.save(layer);
 	}
 	
-	public void loadLayer(){
+	/*public void loadLayer(){
 		loadLayer(0);
-	}
+	}*/
 	
 	public void loadLayer(int layer){
 		sip.load(layer);
@@ -359,7 +355,7 @@ public class SwingSystemInterface implements Runnable{
 	}
 	
 	private boolean isRefreshing;
-	public synchronized void refresh(){
+	/*public synchronized void refresh(){
 		sip.commit(0);
 		//sip.repaint();
 		/*
@@ -383,7 +379,7 @@ public class SwingSystemInterface implements Runnable{
 			}
 		}
 		*/
-	}
+	/*}*/
 	
 	public void commitLayer(int layer){
 		sip.commit(layer);
@@ -428,15 +424,15 @@ public class SwingSystemInterface implements Runnable{
 		return ret;
 	}
 	
-	public String input(int xpos,int ypos, Color textColor, int maxLength){
+	public String input(int layer, int xpos,int ypos, Color textColor, int maxLength){
 		frameMain.addKeyListener(inputQueueKeyListener);
 		String ret = "";
 		CharKey read = new CharKey(CharKey.NONE);
-		saveLayer();
+		saveLayer(layer);
 		while (true){
-			loadLayer();
-			printAtPixel(xpos, ypos, ret+"_", textColor);
-			refresh();
+			loadLayer(layer);
+			printAtPixel(layer, xpos, ypos, ret+"_", textColor);
+			commitLayer(layer);
 			Integer code = null;
 			while (code == null){
 				try {
@@ -706,8 +702,8 @@ public class SwingSystemInterface implements Runnable{
 		frameMain.removeKeyListener(keyListener);
 	}
 
-	public Font getFont() {
-		return sip.getGraphicsFont();
+	public Font getFont(int layer) {
+		return sip.getGraphicsFont(layer);
 	}
 
 	public Cursor getCursor() {
@@ -895,74 +891,42 @@ class SwingInterfacePanel extends JPanel{
 	
 	
 	// Drawing methods
-	public void cls(){
-		cls(0);
-	}
-	
-	public /* synchronized */ void cls(int layer){
+	public void cls(int layer){
 		Color oldColor = drawingGraphics[layer].getColor();
 		drawingGraphics[layer].setColor(Color.BLACK);
 		drawingGraphics[layer].fillRect(0,0,800,600);
 		drawingGraphics[layer].setColor(oldColor);
 	}
 		
-	public void setColor(Color color){
-		setColor(0, color);
-	}
-	
-	public /* synchronized */ void setColor(int layer, Color color){
+	public void setColor(int layer, Color color){
 		drawingGraphics[layer].setColor(color);
 	}
 	
-	public void setFontFace(Font f){
-		setFontFace(f, 0);
-	}
-	
-	public /* synchronized */ void setFontFace(Font f, int layer){
+	public void setFontFace(Font f, int layer){
 		drawingGraphics[layer].setFont(f);
 	}
 	
-	public Font getGraphicsFont(){
-		return getGraphicsFont(0);
-	}
-	
-	public /* synchronized */ Font getGraphicsFont(int layer){
+	public Font getGraphicsFont(int layer){
 		return drawingGraphics[layer].getFont();
 	}
 	
-	public Graphics2D getDrawingGraphics(){
-		return getDrawingGraphics(0);
-	}
-	
-	public /* synchronized */ Graphics2D getDrawingGraphics(int layer){
+	public Graphics2D getDrawingGraphics(int layer){
 		return (Graphics2D)drawingGraphics[layer];
 	}
-	
-	public void drawImage(Image img){
-		drawImage(0, img);
-	}
-	
+		
 	public void drawImage(int layer, Image img){
 		drawImage(layer, 0, 0, img);
 	}
 	
-	public void drawImage(int scrX, int scrY, Image img){
-		drawImage(0, scrX, scrY, img);
-	}
-	
-	public /* synchronized */ void drawImage(int layer, int scrX, int scrY, Image img){
+	public void drawImage(int layer, int scrX, int scrY, Image img){
 		drawingGraphics[layer].drawImage(img, scrX, scrY,this);
 	}
 	
-	public void print(int x, int y, String text){
-		print(0, x, y, text, null);
+	public void print(int layer, int x, int y, String text){
+		print(layer, x, y, text, null);
 	}
 
-	public void print(int x, int y, String text, Color c){
-		print(0, x, y, text, c);
-	}
-	
-	public /* synchronized */ void print(int layer, int x, int y, String text, Color c){
+	public void print(int layer, int x, int y, String text, Color c){
 		Color old = null;
 		if (c != null){
 			old = drawingGraphics[layer].getColor();
@@ -974,19 +938,21 @@ class SwingInterfacePanel extends JPanel{
 		}
 	}
 	
+	public void cleanLayer(int layer){
+		//bufferGraphics[layer].clearRect(0, 0, 800, 600);
+		drawingImages[layer] =  getTransparentImage();
+		Font f =drawingGraphics[layer].getFont(); 
+		drawingGraphics[layer] = drawingImages[layer].getGraphics();
+		drawingGraphics[layer].setFont(f);
+	}
+	
+	
 	GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
 	GraphicsDevice gs = ge.getDefaultScreenDevice();
 	GraphicsConfiguration gc = gs.getDefaultConfiguration();
 	// TODO: Fix this, should be expensive to create a new image everytime... just to clear the image to a transparent one.	
 	private Image getTransparentImage(){
 		return gc.createCompatibleImage(800, 600, Transparency.BITMASK);
-	}
-	
- 
-	public /* synchronized */ void cleanLayer(int layer){
-		//bufferGraphics[layer].clearRect(0, 0, 800, 600);
-		drawingImages[layer] =  getTransparentImage();
-		drawingGraphics[layer] = drawingImages[layer].getGraphics();
 	}
 	
 	public void flash(Color c){
@@ -1035,7 +1001,6 @@ class SwingInterfacePanel extends JPanel{
 			layerImages[layer] =  getTransparentImage();
 			layerGraphics[layer] = layerImages[layer].getGraphics();
 		}
-		
 		layerGraphics[layer].drawImage(drawingImages[layer], 0,0,this);
 	}
 	

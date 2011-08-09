@@ -16,4 +16,7 @@ public abstract class GFXEffect extends Effect {
 	
 	public abstract void drawEffect(GFXUserInterface ui, SwingSystemInterface si);
 
+	public int getDrawLayer(){
+		return 0;
+	}
 }
