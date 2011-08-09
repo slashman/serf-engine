@@ -44,7 +44,6 @@ public class GFXMeleeEffect extends GFXDirectionalEffect{
 		}
 		if (icon == null){
 			si.loadLayer(getDrawLayer());
-			si.commitLayer(getDrawLayer());
 			return;
 		}
 			

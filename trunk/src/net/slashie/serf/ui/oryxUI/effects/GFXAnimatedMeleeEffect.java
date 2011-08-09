@@ -53,7 +53,6 @@ public class GFXAnimatedMeleeEffect extends GFXDirectionalEffect{
 		}
 		if (sequence == null){
 			si.loadLayer(getDrawLayer());
-			si.commitLayer(getDrawLayer());
 			return;
 		}
 			

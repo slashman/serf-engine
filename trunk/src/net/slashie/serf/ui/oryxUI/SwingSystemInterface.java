@@ -346,40 +346,13 @@ public class SwingSystemInterface implements Runnable{
 		sip.load(layer);
 	}
 	
-	public void backupInBuffer(int buffer){
-		sip.backup(buffer);
+	public void backupInBuffer(int buffer, int layer){
+		sip.backup(buffer, layer);
 	}
 	
-	public void restoreFromBuffer(int buffer){
-		sip.restore(buffer);
+	public void restoreFromBuffer(int buffer, int layer){
+		sip.restore(buffer, layer);
 	}
-	
-	private boolean isRefreshing;
-	/*public synchronized void refresh(){
-		sip.commit(0);
-		//sip.repaint();
-		/*
-		if (SwingUtilities.isEventDispatchThread()){
-			isRefreshing = true;
-			sip.repaint();
-			isRefreshing = false;
-		} else {
-			try {
-				SwingUtilities.invokeAndWait(
-						new Runnable (){
-							@Override
-							public void run() {
-								isRefreshing = true;
-								sip.repaint();
-								isRefreshing = false;
-							}
-						});
-			} catch (InterruptedException e) {
-			} catch (InvocationTargetException e) {
-			}
-		}
-		*/
-	/*}*/
 	
 	public void commitLayer(int layer){
 		sip.commit(layer);
@@ -961,35 +934,40 @@ class SwingInterfacePanel extends JPanel{
 	
 	// Board operations
 	
-	public void save(){
+	/*public void save(){
 		save(0);
-	}
+	}*/
 	
-	public /* synchronized */ void save(int layer){
+	public void save(int layer){
+		savedImages[layer] =  getTransparentImage();
+		savedGraphics[layer] = savedImages[layer].getGraphics();
+		
 		savedGraphics[layer].drawImage(layerImages[layer],0,0,this);
 	}
 	
-	public void backup (int buffer){
+	/*public void backup (int buffer){
 		backup(buffer, 0);
-	}
+	}*/
 	
-	public /* synchronized */ void backup(int buffer, int layer){
+	public void backup(int buffer, int layer){
 		backupGraphics[buffer] = backupImages[buffer].getGraphics();
 		backupGraphics[buffer].drawImage(layerImages[layer],0,0,this);
 	}
 	
 	
-	public void load(){
+	/*public void load(){
 		load(0);
-	}
+	}*/
 	
 	public /* synchronized */ void load(int layer){
+		layerImages[layer] =  getTransparentImage();
+		layerGraphics[layer] = layerImages[layer].getGraphics();
 		layerGraphics[layer].drawImage(savedImages[layer], 0,0,this);
 	}
 
-	public void restore(int buffer){
+	/*public void restore(int buffer){
 		restore(buffer, 0);
-	}
+	}*/
 	
 	public /* synchronized */ void restore(int buffer, int layer){
 		layerGraphics[layer].drawImage(backupImages[buffer], 0,0,this);
@@ -997,10 +975,10 @@ class SwingInterfacePanel extends JPanel{
 	
 	public synchronized void commit(int layer){
 		// Clean the layer 
-		if (layer > 0){
+		//if (layer > 0){
 			layerImages[layer] =  getTransparentImage();
 			layerGraphics[layer] = layerImages[layer].getGraphics();
-		}
+		//}
 		layerGraphics[layer].drawImage(drawingImages[layer], 0,0,this);
 	}
 	
