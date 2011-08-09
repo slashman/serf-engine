@@ -89,6 +89,8 @@ public class GFXUISelector extends UISelector implements ActionSelector, Seriali
 			public void keyPressed(KeyEvent e) {
 				if (!selectionActive)
 					return;
+				if (!handler.isEmpty())
+					return;
 				int charcode = SwingSystemInterface.charCode(e);
 				try {
 					handler.put("KEY:"+charcode);
