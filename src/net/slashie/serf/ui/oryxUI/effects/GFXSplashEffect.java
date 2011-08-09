@@ -18,18 +18,18 @@ public class GFXSplashEffect extends GFXEffect{
     }
     
 	public void drawEffect(GFXUserInterface ui, SwingSystemInterface si){
-		si.saveLayer();
+		si.saveLayer(getDrawLayer());
 		//ui.refresh();
 		Position relative = Position.subs(getPosition(), ui.getPlayer().getPosition());
 		Position center = Position.add(ui.PC_POS, relative);
 		int height = 0;
 		if (ui.getPlayer().getLevel().getMapCell(getPosition()) != null)
 			height = ui.getPlayer().getLevel().getMapCell(getPosition()).getHeight();
-		si.drawImage(center.x*32, center.y*32, tiles[0]);
+		si.drawImage(getDrawLayer(), center.x*32, center.y*32, tiles[0]);
 
 		for (int ring = 1; ring < tiles.length; ring++){
 			drawCircle(ui, si, center, ring, tiles[ring],height);
-			si.refresh();
+			si.commitLayer(getDrawLayer());
 			animationPause();
 		}
 		/*si.cls();
@@ -63,20 +63,20 @@ public class GFXSplashEffect extends GFXEffect{
 
 	private void drawCirclePixels(GFXUserInterface ui, SwingSystemInterface si, Position center, int x, int y, Image tile, int height){
 		if (ui.insideViewPort(center.x+x, center.y + y))
-			si.drawImage((center.x + x)*32, (center.y + y)*32-4*height, tile);
+			si.drawImage(getDrawLayer(), (center.x + x)*32, (center.y + y)*32-4*height, tile);
 		if (ui.insideViewPort(center.x+x, center.y - y))
-			si.drawImage((center.x + x)*32, (center.y - y)*32-4*height, tile);
+			si.drawImage(getDrawLayer(), (center.x + x)*32, (center.y - y)*32-4*height, tile);
 		if (ui.insideViewPort(center.x-x, center.y + y))
-			si.drawImage((center.x - x)*32, (center.y + y)*32-4*height, tile);
+			si.drawImage(getDrawLayer(), (center.x - x)*32, (center.y + y)*32-4*height, tile);
 		if (ui.insideViewPort(center.x-x, center.y - y))
-			si.drawImage((center.x - x)*32, (center.y - y)*32-4*height, tile);
+			si.drawImage(getDrawLayer(), (center.x - x)*32, (center.y - y)*32-4*height, tile);
 		if (ui.insideViewPort(center.x+y, center.y + x))
-			si.drawImage((center.x + y)*32, (center.y + x)*32-4*height, tile);
+			si.drawImage(getDrawLayer(), (center.x + y)*32, (center.y + x)*32-4*height, tile);
 		if (ui.insideViewPort(center.x+y, center.y - x))
-			si.drawImage((center.x + y)*32, (center.y - x)*32-4*height, tile);
+			si.drawImage(getDrawLayer(), (center.x + y)*32, (center.y - x)*32-4*height, tile);
 		if (ui.insideViewPort(center.x-y, center.y + x))
-			si.drawImage((center.x - y)*32, (center.y + x)*32-4*height, tile);
+			si.drawImage(getDrawLayer(), (center.x - y)*32, (center.y + x)*32-4*height, tile);
 		if (ui.insideViewPort(center.x-y, center.y - x))
-			si.drawImage((center.x - y)*32, (center.y - x)*32-4*height, tile);
+			si.drawImage(getDrawLayer(), (center.x - y)*32, (center.y - x)*32-4*height, tile);
 	}
 }

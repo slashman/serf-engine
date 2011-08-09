@@ -100,11 +100,11 @@ public class BorderedGridBox extends AddornedBorderPanel {
 					} else {
 						defaultMenuItemPrint(item, 32, xpos, ypos, selectedItem.selectedIndex);
 					}
-					si.refresh();
+					si.commitLayer(getDrawingLayer());
 					si.setCursor(getHandCursor());
 				} else {
 					// No grid selected
-					si.refresh();
+					si.commitLayer(getDrawingLayer());
 					si.setCursor(getDefaultCursor());
 				}
 			}
@@ -149,12 +149,16 @@ public class BorderedGridBox extends AddornedBorderPanel {
 		pages = (int)(Math.floor((items.size()-1) / (double)(itemsPerPage)) +1);
 	}
 	
+	public int getDrawingLayer(){
+		return 0;
+	}
+	
 	@SuppressWarnings("unchecked")
 	public void draw(boolean refresh){
 		// Draw the frame
 		int xpos = (int)getLocation().getX();
 		int ypos = (int)getLocation().getY();
-		super.paintAt(si.getDrawingGraphics(), xpos, ypos);
+		super.paintAt(si.getDrawingGraphics(getDrawingLayer()), xpos, ypos);
 		
 		// Prepare some variables
 		int fontSize = getFont().getSize();
@@ -165,7 +169,7 @@ public class BorderedGridBox extends AddornedBorderPanel {
 		pages = (int)(Math.floor((items.size()-1) / (double)(itemsPerPage)) +1);
 		
 		// Draw the title
-		si.printAtPixel(xpos, ypos+fontSize, title, titleColor);
+		si.printAtPixel(getDrawingLayer(), xpos, ypos+fontSize, title, titleColor);
 
 		// Draw the legend
 		if (legend == null)
@@ -173,7 +177,7 @@ public class BorderedGridBox extends AddornedBorderPanel {
 		String[] legends = legend.split("XXX");
 		for (int i = 0; i < legends.length; i++){
 			ypos += lineHeight;
-			si.printAtPixel(xpos, ypos + fontSize, legends[i], foreColor);
+			si.printAtPixel(getDrawingLayer(), xpos, ypos + fontSize, legends[i], foreColor);
 		}
 		
 		if (legends.length > 0)
@@ -207,26 +211,26 @@ public class BorderedGridBox extends AddornedBorderPanel {
 		
 		// Draw the footer
 		if (pages > 1){
-			si.printAtPixel((int)getLocation().getX()+getBorderWidth(), (int)getLocation().getY()+getHeight()-getBorderWidth()-lineHeight, "Page "+(currentPage+1)+"/"+pages, Color.WHITE);
+			si.printAtPixel(getDrawingLayer(), (int)getLocation().getX()+getBorderWidth(), (int)getLocation().getY()+getHeight()-getBorderWidth()-lineHeight, "Page "+(currentPage+1)+"/"+pages, Color.WHITE);
 		}
 		if (refresh)
-			si.refresh();
+			si.commitLayer(getDrawingLayer());
 	}
 
 	private void defaultMenuItemPrint(GFXMenuItem item, int boxWidth, int xpos, int ypos, int i) {
 		int fontSize = getFont().getSize();
 		int lineHeight = (int)Math.round(fontSize*1.5);
 		if (box != null){
-			si.drawImage(xpos, ypos, box);
+			si.drawImage(getDrawingLayer(), xpos, ypos, box);
 		}
 		if (item.getMenuImage() != null)
-			si.drawImage(xpos, ypos, item.getMenuImage());
+			si.drawImage(getDrawingLayer(), xpos, ypos, item.getMenuImage());
 		
 		String description = item.getMenuDescription();
 		String detail = item.getMenuDetail();
-		si.printAtPixel(xpos + boxWidth, ypos + fontSize, ((char) (97 + i))+". " + description, foreColor);
+		si.printAtPixel(getDrawingLayer(), xpos + boxWidth, ypos + fontSize, ((char) (97 + i))+". " + description, foreColor);
 		if (detail != null && !detail.equals("")){
-			si.printAtPixel(xpos + boxWidth, ypos + lineHeight + fontSize, detail, foreColor);
+			si.printAtPixel(getDrawingLayer(), xpos + boxWidth, ypos + lineHeight + fontSize, detail, foreColor);
 		}
 	}
 	
@@ -338,7 +342,7 @@ public class BorderedGridBox extends AddornedBorderPanel {
 				selection = shownItems.get(code - CharKey.a);
 				break;
 			}
-			si.loadLayer();
+			si.commitLayer(getDrawingLayer());
 		}
 		si.removeKeyListener(cbkl);
 		si.removeMouseListener(cbml);

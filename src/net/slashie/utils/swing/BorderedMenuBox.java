@@ -73,21 +73,25 @@ public class BorderedMenuBox extends AddornedBorderPanel {
 		}
 	}
 	
+	public int getDrawingLayer(){
+		return 0;
+	}
+	
 	public void draw(){
 		int xpos = (int)getLocation().getX();
 		int ypos = (int)getLocation().getY();
 		int fontSize = getFont().getSize();
-		super.paintAt(si.getDrawingGraphics(), xpos, ypos);
+		super.paintAt(si.getDrawingGraphics(getDrawingLayer()), xpos, ypos);
 		xpos+=getBorderWidth();
 		ypos+=getBorderWidth();
 		pages = (int)(Math.floor((items.size()-1) / (double)(itemsPerPage)) +1);
-		si.printAtPixel(xpos, ypos+fontSize, title, titleColor);
+		si.printAtPixel(getDrawingLayer(), xpos, ypos+fontSize, title, titleColor);
 		if (legend == null)
 			legend = title;
 		String[] legends = legend.split("XXX");
 		int legendLines = legends.length;
 		for (int i = 0; i < legends.length; i++){
-			si.printAtPixel(xpos, ypos+fontSize+(i+1)*itemHeight, legends[i], foreColor);
+			si.printAtPixel(getDrawingLayer(), xpos, ypos+fontSize+(i+1)*itemHeight, legends[i], foreColor);
 		}
 		
 		shownItems = Util.page(items, itemsPerPage, currentPage);
@@ -99,22 +103,22 @@ public class BorderedMenuBox extends AddornedBorderPanel {
 		for (; i < shownItems.size(); i++){
 			
 			GFXMenuItem item = (GFXMenuItem) shownItems.get(i);
-			si.printAtPixel(xpos, ypos+(i+legendLines)*itemHeight+fontSize, ((char) (97 + i))+"." , foreColor );
+			si.printAtPixel(getDrawingLayer(), xpos, ypos+(i+legendLines)*itemHeight+fontSize, ((char) (97 + i))+"." , foreColor );
 			if (box != null){
-				si.drawImage(xpos + itemHeight, ypos+ (i+legendLines) * itemHeight, box);
+				si.drawImage(getDrawingLayer(), xpos + itemHeight, ypos+ (i+legendLines) * itemHeight, box);
 			}
 			if (item.getMenuImage() != null)
-				si.drawImage(xpos+itemHeight, ypos+ (i+legendLines) * itemHeight, item.getMenuImage());
+				si.drawImage(getDrawingLayer(), xpos+itemHeight, ypos+ (i+legendLines) * itemHeight, item.getMenuImage());
 			String description = item.getMenuDescription();
 			
 			String detail = item.getMenuDetail();
 			
-			si.printAtPixel(xpos + 2*itemHeight, ypos+ (i+legendLines)*itemHeight+fontSize, description, foreColor);
+			si.printAtPixel(getDrawingLayer(), xpos + 2*itemHeight, ypos+ (i+legendLines)*itemHeight+fontSize, description, foreColor);
 			if (detail != null && !detail.equals("")){
-				si.printAtPixel(xpos+2*itemHeight, ypos+ (i+legendLines)*itemHeight+ 2* fontSize + 2, detail, foreColor);
+				si.printAtPixel(getDrawingLayer(), xpos+2*itemHeight, ypos+ (i+legendLines)*itemHeight+ 2* fontSize + 2, detail, foreColor);
 			}
 		}
-		si.refresh();
+		si.commitLayer(getDrawingLayer());
 	}
 
 	@SuppressWarnings("unchecked")
@@ -171,14 +175,14 @@ public class BorderedMenuBox extends AddornedBorderPanel {
 				if (selectedItem != -1){
 					int xpos = getLocation().x + getBorderWidth() - 4;
 					int ypos = 5 + selectedItem * this_.itemHeight + getLocation().y + getBorderWidth() + (fontSize + legendLines * this_.itemHeight);
-					si.setColor(titleColor);
-					si.getDrawingGraphics().drawRect(xpos, ypos, getWidth() - 15 - getBorderWidth(), this_.itemHeight);
-					si.getDrawingGraphics().drawRect(xpos+1, ypos+1, getWidth() - 15 - getBorderWidth() - 2, this_.itemHeight - 2);
-					si.refresh();
+					si.setColor(getDrawingLayer(), titleColor);
+					si.getDrawingGraphics(getDrawingLayer()).drawRect(xpos, ypos, getWidth() - 15 - getBorderWidth(), this_.itemHeight);
+					si.getDrawingGraphics(getDrawingLayer()).drawRect(xpos+1, ypos+1, getWidth() - 15 - getBorderWidth() - 2, this_.itemHeight - 2);
+					si.commitLayer(getDrawingLayer());
 					si.setCursor(getHandCursor());
 				} else {
 					// No grid selected
-					si.refresh();
+					si.commitLayer(getDrawingLayer());
 					si.setCursor(getDefaultCursor());
 				}
 			}
@@ -223,7 +227,7 @@ public class BorderedMenuBox extends AddornedBorderPanel {
 				selection = shownItems.get(code - CharKey.a);
 				break;
 			}
-			si.loadLayer();
+			si.loadLayer(getDrawingLayer());
 		}
 		si.removeKeyListener(cbkl);
 		si.removeMouseListener(cbml);
@@ -292,8 +296,7 @@ public class BorderedMenuBox extends AddornedBorderPanel {
 				return shownItems.get(key.code - CharKey.a);
 			if (isOneOf(key.code, keys))
 				throw new AdditionalKeysSignal(key.code);
-			si.loadLayer();
-
+			si.loadLayer(getDrawingLayer());
 		}
 	}
 	
