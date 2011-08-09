@@ -134,7 +134,7 @@ public abstract class GFXUserInterface extends UserInterface implements Runnable
     private void examineLevelMap(){
 		messageBox.setVisible(false);
 		isCursorEnabled = false;
-		si.saveLayer(getUILayer());
+		saveMapLayer();
 		int lw = level.getWidth();
 		int lh = level.getHeight();
 		int remnantx = (int)((740 - (lw * 3))/2.0d); 
@@ -187,9 +187,7 @@ public abstract class GFXUserInterface extends UserInterface implements Runnable
 		si.waitKeys(CharKey.SPACE, CharKey.ESC);
 		messageBox.setVisible(true);
 		isCursorEnabled = true;
-		si.loadLayer(getUILayer());
-		si.commitLayer(getUILayer());
-		
+		resetMapLayer();
 	}
     
     protected void enterScreen(){
@@ -212,7 +210,7 @@ public abstract class GFXUserInterface extends UserInterface implements Runnable
     
     public void showMessageHistory(){
     	enterScreen();
-		si.saveLayer(getUILayer());
+		saveMapLayer();
 		si.drawImage(getUILayer(), IMG_STATUSSCR_BGROUND);
 		si.print(getUILayer(), 1, 1, "Message Buffer", COLOR_BOLD);
 		for (int i = 0; i < 22; i++){
@@ -224,8 +222,7 @@ public abstract class GFXUserInterface extends UserInterface implements Runnable
 		si.print(getUILayer(), 55, 24, "[ Space to Continue ]", Color.WHITE);
 		si.commitLayer(getUILayer());
 		si.waitKeys(CharKey.SPACE, CharKey.ESC);
-		si.loadLayer(getUILayer());
-		si.commitLayer(getUILayer());
+		resetMapLayer();
 		leaveScreen();
 	}
     
@@ -299,13 +296,13 @@ public abstract class GFXUserInterface extends UserInterface implements Runnable
     	
     	Position offset = new Position (0,0);
 		messageBox.setForeground(COLOR_LAST_MESSAGE);
-		si.saveLayer(getUILayer());
+		saveMapLayer();
 		Actor lookedMonster = null;
 		while (true){
 			int cellHeight = 0;
 			Position browser = getRelativePosition(player.getPosition(), offset);
 			String looked = "";
-			si.loadLayer(getUILayer());
+			resetMapLayer();
 			if (FOVMask[PC_POS.x + offset.x][PC_POS.y + offset.y]){
 				AbstractCell choosen = level.getMapCell(browser);
 				if (choosen != null)
@@ -344,7 +341,7 @@ public abstract class GFXUserInterface extends UserInterface implements Runnable
 				} catch (InterruptedException e1) {}
 			}
 			if (command.equals("BREAK")){
-				si.loadLayer(getUILayer());
+				resetMapLayer();
 				break;
 			} else if (command.equals("MORE")){
 				if (lookedMonster != null)
@@ -372,10 +369,7 @@ public abstract class GFXUserInterface extends UserInterface implements Runnable
     		si.removeMouseListener(cbml);
     	}
     	((GFXUISelector)getPlayer().getSelector()).activate();
-		si.loadLayer(getUILayer());
-		si.commitLayer(getUILayer());
-		
-	
+		resetMapLayer();
 	}
 
     protected Position getRelativePosition(Position position, Position offset) {
@@ -385,10 +379,10 @@ public abstract class GFXUserInterface extends UserInterface implements Runnable
 	public abstract void showDetailedInfo(Actor a);
 
     public void chat (String message){
-	   si.saveLayer(getUILayer());
+	   saveMapLayer();
 	   showTextBox(message, 280, 30, 330, 170);
 	   si.commitLayer(getUILayer());
-	   si.loadLayer(getUILayer());
+	   resetMapLayer();
 	}
    
 	public void showTextBox(String text, int x, int y, int w, int h){
@@ -447,7 +441,6 @@ public abstract class GFXUserInterface extends UserInterface implements Runnable
 	public boolean showTextBoxPrompt(String text, int xPos, int yPos, int width, int height){
 		addornedTextArea.setBounds(xPos, yPos, width, height);
 		addornedTextArea.setText(text);
-		addornedTextArea.setVisible(true);
 		addornedTextArea.setCursor(getDefaultCursor());
 		
 		BlockingQueue<String> selectionQueue = new LinkedBlockingQueue<String>();
@@ -466,6 +459,7 @@ public abstract class GFXUserInterface extends UserInterface implements Runnable
 		};
 		
 		CleanButton yesButton = new CleanButton(IMG_YES_BUTTON, getHandCursor());
+		yesButton.setVisible(false);
 		yesButton.setHover(IMG_YES_HOVER_BUTTON);
 		yesButton.setBounds(xPos + (int)Math.round((double)width / 2.0d) - IMG_YES_BUTTON.getWidth() - 20,
 				yPos + height - IMG_YES_BUTTON.getHeight() - 20,
@@ -477,6 +471,7 @@ public abstract class GFXUserInterface extends UserInterface implements Runnable
 		si.changeZOrder(yesButton, 1);
 
 		CleanButton noButton = new CleanButton(IMG_NO_BUTTON, getHandCursor());
+		noButton.setVisible(false);
 		noButton.setHover(IMG_NO_HOVER_BUTTON);
 		noButton.setBounds(xPos + (int)Math.round((double)width / 2.0d) + 20,
 				yPos + height - IMG_NO_BUTTON.getHeight() - 20,
@@ -503,6 +498,10 @@ public abstract class GFXUserInterface extends UserInterface implements Runnable
 		});
 		si.add(noButton);
 		si.changeZOrder(noButton, 1);
+		
+		addornedTextArea.setVisible(true);
+		yesButton.setVisible(true);
+		noButton.setVisible(true);
 		si.commitLayer(getUILayer());
 
 
@@ -516,6 +515,9 @@ public abstract class GFXUserInterface extends UserInterface implements Runnable
 		}
 		boolean ret = choice.equals("Y");
 		addornedTextArea.setVisible(false);
+		yesButton.setVisible(false);
+		noButton.setVisible(false);
+		
 		si.remove(noButton);
 		si.remove(yesButton);
 		
@@ -524,10 +526,9 @@ public abstract class GFXUserInterface extends UserInterface implements Runnable
 	}
    
    public boolean promptChat (String text, int x, int y, int w, int h){
-	   si.saveLayer(getUILayer());
+	   saveMapLayer();
 	   boolean ret = showTextBoxPrompt(text, x, y, w, h);
-	   si.commitLayer(getUILayer());
-	   si.loadLayer(getUILayer());
+	   resetMapLayer();
 	   return ret;
 	}
 
@@ -896,11 +897,11 @@ public abstract class GFXUserInterface extends UserInterface implements Runnable
     	/*if (!insideViewPort(offset))
     		offset = new Position (0,0);*/
     	
-		si.commitLayer(getUILayer());
-		si.saveLayer(getUILayer());
+    	saveMapLayer();
+		//si.commitLayer(getUILayer());
 		
 		while (true){
-			si.loadLayer(getUILayer());
+			resetMapLayer();
 			int cellHeight = 0;
 			browser = Position.add(player.getPosition(), offset);
 			String looked = "";
@@ -939,8 +940,7 @@ public abstract class GFXUserInterface extends UserInterface implements Runnable
 				   ! x.isArrow())
 				x = si.inkey();
 			if (x.code == CharKey.ESC){
-				si.loadLayer(getUILayer());
-				si.commitLayer(getUILayer());
+				resetMapLayer();
 				throw new ActionCancelException();
 			}
 			if (x.code == CharKey.SPACE || x.code == fireKeyCode){
@@ -994,17 +994,15 @@ public abstract class GFXUserInterface extends UserInterface implements Runnable
   		menuBox.setBounds(6,4,70,12);
   		menuBox.setMenuItems(equipped);
   		menuBox.setTitle(prompt);
-  		si.saveLayer(getUILayer());
+  		saveMapLayer();
   		//menuBox.draw();
   		AbstractItem equiped = (AbstractItem)menuBox.getSelection();
 		if (equiped == null){
 			ActionCancelException ret = new ActionCancelException();
-			si.loadLayer(getUILayer());
-			si.commitLayer(getUILayer());
+			resetMapLayer();
 			throw ret;
 		}
-		si.loadLayer(getUILayer());
-		si.commitLayer(getUILayer());
+		resetMapLayer();
 		leaveScreen();
 		return equiped;
 	}
@@ -1018,19 +1016,16 @@ public abstract class GFXUserInterface extends UserInterface implements Runnable
   		menuBox.setItemsPerPage(12);
   		menuBox.setMenuItems(inventory);
   		menuBox.setTitle(prompt);
-  		si.saveLayer(getUILayer());
+  		saveMapLayer();
   		//menuBox.draw();
 		Equipment equipment = (Equipment)menuBox.getSelection();
-		si.loadLayer(getUILayer());
 		if (equipment == null){
 			ActionCancelException ret = new ActionCancelException();
-			si.loadLayer(getUILayer());
-			si.commitLayer(getUILayer());
+			resetMapLayer();
 			leaveScreen();
 			throw ret;
 		}
-		si.loadLayer(getUILayer());
-		si.commitLayer(getUILayer());
+		resetMapLayer();
 		leaveScreen();
 		return equipment.getItem();
 	}
@@ -1054,7 +1049,7 @@ public abstract class GFXUserInterface extends UserInterface implements Runnable
   		selectedBox.setMenuItems(ret);
   		//selectedBox.setForeColor(ConsoleSystemInterface.RED);
   		
-  		si.saveLayer(getUILayer());
+  		saveMapLayer();
   		
 		while (true){
 			selectedBox.draw();
@@ -1067,7 +1062,7 @@ public abstract class GFXUserInterface extends UserInterface implements Runnable
 			if (!ret.contains(equipment.getItem()))
 				ret.add(equipment.getItem());
 		}
-		si.loadLayer(getUILayer());
+		resetMapLayer();
 		//Equipment.eqMode = false;
 		return ret;
 	}
@@ -1167,19 +1162,17 @@ public abstract class GFXUserInterface extends UserInterface implements Runnable
   		menuBox.setBounds(6,4,70,12);
   		menuBox.setMenuItems(items);
   		menuBox.setTitle(prompt);
-  		si.saveLayer(getUILayer());
+  		saveMapLayer();
   		//menuBox.draw();
 		AbstractItem item = (AbstractItem)menuBox.getSelection();
 		
 		if (item == null){
 			ActionCancelException ret = new ActionCancelException();
-			si.loadLayer(getUILayer());
-			si.commitLayer(getUILayer());
+			resetMapLayer();
 			leaveScreen();
 			throw ret;
 		}
-		si.loadLayer(getUILayer());
-		si.commitLayer(getUILayer());
+		resetMapLayer();
 		leaveScreen();
 		return item;
 	}
@@ -1316,7 +1309,7 @@ public abstract class GFXUserInterface extends UserInterface implements Runnable
   			i++;
   		}
   		
-  		si.saveLayer(getUILayer());
+  		saveMapLayer();
   		
   		selectionBox.setMenuItems(menuItems);
   		selectionBox.setLegend(prompt);
@@ -1330,12 +1323,10 @@ public abstract class GFXUserInterface extends UserInterface implements Runnable
 			SimpleGFXMenuItem itemChoice = ((SimpleGFXMenuItem)selectionBox.getSelection());
 			if (itemChoice == null)
 				break;
-			si.loadLayer(getUILayer());
-			si.commitLayer(getUILayer());
+			resetMapLayer();
 			return itemChoice.getValue();
 		}
-		si.loadLayer(getUILayer());
-		si.commitLayer(getUILayer());
+		resetMapLayer();
 		return -1;
 	}
 	
@@ -1391,6 +1382,22 @@ public abstract class GFXUserInterface extends UserInterface implements Runnable
 			SworeGame.crash("Error loading cursors", e);
 			return null;
 		}
+	}
+	
+	/**
+	 * Saves the contents of the map and UI Layer in order to reset 
+	 * them after using the UILayer  
+	 */
+	private void saveMapLayer(){
+		si.saveLayer(getUILayer());
+		si.saveLayer(getMapLayer());
+	}
+	
+	private void resetMapLayer(){
+		si.loadLayer(getUILayer());
+		si.loadLayer(getMapLayer());
+		si.commitLayer(getUILayer());
+		si.commitLayer(getMapLayer());
 	}
 }
 
