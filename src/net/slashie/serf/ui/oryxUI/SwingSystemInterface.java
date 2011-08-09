@@ -403,10 +403,13 @@ public class SwingSystemInterface implements Runnable{
 		CharKey read = new CharKey(CharKey.NONE);
 		saveLayer(layer);
 		while (true){
-			loadLayer(layer);
+			sip.loadAndDraw(layer);
 			printAtPixel(layer, xpos, ypos, ret+"_", textColor);
 			commitLayer(layer);
 			Integer code = null;
+			try {
+				Thread.sleep(10);
+			} catch (InterruptedException e1) {}
 			while (code == null){
 				try {
 					code = inputQueue.take();
@@ -964,6 +967,14 @@ class SwingInterfacePanel extends JPanel{
 		layerGraphics[layer] = layerImages[layer].getGraphics();
 		layerGraphics[layer].drawImage(savedImages[layer], 0,0,this);
 	}
+	public void loadAndDraw(int layer){
+		drawingImages[layer] =  getTransparentImage();
+		Font f = drawingGraphics[layer].getFont(); 
+		drawingGraphics[layer] = drawingImages[layer].getGraphics();
+		drawingGraphics[layer].setFont(f);
+		drawingGraphics[layer].drawImage(savedImages[layer], 0,0,this);
+	}
+	
 
 	/*public void restore(int buffer){
 		restore(buffer, 0);
