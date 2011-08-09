@@ -477,8 +477,8 @@ public class SwingSystemInterface implements Runnable{
 		if (SwingUtilities.isEventDispatchThread()){
 			sip.add(c);
 			sip.validate();
-			if (c.isVisible())
-				sip.repaint();
+			/*if (c.isVisible())
+				sip.repaint();*/
 		} else {
 			monitor();
 			try {
@@ -487,8 +487,8 @@ public class SwingSystemInterface implements Runnable{
 					public void run() {
 						sip.add(c);
 						sip.validate();
-						if (c.isVisible())
-							sip.repaint();
+						/*if (c.isVisible())
+							sip.repaint();*/
 					}
 				});
 			} catch (InterruptedException e) {
