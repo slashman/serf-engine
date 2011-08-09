@@ -11,7 +11,7 @@ public class GFXAnimatedMissileEffect extends GFXDirectedEffect{
 
 	public void drawEffect(GFXUserInterface ui, SwingSystemInterface si){
 		//super.drawEffect(ui, si);
-		si.saveBuffer();
+		si.saveLayer();
 		Position oldPoint = effectLine.next();
 		int too = 0;
 		
@@ -31,7 +31,7 @@ public class GFXAnimatedMissileEffect extends GFXDirectedEffect{
 			si.drawImage(toPrint.x()*32, toPrint.y()*32-4*height, missile[too]);
 			si.refresh();
 			animationPause();
-			si.restore();
+			si.loadLayer();
 			
 		}
 	}

@@ -20,10 +20,10 @@ public class GFXCircleBlastEffect extends GFXEffect{
     
 	public void drawEffect(GFXUserInterface ui, SwingSystemInterface si){
 		ui.refresh();
-		si.saveBuffer();
+		si.saveLayer();
 		Position relative = Position.subs(getPosition(), ui.getPlayer().getPosition());
 		Position center = Position.add(ui.PC_POS, relative);
-		Graphics2D g = si.getGraphics2D();
+		Graphics2D g = si.getDrawingGraphics();
 		Stroke oldStroke = g.getStroke();
 		g.setStroke(new BasicStroke(10));
 		g.setColor(blastColor);
@@ -37,7 +37,7 @@ public class GFXCircleBlastEffect extends GFXEffect{
 		}
 		g.setStroke(oldStroke);
 		si.cls();
-		si.restore();
+		si.loadLayer();
 		si.refresh();
 	}
 }

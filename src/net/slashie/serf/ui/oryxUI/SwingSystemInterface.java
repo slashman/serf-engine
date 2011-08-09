@@ -10,13 +10,17 @@ import java.awt.FontMetrics;
 import java.awt.Frame;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.GraphicsConfiguration;
 import java.awt.GraphicsDevice;
 import java.awt.GraphicsEnvironment;
 import java.awt.GridLayout;
 import java.awt.Image;
 import java.awt.Point;
 import java.awt.Toolkit;
+import java.awt.Transparency;
 import java.awt.Window;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
@@ -31,6 +35,7 @@ import javax.swing.JFrame;
 import javax.swing.JLayeredPane;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
+import javax.swing.Timer;
 import javax.swing.border.LineBorder;
 
 import net.slashie.libjcsi.CharKey;
@@ -50,7 +55,6 @@ public class SwingSystemInterface implements Runnable{
 	private Hashtable<String, Image> images = new Hashtable<String, Image>();
 	private BlockingQueue <Integer> inputQueue = new LinkedBlockingQueue<Integer>();
 	
-	//private JTextArea invTextArea;
 	private JFrame frameMain;
 	private Point posClic;
 
@@ -82,10 +86,17 @@ public class SwingSystemInterface implements Runnable{
 		frameMain.setVisible(bal);
 	}
 	
+	// Initialization
+	
 	public SwingSystemInterface (){
 		this(false);
 	}
+	
 	public SwingSystemInterface (boolean fullScreen){
+		this(1, fullScreen);
+	}
+	
+	public SwingSystemInterface (int layers, boolean fullScreen){
 		if (fullScreen)
 			initFullScreen();
 		else {
@@ -104,6 +115,7 @@ public class SwingSystemInterface implements Runnable{
 		JLayeredPane layeredPane = new JLayeredPane();
 		frameMain.getContentPane().add(layeredPane);
 		layeredPane.setBounds(0,0,800,600);
+		
 		sip = new SwingInterfacePanel();
 		sip.setBounds(0,0,800,600);
 		layeredPane.add(sip);
@@ -111,7 +123,7 @@ public class SwingSystemInterface implements Runnable{
 		aStrokeInformer = new StrokeNClickInformer();
 		frameMain.addKeyListener(aStrokeInformer);
 		frameMain.addMouseListener(aStrokeInformer);
-		sip.init();
+		sip.init(layers);
 	
 		inputQueueKeyListener = new CallbackKeyListener<Integer>(inputQueue){
 			
@@ -149,6 +161,17 @@ public class SwingSystemInterface implements Runnable{
 
 			public void mouseReleased(MouseEvent e) {}
         });
+		
+		final SwingSystemInterface _si = this;
+        Timer t = new Timer(1000/20, new ActionListener(){
+        	@Override
+        	public void actionPerformed(ActionEvent e) {
+        		synchronized(_si){
+        			sip.repaint();
+        		}
+        	}
+        });
+        t.start();
 	}
 	
 	private boolean isFullScreen = false;
@@ -213,8 +236,9 @@ public class SwingSystemInterface implements Runnable{
     	}
 	}
 
+	// Drawing Methods
 	
-	public void cls(){
+	public synchronized void cls(){
 		sip.cls();
 	}
 	
@@ -229,16 +253,12 @@ public class SwingSystemInterface implements Runnable{
 			images.put(filename, im);
 		}
 		sip.drawImage(im);
-		sip.repaint();
+		//sip.repaint();
 	}
 	
 	public void drawImage(Image image){
 		sip.drawImage(image);
-		sip.repaint();
-	}
-	
-	public void refresh(){
-		sip.repaint();
+		//sip.repaint();
 	}
 	
 	public void printAtPixel(int x, int y, String text){
@@ -250,7 +270,7 @@ public class SwingSystemInterface implements Runnable{
 	}
 	
 	public void printCentered(int y, String text, Color color){
-		FontMetrics metrics = getGraphics2D().getFontMetrics(sip.getFont());
+		FontMetrics metrics = getDrawingGraphics().getFontMetrics(sip.getFont());
 		printAtPixel((int)(sip.getWidth()/2.0d)-(int)(metrics.stringWidth(text)), y, text, color);
 	}
 
@@ -262,26 +282,12 @@ public class SwingSystemInterface implements Runnable{
 		sip.print(x*10, y*24, text);
 	}
 	
-	public void waitKey (int keyCode){
-		CharKey x = new CharKey(CharKey.NONE);
-		while (x.code != keyCode)
-			x = inkey();
-	}
-	
-	public void waitKeys (int... keyCodes){
-		CharKey x = new CharKey(CharKey.NONE);
-		while (true){
-			x = inkey();
-			for (int keyCode: keyCodes){
-				if (x.code == keyCode)
-					return;
-			}
-			
-		}
-	}
-	
 	public void drawImage(int scrX, int scrY, Image img){
-		sip.drawImage(scrX, scrY, img);
+		drawImage(0, scrX, scrY, img);
+	}
+	
+	public synchronized void drawImage(int layer, int scrX, int scrY, Image img){
+		sip.drawImage(layer, scrX, scrY, img);
 	}
 	
 	public void drawImage(int scrX, int scrY, String filename){
@@ -306,6 +312,103 @@ public class SwingSystemInterface implements Runnable{
 		drawImage(consoleX*10, consoleY*24, img);
 	}
 	
+	public Graphics2D getDrawingGraphics(){
+		return sip.getDrawingGraphics();
+	}
+	
+	public void setFont(Font fnt){
+		sip.setFontFace(fnt);
+	}
+	
+	public void setColor(Color color){
+		sip.setColor(color);
+	}
+	
+	public synchronized void cleanLayer(int layer){
+		sip.cleanLayer(layer);
+	}
+	
+	public void flash(Color c){
+		sip.flash(c);
+	}
+	
+	// Board Operations
+	
+	public void saveLayer(){
+		saveLayer(0);
+	}
+	
+	public void saveLayer(int layer){
+		sip.save(layer);
+	}
+	
+	public void loadLayer(){
+		loadLayer(0);
+	}
+	
+	public void loadLayer(int layer){
+		sip.load(layer);
+	}
+	
+	public void backupInBuffer(int buffer){
+		sip.backup(buffer);
+	}
+	
+	public void restoreFromBuffer(int buffer){
+		sip.restore(buffer);
+	}
+	
+	private boolean isRefreshing;
+	public synchronized void refresh(){
+		sip.commit(0);
+		//sip.repaint();
+		/*
+		if (SwingUtilities.isEventDispatchThread()){
+			isRefreshing = true;
+			sip.repaint();
+			isRefreshing = false;
+		} else {
+			try {
+				SwingUtilities.invokeAndWait(
+						new Runnable (){
+							@Override
+							public void run() {
+								isRefreshing = true;
+								sip.repaint();
+								isRefreshing = false;
+							}
+						});
+			} catch (InterruptedException e) {
+			} catch (InvocationTargetException e) {
+			}
+		}
+		*/
+	}
+	
+	public void commitLayer(int layer){
+		sip.commit(layer);
+	}
+	
+	// Input methods
+	
+	public void waitKey (int keyCode){
+		CharKey x = new CharKey(CharKey.NONE);
+		while (x.code != keyCode)
+			x = inkey();
+	}
+	
+	public void waitKeys (int... keyCodes){
+		CharKey x = new CharKey(CharKey.NONE);
+		while (true){
+			x = inkey();
+			for (int keyCode: keyCodes){
+				if (x.code == keyCode)
+					return;
+			}
+			
+		}
+	}
+	
 	public synchronized CharKey inkey(){
 	    aStrokeInformer.informKey(Thread.currentThread());
 	    try {
@@ -325,25 +428,13 @@ public class SwingSystemInterface implements Runnable{
 		return ret;
 	}
 	
-	public Graphics2D getGraphics2D(){
-		return sip.getCurrentGraphics();
-	}
-	
-	public void setFont(Font fnt){
-		sip.setFontFace(fnt);
-	}
-	
-	public void setColor(Color color){
-		sip.setColor(color);
-	}
-	
 	public String input(int xpos,int ypos, Color textColor, int maxLength){
 		frameMain.addKeyListener(inputQueueKeyListener);
 		String ret = "";
 		CharKey read = new CharKey(CharKey.NONE);
-		saveBuffer();
+		saveLayer();
 		while (true){
-			restore();
+			loadLayer();
 			printAtPixel(xpos, ypos, ret+"_", textColor);
 			refresh();
 			Integer code = null;
@@ -384,26 +475,6 @@ public class SwingSystemInterface implements Runnable{
 		}
 		frameMain.removeKeyListener(inputQueueKeyListener);
 		return ret;
-	}
-	
-	public void saveBuffer(){
-		sip.saveBuffer();
-	}
-	
-	public void saveBuffer(int buffer){
-		sip.saveBuffer(buffer);
-	}
-	
-	public void restore(){
-		sip.restore();
-	}
-	
-	public void restore(int buffer){
-		sip.restore(buffer);
-	}
-	
-	public void flash(Color c){
-		sip.flash(c);
 	}
 	
 	public void add(final Component c){
@@ -717,154 +788,264 @@ public class SwingSystemInterface implements Runnable{
 }
 
 class SwingInterfacePanel extends JPanel{
-	private Image bufferImage;
-	private Graphics bufferGraphics;
+	/**
+	 * 
+ 	 *      Drawing         Layer       Composite 
+	 *       Boards          Boards      Board
+	 *        ____            ____         ____
+	 * draw   \   \  commit   \   \  paint \   \
+	 *  --->  \\   \ ------>  \\   \  ----> \   \
+	 *         \\___\          \\___\        \___\
+	 *          \___\           \___\
+	 *                            ^
+	 *                            |    
+	 *                            |
+	 *                            ^
+	 *              save - load  / \  backup - restore
+	 *                          /   \ 
+	 *                    ____ /     \ ____ 
+	 *                    \   \        \   \
+	 *                    \\   \       \\   \
+	 *                     \\___\      \\\___\
+	 *                      \___\       \\___\
+	 *                                   \___\
+	 *              
+	 *                    Saved         Backup
+	 *                     Boards        Boards
+	 */
 	
-	private Image backImage;
-	private Graphics backGraphics;
+	/**
+	 * Composite board: All layers are added here
+	 */
+	private Image compositeImage;
+	private Graphics compositeGraphics;
 	
-	private Image[] backImageBuffers;
-	private Graphics[] backGraphicsBuffers;
+	/**
+	 * Drawing boards, this is where all operations are done. They won't be shown until
+	 * a commit operation is made over the board
+	 */
+	private Image[] drawingImages; private Graphics[] drawingGraphics;
 	
-	public void cls(){
-		Color oldColor = bufferGraphics.getColor();
-		bufferGraphics.setColor(Color.BLACK);
-		bufferGraphics.fillRect(0,0,800,600);
-		bufferGraphics.setColor(oldColor);
-	}
+	/**
+	 * Layers boards, which are added up when refreshing to create and print the composite board
+	 */
+	private Image[] layerImages; private Graphics[] layerGraphics;
 	
-	public void setColor(Color color){
-		bufferGraphics.setColor(color);
-	}
+	/**
+	 * Saved Boards: save the status of a layer in order to restore it if needed 
+	 */
+	private Image[] savedImages; private Graphics[] savedGraphics;
 	
-	public void setFontFace(Font f){
-		bufferGraphics.setFont(f);
-	}
+	/**
+	 * Backup boards, they can contain copies of any layer
+	 */
+	private Image[] backupImages; private Graphics[] backupGraphics;
 	
-	public Font getGraphicsFont(){
-		return bufferGraphics.getFont();
-	}
-	
-	public Graphics2D getCurrentGraphics(){
-		return (Graphics2D)bufferGraphics;
-	}
+	// Initialization
 	
 	public SwingInterfacePanel(){
 		setLayout(null);
 		setBorder(new LineBorder(Color.GRAY));
 	}
-	/*
-	boolean isTransparent;
-	Image transparentImage = null;
-	public void activateTransparency (){
+	
+	public void init(int layers){
+		layerImages = new Image[layers];
+		layerGraphics = new Graphics[layers];
+		drawingImages = new Image[layers];
+		drawingGraphics = new Graphics[layers];
+		savedImages = new Image[layers];
+		savedGraphics = new Graphics[layers];
+		backupImages = new Image[layers];
+		backupGraphics = new Graphics[layers];
+		
 		GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
 		GraphicsDevice gs = ge.getDefaultScreenDevice();
 		GraphicsConfiguration gc = gs.getDefaultConfiguration();
 		
+		int dimX = 800;
+		int dimY = 600;
 		
-		try {
-			transparentImage = ImageUtils.createImage("res/transparent.png");
-		} catch (IOException e) {
-			e.printStackTrace();
+		compositeImage = gc.createCompatibleImage(dimX, dimY, Transparency.BITMASK);;
+		compositeGraphics = compositeImage.getGraphics();
+		
+		for (int i = 0; i < layers; i++){
+			layerImages[i] =  gc.createCompatibleImage(dimX, dimY, Transparency.BITMASK);
+			layerGraphics[i] = layerImages[i].getGraphics();
+			layerGraphics[i].setColor(Color.WHITE);
+			
+			drawingImages[i] =  gc.createCompatibleImage(dimX, dimY, Transparency.BITMASK);
+			drawingGraphics[i] = drawingImages[i].getGraphics();
+			drawingGraphics[i].setColor(Color.WHITE);
+			
+			savedImages[i] =  gc.createCompatibleImage(dimX, dimY, Transparency.BITMASK);
+			savedGraphics[i] = savedImages[i].getGraphics();
+			savedGraphics[i].setColor(Color.WHITE);
 		}
-		
-		bufferImage = gc.createCompatibleImage(800, 600, Transparency.BITMASK);
-		bufferImage = transparentImage;
-        bufferGraphics = bufferImage.getGraphics();
-        bufferGraphics.setColor(Color.WHITE);
-        backImage = gc.createCompatibleImage(800, 600, Transparency.BITMASK);
-        backImage = transparentImage;
-        backGraphics = backImage.getGraphics();
-        backImageBuffers = new Image[5];
-        backGraphicsBuffers = new Graphics[5];
+        
+        // Image Buffers (For flipping)
+        backupImages = new Image[5];
+        backupGraphics = new Graphics[5];
         for (int i = 0 ; i < 5; i++){
-        	backImageBuffers[i] = gc.createCompatibleImage(800, 600, Transparency.BITMASK);
-        	backImageBuffers[i] = transparentImage;
-        	backGraphicsBuffers[i] = backImageBuffers[i].getGraphics();
-        	
-        }
-	
-		Graphics2D g = (Graphics2D) bufferImage.getGraphics();
-		g.setBackground(new Color(0,0,0,0));
-		g.clearRect(0,0,800,600);
-		
-		isTransparent = true;
-	}*/
-	
-	public void init(){
-		bufferImage = createImage(800, 600);
-        bufferGraphics = bufferImage.getGraphics();
-        bufferGraphics.setColor(Color.WHITE);
-        backImage = createImage(800, 600);
-        backGraphics = backImage.getGraphics();
-        backImageBuffers = new Image[5];
-        backGraphicsBuffers = new Graphics[5];
-        for (int i = 0 ; i < 5; i++){
-        	backImageBuffers[i] = createImage(800, 600);
-        	backGraphicsBuffers[i] = backImageBuffers[i].getGraphics();
+        	backupImages[i] = createImage(800, 600);
+        	backupGraphics[i] = backupImages[i].getGraphics();
         }
         
+        setOpaque(false);
+	}
+	
+	
+	// Drawing methods
+	public void cls(){
+		cls(0);
+	}
+	
+	public /* synchronized */ void cls(int layer){
+		Color oldColor = drawingGraphics[layer].getColor();
+		drawingGraphics[layer].setColor(Color.BLACK);
+		drawingGraphics[layer].fillRect(0,0,800,600);
+		drawingGraphics[layer].setColor(oldColor);
+	}
+		
+	public void setColor(Color color){
+		setColor(0, color);
+	}
+	
+	public /* synchronized */ void setColor(int layer, Color color){
+		drawingGraphics[layer].setColor(color);
+	}
+	
+	public void setFontFace(Font f){
+		setFontFace(f, 0);
+	}
+	
+	public /* synchronized */ void setFontFace(Font f, int layer){
+		drawingGraphics[layer].setFont(f);
+	}
+	
+	public Font getGraphicsFont(){
+		return getGraphicsFont(0);
+	}
+	
+	public /* synchronized */ Font getGraphicsFont(int layer){
+		return drawingGraphics[layer].getFont();
+	}
+	
+	public Graphics2D getDrawingGraphics(){
+		return getDrawingGraphics(0);
+	}
+	
+	public /* synchronized */ Graphics2D getDrawingGraphics(int layer){
+		return (Graphics2D)drawingGraphics[layer];
 	}
 	
 	public void drawImage(Image img){
-		bufferGraphics.drawImage(img, 0, 0,this);
+		drawImage(0, img);
+	}
+	
+	public void drawImage(int layer, Image img){
+		drawImage(layer, 0, 0, img);
 	}
 	
 	public void drawImage(int scrX, int scrY, Image img){
-		bufferGraphics.drawImage(img, scrX, scrY,this);
+		drawImage(0, scrX, scrY, img);
+	}
+	
+	public /* synchronized */ void drawImage(int layer, int scrX, int scrY, Image img){
+		drawingGraphics[layer].drawImage(img, scrX, scrY,this);
 	}
 	
 	public void print(int x, int y, String text){
-		bufferGraphics.drawString(text, x,y);
-		//repaint();
-	}
-	
-	public void print(int x, int y, String text, Color c){
-		Color old = bufferGraphics.getColor(); 
-		bufferGraphics.setColor(c);
-		bufferGraphics.drawString(text, x,y);
-		bufferGraphics.setColor(old);
-		//repaint();
-	}
-	
-	public void saveBuffer(){
-		backGraphics.drawImage(bufferImage,0,0,this);
-	}
-	
-	public void saveBuffer(int buffer){
-		cleanBuffer(buffer);
-		backGraphicsBuffers[buffer].drawImage(bufferImage,0,0,this);
-	}
-	
-	private void cleanBuffer(int buffer) {
-		//backImageBuffers[buffer] = transparentImage;
-    	backGraphicsBuffers[buffer] = backImageBuffers[buffer].getGraphics();
+		print(0, x, y, text, null);
 	}
 
-	public void restore(){
-		bufferGraphics.drawImage(backImage, 0,0,this);
+	public void print(int x, int y, String text, Color c){
+		print(0, x, y, text, c);
 	}
 	
-	public void restore(int buffer){
-		/*try {
-			transparentImage = ImageUtils.createImage("res/transparent.png");
-		} catch (IOException e) {
-			e.printStackTrace();
+	public /* synchronized */ void print(int layer, int x, int y, String text, Color c){
+		Color old = null;
+		if (c != null){
+			old = drawingGraphics[layer].getColor();
+			drawingGraphics[layer].setColor(c);
 		}
-		bufferImage = transparentImage;
-        bufferGraphics = bufferImage.getGraphics();*/
-		bufferGraphics.drawImage(backImageBuffers[buffer], 0,0,this);
+		drawingGraphics[layer].drawString(text, x,y);
+		if (c!= null){
+			drawingGraphics[layer].setColor(old);
+		}
+	}
+	
+	GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
+	GraphicsDevice gs = ge.getDefaultScreenDevice();
+	GraphicsConfiguration gc = gs.getDefaultConfiguration();
+	// TODO: Fix this, should be expensive to create a new image everytime... just to clear the image to a transparent one.	
+	private Image getTransparentImage(){
+		return gc.createCompatibleImage(800, 600, Transparency.BITMASK);
+	}
+	
+ 
+	public /* synchronized */ void cleanLayer(int layer){
+		//bufferGraphics[layer].clearRect(0, 0, 800, 600);
+		drawingImages[layer] =  getTransparentImage();
+		drawingGraphics[layer] = drawingImages[layer].getGraphics();
 	}
 	
 	public void flash(Color c){
 		
 	}
 	
-	public void paintComponent(Graphics g){
-		//if (!isTransparent)
-			super.paintComponent(g);
-		if (bufferImage != null){
-			g.drawImage(bufferImage, 0,0,this);
+	// Board operations
+	
+	public void save(){
+		save(0);
+	}
+	
+	public /* synchronized */ void save(int layer){
+		savedGraphics[layer].drawImage(layerImages[layer],0,0,this);
+	}
+	
+	public void backup (int buffer){
+		backup(buffer, 0);
+	}
+	
+	public /* synchronized */ void backup(int buffer, int layer){
+		backupGraphics[buffer] = backupImages[buffer].getGraphics();
+		backupGraphics[buffer].drawImage(layerImages[layer],0,0,this);
+	}
+	
+	
+	public void load(){
+		load(0);
+	}
+	
+	public /* synchronized */ void load(int layer){
+		layerGraphics[layer].drawImage(savedImages[layer], 0,0,this);
+	}
+
+	public void restore(int buffer){
+		restore(buffer, 0);
+	}
+	
+	public /* synchronized */ void restore(int buffer, int layer){
+		layerGraphics[layer].drawImage(backupImages[buffer], 0,0,this);
+	}
+	
+	public synchronized void commit(int layer){
+		// Clean the layer 
+		if (layer > 0){
+			layerImages[layer] =  getTransparentImage();
+			layerGraphics[layer] = layerImages[layer].getGraphics();
+		}
+		
+		layerGraphics[layer].drawImage(drawingImages[layer], 0,0,this);
+	}
+	
+	public synchronized void paintComponent(Graphics g){
+		if (layerImages != null && compositeGraphics != null){
+			super.paintComponent(compositeGraphics);
+			for (int i = 0; i < layerImages.length; i++){
+				compositeGraphics.drawImage(layerImages[i], 0,0,this);
+			}
+			g.drawImage(compositeImage, 0, 0, this);
 		}
 	}
 

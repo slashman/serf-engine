@@ -13,7 +13,7 @@ public class GFXMeleeEffect extends GFXDirectionalEffect{
 	
 	public void drawEffect(GFXUserInterface ui, SwingSystemInterface si){
 		Image icon = null;
-		si.saveBuffer();
+		si.saveLayer();
 		setAnimationDelay(animationDelay);
 		Position var = Action.directionToVariation(direction);
 		switch (direction){
@@ -43,7 +43,7 @@ public class GFXMeleeEffect extends GFXDirectionalEffect{
 			break;
 		}
 		if (icon == null){
-			si.restore();
+			si.loadLayer();
 			si.refresh();
 			return;
 		}
@@ -61,7 +61,7 @@ public class GFXMeleeEffect extends GFXDirectionalEffect{
 			si.drawImage(toPrint.x()*32+8, toPrint.y()*32+8-4*height, icon);
 			si.refresh();
 			animationPause();
-			si.restore();
+			si.loadLayer();
 		}
 		
 	}

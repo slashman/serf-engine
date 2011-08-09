@@ -16,7 +16,7 @@ public class GFXIconEffect extends GFXEffect{
     }
 
 	public void drawEffect(GFXUserInterface ui, SwingSystemInterface si){
-		si.saveBuffer();
+		si.saveLayer();
 		//si.setAutoRefresh(false);
 		int height = 0;
 		if (ui.getPlayer().getLevel().getMapCell(getPosition()) != null)
@@ -27,6 +27,6 @@ public class GFXIconEffect extends GFXEffect{
 			si.drawImage(center.x*32, center.y*32-4*height, tile);
 		si.refresh();
 		animationPause();
-		si.restore();
+		si.loadLayer();
 	}
 }

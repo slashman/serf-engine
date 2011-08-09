@@ -10,7 +10,7 @@ public class GFXBeamEffect extends GFXDirectedEffect {
 	private Image [] missile;
 	
 	public void drawEffect(GFXUserInterface ui, SwingSystemInterface si){
-		si.saveBuffer();
+		si.saveLayer();
 		int too = 0;
 		for (int i = 0; i < depth; i++){
 			Position next = effectLine.next();
@@ -28,7 +28,7 @@ public class GFXBeamEffect extends GFXDirectedEffect {
 			si.refresh();
 			animationPause();
 		}
-		si.restore();
+		si.loadLayer();
 	}
 
 	public GFXBeamEffect(String ID, Image[] missile, int delay){

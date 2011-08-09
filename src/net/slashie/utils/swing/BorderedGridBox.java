@@ -154,7 +154,7 @@ public class BorderedGridBox extends AddornedBorderPanel {
 		// Draw the frame
 		int xpos = (int)getLocation().getX();
 		int ypos = (int)getLocation().getY();
-		super.paintAt(si.getGraphics2D(), xpos, ypos);
+		super.paintAt(si.getDrawingGraphics(), xpos, ypos);
 		
 		// Prepare some variables
 		int fontSize = getFont().getSize();
@@ -338,7 +338,7 @@ public class BorderedGridBox extends AddornedBorderPanel {
 				selection = shownItems.get(code - CharKey.a);
 				break;
 			}
-			si.restore();
+			si.loadLayer();
 		}
 		si.removeKeyListener(cbkl);
 		si.removeMouseListener(cbml);
