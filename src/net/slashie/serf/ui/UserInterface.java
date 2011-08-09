@@ -142,11 +142,10 @@ public abstract class UserInterface implements CommandListener {
 	}
     
 	protected void informPlayerCommand(int command) {
-	    Debug.enterMethod(this, "informPlayerCommand", command+"");
+
 	    for (int i =0; i < commandListeners.size(); i++){
 	    	commandListeners.get(i).commandSelected(command);
 	    }
-		Debug.exitMethod();
     }
 	
 	public void addCommandListener(CommandListener pCl) {
