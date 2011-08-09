@@ -77,7 +77,7 @@ public class BorderedMenuBox extends AddornedBorderPanel {
 		int xpos = (int)getLocation().getX();
 		int ypos = (int)getLocation().getY();
 		int fontSize = getFont().getSize();
-		super.paintAt(si.getGraphics2D(), xpos, ypos);
+		super.paintAt(si.getDrawingGraphics(), xpos, ypos);
 		xpos+=getBorderWidth();
 		ypos+=getBorderWidth();
 		pages = (int)(Math.floor((items.size()-1) / (double)(itemsPerPage)) +1);
@@ -172,8 +172,8 @@ public class BorderedMenuBox extends AddornedBorderPanel {
 					int xpos = getLocation().x + getBorderWidth() - 4;
 					int ypos = 5 + selectedItem * this_.itemHeight + getLocation().y + getBorderWidth() + (fontSize + legendLines * this_.itemHeight);
 					si.setColor(titleColor);
-					si.getGraphics2D().drawRect(xpos, ypos, getWidth() - 15 - getBorderWidth(), this_.itemHeight);
-					si.getGraphics2D().drawRect(xpos+1, ypos+1, getWidth() - 15 - getBorderWidth() - 2, this_.itemHeight - 2);
+					si.getDrawingGraphics().drawRect(xpos, ypos, getWidth() - 15 - getBorderWidth(), this_.itemHeight);
+					si.getDrawingGraphics().drawRect(xpos+1, ypos+1, getWidth() - 15 - getBorderWidth() - 2, this_.itemHeight - 2);
 					si.refresh();
 					si.setCursor(getHandCursor());
 				} else {
@@ -223,7 +223,7 @@ public class BorderedMenuBox extends AddornedBorderPanel {
 				selection = shownItems.get(code - CharKey.a);
 				break;
 			}
-			si.restore();
+			si.loadLayer();
 		}
 		si.removeKeyListener(cbkl);
 		si.removeMouseListener(cbml);
@@ -292,7 +292,7 @@ public class BorderedMenuBox extends AddornedBorderPanel {
 				return shownItems.get(key.code - CharKey.a);
 			if (isOneOf(key.code, keys))
 				throw new AdditionalKeysSignal(key.code);
-			si.restore();
+			si.loadLayer();
 
 		}
 	}

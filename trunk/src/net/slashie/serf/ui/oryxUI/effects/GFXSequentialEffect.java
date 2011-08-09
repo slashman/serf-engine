@@ -20,7 +20,7 @@ public class GFXSequentialEffect extends GFXEffect{
     }
 
 	public void drawEffect(GFXUserInterface ui, SwingSystemInterface si){
-		si.saveBuffer();
+		si.saveLayer();
 		Position relative = Position.subs(getPosition(), ui.getPlayer().getPosition());
 		Position center = Position.add(ui.PC_POS, relative);
 		int tileIndex = 0;
@@ -35,7 +35,7 @@ public class GFXSequentialEffect extends GFXEffect{
 			si.refresh();
 			animationPause();
 		}
-		si.restore();
+		si.loadLayer();
 	}
 
 }

@@ -61,7 +61,7 @@ public class MenuBox {
 	
 	public void draw(){
 		pages = (int)(Math.floor((items.size()-1) / (itemsPerPage)) +1);
-		int fontSize = si.getGraphics2D().getFont().getSize();
+		int fontSize = si.getDrawingGraphics().getFont().getSize();
 
 		si.print(xpos, ypos, title, Color.BLUE);
 		List<GFXMenuItem> shownItems = Util.page(items, itemsPerPage, currentPage);
@@ -135,7 +135,7 @@ public class MenuBox {
 			else
 			if (key.code >= CharKey.a && key.code <= CharKey.a + shownItems.size()-1)
 				return shownItems.get(key.code - CharKey.a);
-			si.restore();
+			si.loadLayer();
 
 		}
 	}

@@ -31,12 +31,12 @@ public class GFXAnimatedEffect extends GFXEffect{
 		Position absolute = Position.add(ui.PC_POS, relative);
 		if (!ui.insideViewPort(absolute))
 			return;
-		si.saveBuffer();
+		si.saveLayer();
 		for (int j = 0; j<frames.length; j++){
 			si.drawImage(absolute.x*32+xoff, absolute.y*32-4*height+yoff, frames[j]);
 			si.refresh();
 			animationPause();
-			si.restore();
+			si.loadLayer();
 		}
 	}
 }
