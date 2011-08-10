@@ -330,21 +330,21 @@ public class SwingSystemInterface implements Runnable{
 	}
 	
 	// Board Operations
-	/*public void saveLayer(){
-		saveLayer(0);
-	}*/
-	
 	public void saveLayer(int layer){
 		sip.save(layer);
 	}
 	
-	/*public void loadLayer(){
-		loadLayer(0);
-	}*/
-	
 	public void loadLayer(int layer){
-		sip.load(layer);
+		// sip.load(layer);
+		loadAndDrawLayer(layer);
 	}
+	
+	public void loadAndDrawLayer(int layer){
+		sip.loadAndDraw(layer);
+		sip.commit(layer);
+	}
+	
+	
 	
 	public void backupInBuffer(int buffer, int layer){
 		sip.backup(buffer, layer);
@@ -967,6 +967,7 @@ class SwingInterfacePanel extends JPanel{
 		layerGraphics[layer] = layerImages[layer].getGraphics();
 		layerGraphics[layer].drawImage(savedImages[layer], 0,0,this);
 	}
+	
 	public void loadAndDraw(int layer){
 		drawingImages[layer] =  getTransparentImage();
 		Font f = drawingGraphics[layer].getFont(); 
