@@ -38,6 +38,7 @@ import net.slashie.serf.game.SworeGame;
 import net.slashie.serf.level.AbstractCell;
 import net.slashie.serf.level.AbstractFeature;
 import net.slashie.serf.level.BufferedLevel;
+import net.slashie.serf.sound.SFXManager;
 import net.slashie.serf.ui.ActionCancelException;
 import net.slashie.serf.ui.AppearanceFactory;
 import net.slashie.serf.ui.CommandListener;
@@ -302,7 +303,7 @@ public abstract class GFXUserInterface extends UserInterface implements Runnable
 			int cellHeight = 0;
 			Position browser = getRelativePosition(player.getPosition(), offset);
 			String looked = "";
-			resetMapLayer();
+			resetAndDrawMapLayer();
 			if (FOVMask[PC_POS.x + offset.x][PC_POS.y + offset.y]){
 				AbstractCell choosen = level.getMapCell(browser);
 				if (choosen != null)
@@ -527,7 +528,7 @@ public abstract class GFXUserInterface extends UserInterface implements Runnable
    public boolean promptChat (String text, int x, int y, int w, int h){
 	   saveMapLayer();
 	   boolean ret = showTextBoxPrompt(text, x, y, w, h);
-	   resetMapLayer();
+	   resetAndDrawMapLayer();
 	   return ret;
 	}
 
@@ -1069,6 +1070,14 @@ public abstract class GFXUserInterface extends UserInterface implements Runnable
 	public void processQuit(){
 		if (promptChat(getQuitMessage())){
 			enterScreen();
+			
+			si.cleanLayer(getUILayer());
+			si.commitLayer(getUILayer());
+			si.cleanLayer(getMapLayer());
+			si.commitLayer(getMapLayer());
+			
+			lastMessage = null;
+			
 			player.getGameSessionInfo().setDeathCause(GameSessionInfo.QUIT);
 			informPlayerCommand(CommandListener.QUIT);
 		}
@@ -1273,6 +1282,8 @@ public abstract class GFXUserInterface extends UserInterface implements Runnable
 		final Cursor defaultCursor = getDefaultCursor();
 		final Cursor handCursor = getHandCursor();
 		BorderedMenuBox selectionBox = new BorderedMenuBox(BORDER1, BORDER2, BORDER3, BORDER4, si, COLOR_WINDOW_BACKGROUND, COLOR_BORDER_IN, COLOR_BORDER_OUT, tileSize, 6,9,12,tileSize+6, null){
+			private static final long serialVersionUID = 1L;
+
 			@Override
 			protected Cursor getDefaultCursor() {
 				if (defaultCursor != null)
@@ -1317,16 +1328,16 @@ public abstract class GFXUserInterface extends UserInterface implements Runnable
   		selectionBox.setForeColor(textColor);
   		selectionBox.draw();
   		
-		while (true) {
-			si.commitLayer(getUILayer());
-			SimpleGFXMenuItem itemChoice = ((SimpleGFXMenuItem)selectionBox.getSelection());
-			if (itemChoice == null)
-				break;
-			resetMapLayer();
+		si.commitLayer(getUILayer()); // Commit the drawn box (UNnecessary)
+		SimpleGFXMenuItem itemChoice = ((SimpleGFXMenuItem)selectionBox.getSelection());
+		if (itemChoice == null){
+			resetAndDrawMapLayer();
+			return -1;
+		} else {
+			resetAndDrawMapLayer();
 			return itemChoice.getValue();
 		}
-		resetMapLayer();
-		return -1;
+		
 	}
 	
 		
@@ -1396,6 +1407,13 @@ public abstract class GFXUserInterface extends UserInterface implements Runnable
 		si.loadLayer(getMapLayer());
 		si.loadLayer(getUILayer());
 	}
+	
+	protected void resetAndDrawMapLayer(){
+		si.loadAndDrawLayer(getMapLayer());
+		si.loadAndDrawLayer(getUILayer());
+	}
+	
+	
 }
 
 
