@@ -27,7 +27,11 @@ public class SwingInformBox extends JTextArea{
 		boolean wait = false;
 		do {
 			try {
-				setText(getText()+txt+". ");
+				String separator = ". ";
+				if (txt.endsWith("!")){
+					separator = " ";
+				}
+				setText(getText()+txt+separator);
 				wait = false;
 			}  catch (Error e){
 				wait = true;
