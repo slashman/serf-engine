@@ -157,6 +157,7 @@ public class RunGame {
     	    	    	if (key.startsWith("mus_")){
     	    	    		String music = key.substring(4);
     	    	    		STMusicManagerNew.thus.addMusic(music, configuration.getProperty(key));
+    	    	    		STMusicManagerNew.thus.addMusic(music, configuration.getProperty(key));
     	    	    	}
     	    	    }
     	    	    STMusicManagerNew.thus.setEnabled(true);

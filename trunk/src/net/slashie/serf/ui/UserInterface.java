@@ -30,6 +30,7 @@ public abstract class UserInterface implements CommandListener {
 	public abstract void showInventory();
 	public abstract int switchChat(String title, String prompt, String... options);
 	public abstract String inputBox(String prompt);
+	public void shutdown(){}
 	
 	protected Position getNearestActorPosition(){
 		List<Actor> actors = level.getDispatcher().getActors();
