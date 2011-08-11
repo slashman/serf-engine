@@ -49,6 +49,7 @@ public class SwingSystemInterface implements Runnable{
 	public void run(){
 	}
 	private SwingInterfacePanel sip;
+	private JPanel componentsPanel;
 
 	private StrokeNClickInformer aStrokeInformer;
 	private Position caretPosition = new Position(0,0);
@@ -116,10 +117,17 @@ public class SwingSystemInterface implements Runnable{
 		frameMain.getContentPane().add(layeredPane);
 		layeredPane.setBounds(0,0,800,600);
 		
+		componentsPanel = new JPanel();
+		componentsPanel.setBounds(0,0,800,600);
+		componentsPanel.setOpaque(false);
+		componentsPanel.setLayout(null);
+		layeredPane.add(componentsPanel);
+		
 		sip = new SwingInterfacePanel();
 		sip.setBounds(0,0,800,600);
 		layeredPane.add(sip);
 		
+			
 		aStrokeInformer = new StrokeNClickInformer();
 		frameMain.addKeyListener(aStrokeInformer);
 		frameMain.addMouseListener(aStrokeInformer);
@@ -451,20 +459,15 @@ public class SwingSystemInterface implements Runnable{
 	
 	public void add(final Component c){
 		if (SwingUtilities.isEventDispatchThread()){
-			sip.add(c);
-			sip.validate();
-			/*if (c.isVisible())
-				sip.repaint();*/
+			componentsPanel.add(c);
+			componentsPanel.validate();
 		} else {
-			monitor();
 			try {
 				SwingUtilities.invokeAndWait(new Runnable(){
 					@Override
 					public void run() {
-						sip.add(c);
-						sip.validate();
-						/*if (c.isVisible())
-							sip.repaint();*/
+						componentsPanel.add(c);
+						componentsPanel.validate();
 					}
 				});
 			} catch (InterruptedException e) {
@@ -472,26 +475,19 @@ public class SwingSystemInterface implements Runnable{
 				e.printStackTrace();
 			}
 		}
+	}
 		
-		/*sip.add(c);
-		sip.validate();*/
-	}
-	
-	private void monitor(){
-	}
-	
 	public void changeZOrder(final Component c, final int zOrder){
 		if (SwingUtilities.isEventDispatchThread()){
-			sip.setComponentZOrder(c, zOrder);
-			sip.validate();
+			componentsPanel.setComponentZOrder(c, zOrder);
+			componentsPanel.validate();
 		} else {
-			monitor();
 			try {
 				SwingUtilities.invokeAndWait(new Runnable(){
 					@Override
 					public void run() {
-						sip.setComponentZOrder(c, zOrder);
-						sip.validate();
+						componentsPanel.setComponentZOrder(c, zOrder);
+						componentsPanel.validate();
 					}
 				});
 			} catch (InterruptedException e) {
@@ -499,23 +495,19 @@ public class SwingSystemInterface implements Runnable{
 				e.printStackTrace();
 			}
 		}
-		
-		/*sip.setComponentZOrder(c, zOrder);
-		sip.validate();*/
 	}
 	
 	public void remove(final Component c){
 		if (SwingUtilities.isEventDispatchThread()){
-			sip.remove(c);
-			sip.validate();
+			componentsPanel.remove(c);
+			componentsPanel.validate();
 		} else {
-			monitor();
 			try {
 				SwingUtilities.invokeAndWait(new Runnable(){
 					@Override
 					public void run() {
-						sip.remove(c);
-						sip.validate();
+						componentsPanel.remove(c);
+						componentsPanel.validate();
 					}
 				});
 			} catch (InterruptedException e) {
@@ -523,8 +515,6 @@ public class SwingSystemInterface implements Runnable{
 				e.printStackTrace();
 			}
 		}
-		/*sip.remove(c);
-		sip.validate();*/
 	}
 	
 	public void recoverFocus(){
