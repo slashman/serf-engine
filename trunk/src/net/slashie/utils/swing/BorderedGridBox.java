@@ -85,6 +85,8 @@ public class BorderedGridBox extends AddornedBorderPanel {
 				super.mouseMoved(e);
 				if (hoverDisabled)
 					return;
+				if (items == null)
+					return;
 				draw(true);
 				
 				SelectedItem selectedItem = getSelectedItemByClick(e.getPoint(), legendLines, lineHeight);
