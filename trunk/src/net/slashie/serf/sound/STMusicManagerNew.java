@@ -5,7 +5,6 @@ import java.util.Map;
 
 import net.slashie.serf.game.SworeGame;
 import net.slashie.utils.sound.midi.STMidiPlayer;
-import net.slashie.utils.sound.mp3.JLayerMP3Player;
 import net.slashie.utils.sound.mp3.JavaZoomBasicPlayerMP3Player;
 
 public class STMusicManagerNew {
@@ -31,7 +30,7 @@ public class STMusicManagerNew {
 	public void stopMusic(){
 		if (playing.endsWith("mp3")) {
 			JavaZoomBasicPlayerMP3Player.thus.stop();
-		} else {
+		} else if (playing.endsWith("mid") || playing.endsWith("midi")) {
 			STMidiPlayer.setInstruction(STMidiPlayer.INS_STOP);
 			if (currentMidiThread != null)
 				currentMidiThread.interrupt();
@@ -59,7 +58,7 @@ public class STMusicManagerNew {
 			playing = fileName;
 			if (fileName.endsWith("mp3")){
 				JavaZoomBasicPlayerMP3Player.thus.play(fileName);
-			} else {
+			} else if (fileName.endsWith("mid") || fileName.endsWith("midi")) {
 				STMidiPlayer.setMidi(fileName);
 				STMidiPlayer.setInstruction(STMidiPlayer.INS_LOAD);
 				if (currentMidiThread != null){
@@ -81,7 +80,7 @@ public class STMusicManagerNew {
 			playing = fileName;
 			if (fileName.endsWith("mp3")){
 				JavaZoomBasicPlayerMP3Player.thus.play(fileName);
-			} else {
+			} else if (playing.endsWith("mid") || playing.endsWith("midi")) {
 				STMidiPlayer.setMidi(fileName);
 				STMidiPlayer.setInstruction(STMidiPlayer.INS_LOAD_ONCE);
 				if (currentMidiThread != null){
