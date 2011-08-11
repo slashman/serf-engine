@@ -666,7 +666,11 @@ public abstract class GFXUserInterface extends UserInterface implements Runnable
 			if (currentText.equals("")){
 				messageBox.setText(message.getText()+" "+multiplier);
 			} else {
-				messageBox.setText(currentText+". " + message.getText()+" "+multiplier);
+				String separator = ". ";
+				if (currentText.endsWith("!")){
+					separator = " ";
+				} 
+				messageBox.setText(currentText+separator+ message.getText()+" "+multiplier);
 			}
 		} else {
 			sameMessageCount = 1;
