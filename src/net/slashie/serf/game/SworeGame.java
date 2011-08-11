@@ -194,6 +194,7 @@ public abstract class SworeGame implements CommandListener, PlayerEventListener,
 		ui.removeCommandListener(this);
 		ui.setGameOver(true);
 		player.setPlayerEventListener(null);
+		ui.shutdown();
 		endGame = true;
 	}
 

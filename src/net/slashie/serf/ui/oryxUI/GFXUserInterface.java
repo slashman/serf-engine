@@ -15,16 +15,12 @@ import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.List;
 import java.util.Properties;
 import java.util.Vector;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
-
-import javax.swing.ImageIcon;
 
 import net.slashie.libjcsi.CharKey;
 import net.slashie.serf.action.Action;
@@ -38,7 +34,6 @@ import net.slashie.serf.game.SworeGame;
 import net.slashie.serf.level.AbstractCell;
 import net.slashie.serf.level.AbstractFeature;
 import net.slashie.serf.level.BufferedLevel;
-import net.slashie.serf.sound.SFXManager;
 import net.slashie.serf.ui.ActionCancelException;
 import net.slashie.serf.ui.AppearanceFactory;
 import net.slashie.serf.ui.CommandListener;
@@ -46,7 +41,6 @@ import net.slashie.serf.ui.Effect;
 import net.slashie.serf.ui.UserCommand;
 import net.slashie.serf.ui.UserInterface;
 import net.slashie.serf.ui.oryxUI.effects.GFXEffect;
-import net.slashie.utils.Debug;
 import net.slashie.utils.ImageUtils;
 import net.slashie.utils.Line;
 import net.slashie.utils.Position;
@@ -385,9 +379,11 @@ public abstract class GFXUserInterface extends UserInterface implements Runnable
 	   resetMapLayer();
 	}
    
-	public void showTextBox(String text, int x, int y, int w, int h){
-		printTextBox(text, x, y, w, h);
-		
+    public void showTextBox(String text, int x, int y, int w, int h){
+    	showTextBox(text, x, y, w, h, false);
+    }
+    
+	public void showTextBox(String text, int x, int y, int w, int h, boolean keep){
 		BlockingQueue<String> selectionQueue = new LinkedBlockingQueue<String>();
 		
 		CallbackKeyListener<String> cbkl = new CallbackKeyListener<String>(selectionQueue){
@@ -413,17 +409,21 @@ public abstract class GFXUserInterface extends UserInterface implements Runnable
 		si.addKeyListener(cbkl);
 		si.addMouseListener(cbml);
 		addornedTextArea.addMouseListener(cbml);
+		
+		printTextBox(text, x, y, w, h);
+		
 		String choice = null;
 		while (choice == null){
 			try {
 				choice = selectionQueue.take();
 			} catch (InterruptedException e1) {}
 		}
-		
+		if (!keep)
+			clearTextBox();
 		si.removeKeyListener(cbkl);
 		si.removeMouseListener(cbml);
 		addornedTextArea.removeMouseListener(cbml);
-		clearTextBox();
+		
 	}
 	
 	public void printTextBox(String text, int x, int y, int w, int h){
@@ -1067,17 +1067,19 @@ public abstract class GFXUserInterface extends UserInterface implements Runnable
 		return ret;
 	}
 
+	@Override
+	public void shutdown(){
+		enterScreen();
+		si.cleanLayer(getUILayer());
+		si.commitLayer(getUILayer());
+		si.cleanLayer(getMapLayer());
+		si.commitLayer(getMapLayer());
+		lastMessage = null;
+	}
+	
 	public void processQuit(){
 		if (promptChat(getQuitMessage())){
-			enterScreen();
-			
-			si.cleanLayer(getUILayer());
-			si.commitLayer(getUILayer());
-			si.cleanLayer(getMapLayer());
-			si.commitLayer(getMapLayer());
-			
-			lastMessage = null;
-			
+			shutdown();
 			player.getGameSessionInfo().setDeathCause(GameSessionInfo.QUIT);
 			informPlayerCommand(CommandListener.QUIT);
 		}
