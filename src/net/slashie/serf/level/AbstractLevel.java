@@ -147,13 +147,13 @@ public abstract class AbstractLevel implements FOVMap, Serializable{
 	}
 
 	public Actor getActorAt(Position x){
-		//TODO: Implement map by position
-		List<Actor> actors = dispatcher.getActors();
+		/*List<Actor> actors = dispatcher.getActors();
 		for (Actor a: actors){
 			if (a.getPosition().equals(x))
 				return a;
-		}
-		return null;
+		}*/
+		
+		return actorPositionMap.get(x.toString());
 	}
 
 	public void destroyFeature(AbstractFeature what){
@@ -592,5 +592,18 @@ public abstract class AbstractLevel implements FOVMap, Serializable{
 		for (AbstractFeature feature: featureDestructionSchedule){
 			destroyFeature(feature);
 		}
+	}
+
+	
+	private Map<String, Actor> actorPositionMap = new HashMap<String, Actor>();
+	public void updateActorPosition(Actor actor, int x, int y, int z) {
+		// Remove actor from current position
+		actorPositionMap.remove(actor.getPosition().toString());
+		// Add to new position
+		actorPositionMap.put(Position.toString(x, y, z), actor);
+	}
+
+	public void updateActorPosition(Actor actor, Position p) {
+		updateActorPosition(actor, p.x, p.y, p.z);
 	}
 }
