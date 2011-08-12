@@ -629,17 +629,14 @@ public abstract class GFXUserInterface extends UserInterface implements Runnable
 								//flipFacing = false;
 							}
 							if (level.getMapCell(player.getPosition())!= null && level.getMapCell(player.getPosition()).isShallowWater())
-								//si.drawImage(PC_POS.x*tileSize-playerAppearance.getSuperWidth(),PC_POS.y*tileSize-4*cellHeight-playerAppearance.getSuperHeight()+16/, playerImage);
 								si.drawImage(getMapLayer(), PC_POS.x*tileSize-playerAppearance.getSuperWidth(),PC_POS.y*tileSize-playerAppearance.getSuperHeight()+16, playerImage);
 							else
-								//si.drawImage(PC_POS.x*tileSize-playerAppearance.getSuperWidth(),PC_POS.y*tileSize-4*cellHeight-playerAppearance.getSuperHeight(), playerImage);
 								si.drawImage(getMapLayer(), PC_POS.x*tileSize-playerAppearance.getSuperWidth(),PC_POS.y*tileSize-playerAppearance.getSuperHeight(), playerImage);
 						}
 					}
-					Actor monster = level.getActorAt(runner);
-					
-					if (monster != null && !monster.isInvisible()){
-						GFXAppearance monsterApp = (GFXAppearance) monster.getAppearance();
+					Actor actor = level.getActorAt(runner);
+					if (actor != player && actor != null && !actor.isInvisible()){
+						GFXAppearance monsterApp = (GFXAppearance) actor.getAppearance();
 						si.drawImage(getMapLayer(), (PC_POS.x-xrange+x)*tileSize-monsterApp.getSuperWidth(),(PC_POS.y-yrange+y)*tileSize-4*cellHeight-monsterApp.getSuperHeight(), monsterApp.getImage());
 					}
 				}
