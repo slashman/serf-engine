@@ -6,7 +6,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import net.slashie.serf.game.SworeGame;
 import net.slashie.serf.level.AbstractLevel;
 import net.slashie.serf.sound.SFXManager;
 import net.slashie.serf.ui.Appearance;
@@ -129,6 +128,9 @@ public abstract class Actor implements Cloneable, java.io.Serializable, Priority
 	}
 
 	public void setPosition (int x, int y, int z){
+		if (getLevel() != null){
+			getLevel().updateActorPosition(this, x, y, z);
+		}
 		position.x = x;
 		position.y = y;
 		position.z = z;
@@ -152,7 +154,11 @@ public abstract class Actor implements Cloneable, java.io.Serializable, Priority
 
 
 	public void setPosition (Position p){
+		if (getLevel() != null){
+			getLevel().updateActorPosition(this, p);
+		}
 		position = p;
+		
 	}
 
 	public Position getPosition(){
@@ -188,8 +194,8 @@ public abstract class Actor implements Cloneable, java.io.Serializable, Priority
 	public Object clone(){
 		try {
 			Actor x = (Actor) super.clone();
-			if (position != null)
-				x.setPosition(new Position(position.x, position.y, position.z));
+			if (getPosition() != null)
+				x.setPosition(new Position(getPosition()));
 			return x;
 		} catch (CloneNotSupportedException cnse){
 			Debug.doAssert(false, "failed class cast, Feature.clone()");

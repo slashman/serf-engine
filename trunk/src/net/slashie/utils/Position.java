@@ -71,6 +71,9 @@ public class Position implements java.io.Serializable {
 		return toString().hashCode();
 	}
 
+	public static String toString(int x, int y, int z){
+		return "("+x+","+y+","+z+")";
+	}
 
 	public String toString(){
 		return "("+x+","+y+","+z+")";
