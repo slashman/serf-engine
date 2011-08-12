@@ -8,10 +8,8 @@ import java.io.ObjectOutputStream;
 import java.io.PrintStream;
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.Hashtable;
 import java.util.List;
-
 
 import net.slashie.serf.SworeException;
 import net.slashie.serf.action.Actor;
@@ -267,7 +265,7 @@ public abstract class SworeGame implements CommandListener, PlayerEventListener,
 	}
 	
 	public static String getVersion(){
-		return "0.15 - r141";
+		return "0.16 - r159";
 	}
 	
 	public void setInterfaces(UserInterface pui, UISelector ps){
