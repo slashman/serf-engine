@@ -12,7 +12,6 @@ import net.slashie.serf.action.ActorFactory;
 import net.slashie.serf.baseDomain.AbstractItem;
 import net.slashie.serf.baseDomain.AbstractItemFactory;
 import net.slashie.serf.game.SworeGame;
-import net.slashie.util.Pair;
 import net.slashie.utils.Position;
 import net.slashie.utils.Util;
 
