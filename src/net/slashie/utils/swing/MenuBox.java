@@ -62,7 +62,7 @@ public class MenuBox {
 		return 0;
 	}
 	
-	public void draw(){
+	public void draw(boolean commit){
 		pages = (int)(Math.floor((items.size()-1) / (itemsPerPage)) +1);
 		int fontSize = si.getDrawingGraphics(getDrawingLayer()).getFont().getSize();
 
@@ -98,7 +98,9 @@ public class MenuBox {
 		/*for (; i < inHeight-promptSize; i++){
 			si.print(inPosition.x, inPosition.y+i+promptSize+1, spaces);
 		}*/
-		si.commitLayer(getDrawingLayer());
+		if (commit){
+			si.commitLayer(getDrawingLayer());
+		}
 	}
 
 	public void setBounds(int x, int y, int width, int height){
@@ -112,7 +114,7 @@ public class MenuBox {
 		int pageElements = itemsPerPage;
 		while (true){
 			
-			draw();
+			draw(true);
 			List shownItems = Util.page(items, pageElements, currentPage);
 			CharKey key = new CharKey(CharKey.NONE);
 			while (key.code != CharKey.SPACE &&
@@ -145,7 +147,7 @@ public class MenuBox {
 	
 	public Object getUnpagedSelection (){
 		int pageElements = itemsPerPage;
-		draw();
+		draw(true);
 		List shownItems = Util.page(items, pageElements, currentPage);
 		CharKey key = new CharKey(CharKey.NONE);
 		while (key.code != CharKey.SPACE &&
@@ -166,7 +168,7 @@ public class MenuBox {
 	boolean ordinal = false;
 	public Object getUnpagedOrdinalSelectionAKS (int[] keys) throws AdditionalKeysSignal{
 		ordinal = true;
-		draw();
+		draw(true);
 		CharKey key = new CharKey(CharKey.NONE);
 		while (key.code != CharKey.SPACE && !isOneOf(key.code, keys))
 		   key = si.inkey();
