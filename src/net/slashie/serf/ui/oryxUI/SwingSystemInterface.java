@@ -58,6 +58,7 @@ public class SwingSystemInterface implements Runnable{
 	
 	private JFrame frameMain;
 	private Point posClic;
+	private int frameRate;
 
 	private CallbackKeyListener<Integer> inputQueueKeyListener;
 
@@ -98,6 +99,10 @@ public class SwingSystemInterface implements Runnable{
 	}
 	
 	public SwingSystemInterface (int layers, boolean fullScreen){
+		this (layers, fullScreen, 20);
+	}
+	
+	public SwingSystemInterface (int layers, boolean fullScreen, int fps){
 		if (fullScreen)
 			initFullScreen();
 		else {
@@ -171,12 +176,16 @@ public class SwingSystemInterface implements Runnable{
         });
 		
 		final SwingSystemInterface _si = this;
-        Timer t = new Timer(1000/20, new ActionListener(){
+		frameRate = (int)Math.round(1000.0d / (double)fps);
+        Timer t = new Timer(frameRate, new ActionListener(){
         	@Override
         	public void actionPerformed(ActionEvent e) {
-        		synchronized(_si){
+        		//synchronized(_si){
+        		if (sip.isUpdated()){
         			sip.repaint();
+        			sip.outdate();
         		}
+        		//}
         	}
         });
         t.start();
@@ -291,7 +300,7 @@ public class SwingSystemInterface implements Runnable{
 		sip.print(layer, x*10, y*24, text);
 	}
 	
-	public synchronized void drawImage(int layer, int scrX, int scrY, Image img){
+	public /*synchronized*/ void drawImage(int layer, int scrX, int scrY, Image img){
 		sip.drawImage(layer, scrX, scrY, img);
 	}
 	
@@ -329,7 +338,7 @@ public class SwingSystemInterface implements Runnable{
 		sip.setColor(layer, color);
 	}
 	
-	public synchronized void cleanLayer(int layer){
+	public /*synchronized */ void cleanLayer(int layer){
 		sip.cleanLayer(layer);
 	}
 	
@@ -406,8 +415,16 @@ public class SwingSystemInterface implements Runnable{
 	}
 	
 	public String input(int layer, int xpos,int ypos, Color textColor, int maxLength){
+		return input(layer, xpos, ypos, textColor, maxLength, null);
+	}
+	
+	
+	public String input(int layer, int xpos,int ypos, Color textColor, int maxLength, String preselectedWord){
 		frameMain.addKeyListener(inputQueueKeyListener);
 		String ret = "";
+		if (preselectedWord != null)
+			ret = preselectedWord;
+		
 		CharKey read = new CharKey(CharKey.NONE);
 		saveLayer(layer);
 		while (true){
@@ -747,6 +764,11 @@ public class SwingSystemInterface implements Runnable{
 	public Point getScreenPosition() {
 		return frameMain.getLocationOnScreen();
 	}
+
+	
+	public int getFrameRate() {
+		return frameRate;
+	}
 }
 
 class SwingInterfacePanel extends JPanel{
@@ -797,6 +819,10 @@ class SwingInterfacePanel extends JPanel{
 	 * Saved Boards: save the status of a layer in order to restore it if needed 
 	 */
 	private Image[] savedImages; private Graphics[] savedGraphics;
+
+	public void outdate() {
+		updated = false;
+	}
 	
 	/**
 	 * Backup boards, they can contain copies of any layer
@@ -820,26 +846,19 @@ class SwingInterfacePanel extends JPanel{
 		backupImages = new Image[layers];
 		backupGraphics = new Graphics[layers];
 		
-		GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
-		GraphicsDevice gs = ge.getDefaultScreenDevice();
-		GraphicsConfiguration gc = gs.getDefaultConfiguration();
-		
-		int dimX = 800;
-		int dimY = 600;
-		
-		compositeImage = gc.createCompatibleImage(dimX, dimY, Transparency.BITMASK);;
+		compositeImage = getTransparentImage();
 		compositeGraphics = compositeImage.getGraphics();
 		
 		for (int i = 0; i < layers; i++){
-			layerImages[i] =  gc.createCompatibleImage(dimX, dimY, Transparency.BITMASK);
+			layerImages[i] = getTransparentImage();
 			layerGraphics[i] = layerImages[i].getGraphics();
 			layerGraphics[i].setColor(Color.WHITE);
 			
-			drawingImages[i] =  gc.createCompatibleImage(dimX, dimY, Transparency.BITMASK);
+			drawingImages[i] = getTransparentImage();
 			drawingGraphics[i] = drawingImages[i].getGraphics();
 			drawingGraphics[i].setColor(Color.WHITE);
 			
-			savedImages[i] =  gc.createCompatibleImage(dimX, dimY, Transparency.BITMASK);
+			savedImages[i] = getTransparentImage();
 			savedGraphics[i] = savedImages[i].getGraphics();
 			savedGraphics[i].setColor(Color.WHITE);
 		}
@@ -952,10 +971,11 @@ class SwingInterfacePanel extends JPanel{
 		load(0);
 	}*/
 	
-	public /* synchronized */ void load(int layer){
+	public synchronized void load(int layer){
 		layerImages[layer] =  getTransparentImage();
 		layerGraphics[layer] = layerImages[layer].getGraphics();
 		layerGraphics[layer].drawImage(savedImages[layer], 0,0,this);
+		updated = true;
 	}
 	
 	public void loadAndDraw(int layer){
@@ -971,10 +991,15 @@ class SwingInterfacePanel extends JPanel{
 		restore(buffer, 0);
 	}*/
 	
-	public /* synchronized */ void restore(int buffer, int layer){
+	public synchronized void restore(int buffer, int layer){
 		layerGraphics[layer].drawImage(backupImages[buffer], 0,0,this);
+		updated = true;
 	}
 	
+	/**
+	 * NOTE: It's very important for this method to be synchronized to avoid flickering
+	 * @param layer
+	 */
 	public synchronized void commit(int layer){
 		// Clean the layer 
 		//if (layer > 0){
@@ -982,8 +1007,13 @@ class SwingInterfacePanel extends JPanel{
 			layerGraphics[layer] = layerImages[layer].getGraphics();
 		//}
 		layerGraphics[layer].drawImage(drawingImages[layer], 0,0,this);
+		updated = true;
 	}
-	
+
+	/**
+	 * NOTE: It's very important for this method to be synchronized to avoid flickering
+	 * @param layer
+	 */
 	public synchronized void paintComponent(Graphics g){
 		if (layerImages != null && compositeGraphics != null){
 			super.paintComponent(compositeGraphics);
@@ -992,6 +1022,12 @@ class SwingInterfacePanel extends JPanel{
 			}
 			g.drawImage(compositeImage, 0, 0, this);
 		}
+	}
+	
+	private boolean updated = true;
+	
+	public boolean isUpdated() {
+		return updated;
 	}
 
 	public Component add(Component comp) {
