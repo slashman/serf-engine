@@ -835,8 +835,13 @@ class SwingInterfacePanel extends JPanel{
 		setLayout(null);
 		setBorder(new LineBorder(Color.GRAY));
 	}
-	
+
 	public void init(int layers){
+		init(layers, 0);
+	}
+
+		
+	public void init(int layers, int backupBoards){
 		layerImages = new Image[layers];
 		layerGraphics = new Graphics[layers];
 		drawingImages = new Image[layers];
@@ -863,11 +868,11 @@ class SwingInterfacePanel extends JPanel{
 			savedGraphics[i].setColor(Color.WHITE);
 		}
         
-        // Image Buffers (For flipping)
-        backupImages = new Image[5];
-        backupGraphics = new Graphics[5];
-        for (int i = 0 ; i < 5; i++){
-        	backupImages[i] = createImage(800, 600);
+		
+        backupImages = new Image[backupBoards];
+        backupGraphics = new Graphics[backupBoards];
+        for (int i = 0 ; i < backupBoards; i++){
+        	backupImages[i] = getTransparentImage();
         	backupGraphics[i] = backupImages[i].getGraphics();
         }
         
