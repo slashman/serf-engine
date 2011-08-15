@@ -121,8 +121,13 @@ public class BorderedMenuBox extends AddornedBorderPanel {
 		si.commitLayer(getDrawingLayer());
 	}
 
-	@SuppressWarnings("unchecked")
 	public Object getSelection (){
+		return getSelection(false);
+	}
+
+		
+	@SuppressWarnings("unchecked")
+	public Object getSelection (final boolean allowNullSelection){
 		final int pageElements = itemsPerPage;
 		BlockingQueue<Integer> selectionQueue = new LinkedBlockingQueue<Integer>(1);
 		// Keyboard Selection
@@ -132,16 +137,16 @@ public class BorderedMenuBox extends AddornedBorderPanel {
 			public void keyPressed(KeyEvent e) {
 				try {
 					int code = SwingSystemInterface.charCode(e);
-					if (code != CharKey.SPACE &&
-						code != CharKey.ESC &&
-						code != CharKey.UARROW &&
+					if (code != CharKey.UARROW &&
 						code != CharKey.DARROW &&
 						code != CharKey.N8 &&
 						code != CharKey.N2 &&
 						(code < CharKey.A || code > CharKey.A + pageElements-1) &&
 						(code < CharKey.a || code > CharKey.a + pageElements-1)
 						){
-						
+					} else if (allowNullSelection &&
+							code != CharKey.SPACE &&
+							code != CharKey.ESC) {
 					} else {
 						handler.put(code);
 					}
