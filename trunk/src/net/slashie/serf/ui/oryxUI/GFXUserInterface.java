@@ -655,7 +655,7 @@ public abstract class GFXUserInterface extends UserInterface implements Runnable
 			return;
 		}
 		
-		if (message.getText().equals(lastMessage)) {
+		if (messageHistory.size() > 0 && message.getText().equals(lastMessage)) {
 			sameMessageCount++;
 			String multiplier = "(x"+sameMessageCount+")";
 			messageHistory.remove(messageHistory.size()-1);
