@@ -118,6 +118,7 @@ public class MenuBox {
 			List shownItems = Util.page(items, pageElements, currentPage);
 			CharKey key = new CharKey(CharKey.NONE);
 			while (key.code != CharKey.SPACE &&
+					key.code != CharKey.ENTER &&
 				   key.code != CharKey.UARROW &&
 				   key.code != CharKey.DARROW &&
 				   key.code != CharKey.N8 &&
@@ -126,7 +127,7 @@ public class MenuBox {
 				   (key.code < CharKey.a || key.code > CharKey.a + pageElements-1)
 				   )
 			   key = si.inkey();
-			if (key.code == CharKey.SPACE)
+			if (key.code == CharKey.SPACE || key.code == CharKey.ENTER)
 				return null;
 			if (key.code == CharKey.UARROW || key.code == CharKey.N8)
 				if (currentPage > 0)
@@ -150,12 +151,12 @@ public class MenuBox {
 		draw(true);
 		List shownItems = Util.page(items, pageElements, currentPage);
 		CharKey key = new CharKey(CharKey.NONE);
-		while (key.code != CharKey.SPACE &&
+		while (key.code != CharKey.SPACE && key.code != CharKey.ENTER &&
 			   (key.code < CharKey.A || key.code > CharKey.A + pageElements-1) &&
 			   (key.code < CharKey.a || key.code > CharKey.a + pageElements-1)
 			   )
 		   key = si.inkey();
-		if (key.code == CharKey.SPACE)
+		if (key.code == CharKey.SPACE || key.code == CharKey.ENTER)
 			return null;
 		if (key.code >= CharKey.A && key.code <= CharKey.A + shownItems.size()-1)
 			return shownItems.get(key.code - CharKey.A);
@@ -170,9 +171,9 @@ public class MenuBox {
 		ordinal = true;
 		draw(true);
 		CharKey key = new CharKey(CharKey.NONE);
-		while (key.code != CharKey.SPACE && !isOneOf(key.code, keys))
+		while (key.code != CharKey.ENTER && key.code != CharKey.SPACE && !isOneOf(key.code, keys))
 		   key = si.inkey();
-		if (key.code == CharKey.SPACE)
+		if (key.code == CharKey.SPACE || key.code == CharKey.ENTER)
 			return null;
 		if (isOneOf(key.code, keys))
 			throw new AdditionalKeysSignal(key.code);

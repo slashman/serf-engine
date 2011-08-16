@@ -122,10 +122,10 @@ public abstract class ConsoleUserInterface extends UserInterface implements Comm
 			si.print(PC_POS.x + offset.x, PC_POS.y + offset.y, '_', ConsoleSystemInterface.WHITE);
 			si.refresh();
 			CharKey x = new CharKey(CharKey.NONE);
-			while (x.code != CharKey.SPACE && x.code != CharKey.m && x.code != CharKey.ESC &&
+			while (x.code != CharKey.ENTER && x.code != CharKey.SPACE && x.code != CharKey.m && x.code != CharKey.ESC &&
 				   ! x.isArrow())
 				x = si.inkey();
-			if (x.code == CharKey.SPACE || x.code == CharKey.ESC){
+			if (x.code == CharKey.ENTER || x.code == CharKey.SPACE || x.code == CharKey.ESC){
 				si.restore();
 				break;
 			}
@@ -458,14 +458,14 @@ public abstract class ConsoleUserInterface extends UserInterface implements Comm
 			si.print(PC_POS.x + offset.x, PC_POS.y + offset.y, 'X', POSITION_PICKER_TIP_COLOR);
 			si.refresh();
 			CharKey x = new CharKey(CharKey.NONE);
-			while (x.code != CharKey.SPACE && x.code != CharKey.ESC && x.code != fireKeyCode &&
+			while (x.code != CharKey.ENTER && x.code != CharKey.SPACE && x.code != CharKey.ESC && x.code != fireKeyCode &&
 				   ! x.isArrow())
 				x = si.inkey();
 			if (x.code == CharKey.ESC){
 				si.restore();
 				throw new ActionCancelException();
 			} 
-			if (x.code == CharKey.SPACE || x.code == fireKeyCode){
+			if (x.code == CharKey.ENTER || x.code == CharKey.SPACE || x.code == fireKeyCode){
 				si.restore();
 				return browser;
 			}
@@ -634,7 +634,7 @@ public abstract class ConsoleUserInterface extends UserInterface implements Comm
 			messageBox.setText("[Press Space to continue]");
 			messageBox.draw();
 			si.refresh();
-			si.waitKeys(CharKey.SPACE, CharKey.ESC);
+			si.waitKeys(CharKey.ENTER, CharKey.SPACE, CharKey.ESC);
 			player.getGameSessionInfo().setDeathCause(GameSessionInfo.QUIT);
 			informPlayerCommand(CommandListener.QUIT);
 		}
@@ -656,7 +656,7 @@ public abstract class ConsoleUserInterface extends UserInterface implements Comm
 			messageBox.setText("Saving... [Press Space to continue]");
 			messageBox.draw();
 			si.refresh();
-			si.waitKeys(CharKey.SPACE, CharKey.ESC);
+			si.waitKeys(CharKey.ENTER, CharKey.SPACE, CharKey.ESC);
 			informPlayerCommand(CommandListener.SAVE);
 		}
 		messageBox.draw();
@@ -745,17 +745,17 @@ public abstract class ConsoleUserInterface extends UserInterface implements Comm
 	
 	public void showImportantMessage(String x){
 		showMessage(x);
-		si.waitKeys(CharKey.SPACE, CharKey.ESC);
+		si.waitKeys(CharKey.ENTER, CharKey.SPACE, CharKey.ESC);
 
 	}
 	
 	public void showSystemMessage(String x){
-		si.waitKeys(CharKey.SPACE, CharKey.ESC);
+		si.waitKeys(CharKey.ENTER, CharKey.SPACE, CharKey.ESC);
 		messageBox.setForeColor(ConsoleSystemInterface.WHITE);
 		messageBox.setText(x);
 		messageBox.draw();
 		si.refresh();
-		si.waitKeys(CharKey.SPACE, CharKey.ESC);
+		si.waitKeys(CharKey.ENTER, CharKey.SPACE, CharKey.ESC);
 
 	}
 	
@@ -771,7 +771,7 @@ public abstract class ConsoleUserInterface extends UserInterface implements Comm
 		}
 		
 		si.print(55, 24, "[ Space to Continue ]");
-		si.waitKeys(CharKey.SPACE, CharKey.ESC);
+		si.waitKeys(CharKey.ENTER, CharKey.SPACE, CharKey.ESC);
 
 		si.restore();
 	}
@@ -883,7 +883,7 @@ public abstract class ConsoleUserInterface extends UserInterface implements Comm
 	
 	public void showTextBox(String text, int x, int y, int w, int h, CSIColor borderColor){
 		printTextBox(text, x, y, w, h, borderColor);
-		si.waitKeys(CharKey.SPACE, CharKey.ESC);
+		si.waitKeys(CharKey.ENTER, CharKey.SPACE, CharKey.ESC);
 		si.restore();
 	}
 	

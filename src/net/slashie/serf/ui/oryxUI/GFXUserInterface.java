@@ -179,7 +179,7 @@ public abstract class GFXUserInterface extends UserInterface implements Runnable
 			si.commitLayer(getUILayer());	
 		
 		
-		si.waitKeys(CharKey.SPACE, CharKey.ESC);
+		si.waitKeys(CharKey.ENTER, CharKey.SPACE, CharKey.ESC);
 		messageBox.setVisible(true);
 		isCursorEnabled = true;
 		resetMapLayer();
@@ -216,7 +216,7 @@ public abstract class GFXUserInterface extends UserInterface implements Runnable
 		
 		si.print(getUILayer(), 55, 24, "[ Space to Continue ]", Color.WHITE);
 		si.commitLayer(getUILayer());
-		si.waitKeys(CharKey.SPACE, CharKey.ESC);
+		si.waitKeys(CharKey.ENTER, CharKey.SPACE, CharKey.ESC);
 		resetMapLayer();
 		leaveScreen();
 	}
@@ -250,7 +250,7 @@ public abstract class GFXUserInterface extends UserInterface implements Runnable
     		public void keyPressed(KeyEvent e) {
     			try {
 					CharKey input = new CharKey(SwingSystemInterface.charCode(e));
-					if (input.code == CharKey.SPACE || input.code == CharKey.ESC){
+					if (input.code == CharKey.ENTER || input.code == CharKey.SPACE || input.code == CharKey.ESC){
 						handler.put("BREAK");
 					} else if (input.code == CharKey.m){
 						handler.put("MORE");
@@ -391,7 +391,7 @@ public abstract class GFXUserInterface extends UserInterface implements Runnable
 			public void keyPressed(KeyEvent e) {
 				try {
 					CharKey x = new CharKey(SwingSystemInterface.charCode(e));
-					if (x.code == CharKey.SPACE || x.code == CharKey.ESC)
+					if (x.code == CharKey.ENTER || x.code == CharKey.SPACE || x.code == CharKey.ESC)
 						handler.put("OK");
 				} catch (InterruptedException e1) {}
 			}
@@ -937,14 +937,14 @@ public abstract class GFXUserInterface extends UserInterface implements Runnable
 			si.drawImage(getUILayer(), (PC_POS.x + offset.x)*tileSize-2, ((PC_POS.y + offset.y)*tileSize-2) -4*cellHeight, TILE_LINE_AIM);
 			si.commitLayer(getUILayer());
 			CharKey x = new CharKey(CharKey.NONE);
-			while (x.code != CharKey.SPACE && x.code != CharKey.ESC && x.code != fireKeyCode &&
+			while (x.code != CharKey.ENTER && x.code != CharKey.SPACE && x.code != CharKey.ESC && x.code != fireKeyCode &&
 				   ! x.isArrow())
 				x = si.inkey();
 			if (x.code == CharKey.ESC){
 				resetMapLayer();
 				throw new ActionCancelException();
 			}
-			if (x.code == CharKey.SPACE || x.code == fireKeyCode){
+			if (x.code == CharKey.ENTER || x.code == CharKey.SPACE || x.code == fireKeyCode){
 				si.commitLayer(getUILayer());
 				return browser;
 			}
@@ -1214,7 +1214,7 @@ public abstract class GFXUserInterface extends UserInterface implements Runnable
 	
 	public void showImportantMessage(String x){
 		showMessage(x);
-		si.waitKeys(CharKey.SPACE, CharKey.ESC);
+		si.waitKeys(CharKey.ENTER, CharKey.SPACE, CharKey.ESC);
 	}
 	
 	public void showSystemMessage(String x){
@@ -1222,7 +1222,7 @@ public abstract class GFXUserInterface extends UserInterface implements Runnable
 		messageBox.setForeground(COLOR_LAST_MESSAGE);
 		messageBox.setText(x);
 		//si.commitLayer(getUILayer());
-		si.waitKeys(CharKey.SPACE, CharKey.ESC);
+		si.waitKeys(CharKey.ENTER, CharKey.SPACE, CharKey.ESC);
 	}
 	
 	

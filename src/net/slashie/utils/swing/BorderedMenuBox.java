@@ -145,6 +145,7 @@ public class BorderedMenuBox extends AddornedBorderPanel {
 						(code < CharKey.a || code > CharKey.a + pageElements-1)
 						){
 					} else if (allowNullSelection &&
+							code != CharKey.ENTER &&
 							code != CharKey.SPACE &&
 							code != CharKey.ESC) {
 					} else {
@@ -250,7 +251,7 @@ public class BorderedMenuBox extends AddornedBorderPanel {
 	
 	public Object getSelection(CharKey key) {
 		List shownItems = Util.page(items, itemsPerPage, currentPage);
-		if (key.code == CharKey.SPACE || key.code == CharKey.ESC)
+		if (key.code == CharKey.ENTER || key.code == CharKey.SPACE || key.code == CharKey.ESC)
 			return null;
 		if (key.code == CharKey.UARROW || key.code == CharKey.N8)
 			if (currentPage > 0)
@@ -275,6 +276,7 @@ public class BorderedMenuBox extends AddornedBorderPanel {
 			List shownItems = Util.page(items, pageElements, currentPage);
 			CharKey key = new CharKey(CharKey.NONE);
 			while (key.code != CharKey.SPACE &&
+					key.code != CharKey.ENTER &&
 					key.code != CharKey.ESC &&
 				   key.code != CharKey.UARROW &&
 				   key.code != CharKey.DARROW &&
@@ -285,7 +287,7 @@ public class BorderedMenuBox extends AddornedBorderPanel {
 				   !isOneOf(key.code, keys)
 				   )
 			   key = si.inkey();
-			if (key.code == CharKey.SPACE || key.code == CharKey.ESC)
+			if (key.code == CharKey.ENTER || key.code == CharKey.SPACE || key.code == CharKey.ESC)
 				return null;
 			if (key.code == CharKey.UARROW || key.code == CharKey.N8)
 				if (currentPage > 0)

@@ -267,6 +267,7 @@ public class BorderedGridBox extends AddornedBorderPanel {
 				try {
 					int code = SwingSystemInterface.charCode(e);
 					if (code != CharKey.SPACE &&
+						code != CharKey.ENTER &&
 						code != CharKey.ESC &&
 						code != CharKey.UARROW &&
 						code != CharKey.DARROW &&
