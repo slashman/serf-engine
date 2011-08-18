@@ -276,8 +276,15 @@ public class SwingSystemInterface implements Runnable{
 	public void drawImage(int layer, Image image){
 		sip.drawImage(layer, image);
 	}
-	
+
 	public void printAtPixel(int layer, int x, int y, String text, Color color){
+		printAtPixel(layer, x, y, text, color, false);
+	}
+	
+	public void printAtPixel(int layer, int x, int y, String text, Color color, boolean alignRight){
+		if (alignRight){
+			x -= getTextWidth(layer, text);
+		}
 		sip.print(layer, x, y, text, color);
 	}
 	
@@ -769,6 +776,12 @@ public class SwingSystemInterface implements Runnable{
 	public int getFrameRate() {
 		return frameRate;
 	}
+
+	
+	public int getTextWidth(int layer, String text) {
+		FontMetrics metrics = getDrawingGraphics(layer).getFontMetrics(getDrawingGraphics(layer).getFont());
+		return (int)(metrics.stringWidth(text));
+	}
 }
 
 class SwingInterfacePanel extends JPanel{
@@ -824,6 +837,8 @@ class SwingInterfacePanel extends JPanel{
 		updated = false;
 	}
 	
+	
+
 	/**
 	 * Backup boards, they can contain copies of any layer
 	 */
@@ -916,7 +931,7 @@ class SwingInterfacePanel extends JPanel{
 		print(layer, x, y, text, null);
 	}
 
-	public void print(int layer, int x, int y, String text, Color c){
+	public void print(int layer, int x, int y, String text, Color c) {
 		Color old = null;
 		if (c != null){
 			old = drawingGraphics[layer].getColor();
