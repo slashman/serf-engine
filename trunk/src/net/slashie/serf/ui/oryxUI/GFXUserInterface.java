@@ -22,6 +22,8 @@ import java.util.Vector;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
+import javax.swing.SwingUtilities;
+
 import net.slashie.libjcsi.CharKey;
 import net.slashie.serf.action.Action;
 import net.slashie.serf.action.Actor;
@@ -383,10 +385,10 @@ public abstract class GFXUserInterface extends UserInterface implements Runnable
     	showTextBox(text, x, y, w, h, false);
     }
     
-	public void showTextBox(String text, int x, int y, int w, int h, boolean keep){
-		BlockingQueue<String> selectionQueue = new LinkedBlockingQueue<String>();
+	public void showTextBox(String text, int x, int y, int w, int h, final boolean keep){
+		final BlockingQueue<String> selectionQueue = new LinkedBlockingQueue<String>();
 		
-		CallbackKeyListener<String> cbkl = new CallbackKeyListener<String>(selectionQueue){
+		final CallbackKeyListener<String> cbkl = new CallbackKeyListener<String>(selectionQueue){
 			@Override
 			public void keyPressed(KeyEvent e) {
 				try {
@@ -397,7 +399,7 @@ public abstract class GFXUserInterface extends UserInterface implements Runnable
 			}
 		};
 		
-		CallbackMouseListener<String> cbml = new CallbackMouseListener<String>(selectionQueue){
+		final CallbackMouseListener<String> cbml = new CallbackMouseListener<String>(selectionQueue){
 			@Override
 			public void mousePressed(MouseEvent e) {
 				try {
@@ -412,18 +414,29 @@ public abstract class GFXUserInterface extends UserInterface implements Runnable
 		
 		printTextBox(text, x, y, w, h);
 		
-		String choice = null;
-		while (choice == null){
-			try {
-				choice = selectionQueue.take();
-			} catch (InterruptedException e1) {}
-		}
-		if (!keep)
-			clearTextBox();
-		si.removeKeyListener(cbkl);
-		si.removeMouseListener(cbml);
-		addornedTextArea.removeMouseListener(cbml);
+		Runnable r = new Runnable(){
+			@Override
+			public void run() {
+				String choice = null;
+				while (choice == null){
+					try {
+						choice = selectionQueue.take();
+					} catch (InterruptedException e1) {}
+				}
+				if (!keep)
+					clearTextBox();
+				si.removeKeyListener(cbkl);
+				si.removeMouseListener(cbml);
+				addornedTextArea.removeMouseListener(cbml);
+			}
+		};
 		
+		if (SwingUtilities.isEventDispatchThread()){
+			// To prevent locking, should perform the selection on a separate thread
+			new Thread(r).start();
+		} else {
+			r.run();
+		}
 	}
 	
 	public void printTextBox(String text, int x, int y, int w, int h){
