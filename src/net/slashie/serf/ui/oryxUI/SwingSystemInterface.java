@@ -375,7 +375,7 @@ public class SwingSystemInterface implements Runnable{
 	}
 	
 	public void restoreFromBuffer(int buffer, int layer){
-		sip.restore(buffer, layer);
+		sip.restoreAndDraw(buffer, layer);
 	}
 	
 	public void commitLayer(int layer){
@@ -852,7 +852,7 @@ class SwingInterfacePanel extends JPanel{
 	}
 
 	public void init(int layers){
-		init(layers, 0);
+		init(layers, 2);
 	}
 
 		
@@ -982,6 +982,7 @@ class SwingInterfacePanel extends JPanel{
 	}*/
 	
 	public void backup(int buffer, int layer){
+		backupImages[buffer] = getTransparentImage();
 		backupGraphics[buffer] = backupImages[buffer].getGraphics();
 		backupGraphics[buffer].drawImage(layerImages[layer],0,0,this);
 	}
@@ -1015,6 +1016,15 @@ class SwingInterfacePanel extends JPanel{
 		layerGraphics[layer].drawImage(backupImages[buffer], 0,0,this);
 		updated = true;
 	}
+	
+	public synchronized void restoreAndDraw(int buffer, int layer){
+		drawingImages[layer] =  getTransparentImage();
+		Font f = drawingGraphics[layer].getFont(); 
+		drawingGraphics[layer] = drawingImages[layer].getGraphics();
+		drawingGraphics[layer].setFont(f);
+		drawingGraphics[layer].drawImage(backupImages[buffer], 0,0,this);
+	}
+	
 	
 	/**
 	 * NOTE: It's very important for this method to be synchronized to avoid flickering
