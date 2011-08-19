@@ -43,6 +43,9 @@ public class BorderedGridBox extends AddornedBorderPanel {
 	protected List<GFXMenuItem> shownItems;
 	private MouseMotionListener mml;
 	protected boolean hoverDisabled;
+	protected boolean wasJustOnHovered;
+	
+	private int usedBuffer = 0;
 	
 	protected SwingSystemInterface si;
 
@@ -91,6 +94,12 @@ public class BorderedGridBox extends AddornedBorderPanel {
 				
 				SelectedItem selectedItem = getSelectedItemByClick(e.getPoint(), legendLines, lineHeight);
 				if (selectedItem != null){
+					if (wasJustOnHovered){
+						si.restoreFromBuffer(usedBuffer, getDrawingLayer());
+					} else {
+						si.commitLayer(getDrawingLayer());
+						si.backupInBuffer(usedBuffer, getDrawingLayer());
+					}
 					GFXMenuItem item = (GFXMenuItem) shownItems.get(selectedItem.selectedIndex);
 					int xpos = selectedItem.cursorX * itemWidth + getLocation().x + getBorderWidth();
 					int ypos = selectedItem.cursorY * itemHeight + getLocation().y + getBorderWidth() + (legendLines + 1) * lineHeight;
@@ -104,10 +113,18 @@ public class BorderedGridBox extends AddornedBorderPanel {
 					}
 					si.commitLayer(getDrawingLayer());
 					si.setCursor(getHandCursor());
+					wasJustOnHovered = true;
 				} else {
-					// No grid selected
-					si.commitLayer(getDrawingLayer());
-					si.setCursor(getDefaultCursor());
+					if (wasJustOnHovered){
+						// No grid selected
+						//si.loadAndDrawLayer(getDrawingLayer());
+						si.restoreFromBuffer(usedBuffer, getDrawingLayer());
+						si.commitLayer(getDrawingLayer());
+						wasJustOnHovered = false;
+					} else {
+						si.commitLayer(getDrawingLayer());
+						//si.setCursor(getDefaultCursor());
+					}
 				}
 			}
 		};
@@ -351,6 +368,7 @@ public class BorderedGridBox extends AddornedBorderPanel {
 		si.removeMouseListener(cbml);
 		if (closeButton != null)
 			closeButton.removeActionListener(cbal);
+		wasJustOnHovered = false;
 		return selection;
 	}
 	
@@ -420,6 +438,10 @@ public class BorderedGridBox extends AddornedBorderPanel {
 	public void setCurrentPage(int page){
 		if (isValidPage(page))
 			currentPage = page;
+	}
+
+	public void setUsedBuffer(int usedBuffer) {
+		this.usedBuffer = usedBuffer;
 	}
 	
 }
