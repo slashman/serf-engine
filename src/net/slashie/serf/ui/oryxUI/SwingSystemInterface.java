@@ -715,7 +715,7 @@ public class SwingSystemInterface implements Runnable{
 		return null;
 	}
 
-	public void waitKeyOrClick(final int keyCode) {
+	public void waitKeysOrClick(final int... keyCodes) {
 		BlockingQueue<String> waitKeyOrClickHandler = new LinkedBlockingQueue<String>();
 		CallbackMouseListener<String> cbml = new CallbackMouseListener<String>(waitKeyOrClickHandler){
 			@Override
@@ -730,8 +730,13 @@ public class SwingSystemInterface implements Runnable{
 			@Override
 			public void keyPressed(KeyEvent e) {
 				try {
-					if (SwingSystemInterface.charCode(e) == keyCode)
-						handler.put("OK");
+					int pressed = SwingSystemInterface.charCode(e);
+					for (int keyCode: keyCodes){
+						if (pressed == keyCode){
+							handler.put("OK");
+							return;
+						}
+					}
 				} catch (InterruptedException e1) {}
 			}
 		};
