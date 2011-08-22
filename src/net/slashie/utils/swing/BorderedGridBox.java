@@ -59,6 +59,8 @@ public class BorderedGridBox extends AddornedBorderPanel {
 		public int cursorY;
 	}
 	
+	protected SelectedItem selectedItem;
+	
 	/*UPLEFT, UPRIGHT, DOWNLEFT, DOWNRIGHT*/
 	public BorderedGridBox(BufferedImage border1, BufferedImage border2,BufferedImage border3,BufferedImage border4, SwingSystemInterface g, Color backgroundColor, Color borderIn, Color borderOut, int borderWidth, int outsideBound, int inBound, int insideBound, 
 			final int itemHeight, final int itemWidth, final int gridX, final int gridY, BufferedImage box, CleanButton closeButton){
@@ -94,6 +96,7 @@ public class BorderedGridBox extends AddornedBorderPanel {
 				
 				SelectedItem selectedItem = getSelectedItemByClick(e.getPoint(), legendLines, lineHeight);
 				if (selectedItem != null){
+					//selectedItem = selectedItemByMouse;
 					if (wasJustOnHovered){
 						si.restoreFromBuffer(usedBuffer, getDrawingLayer());
 					} else {
@@ -161,6 +164,42 @@ public class BorderedGridBox extends AddornedBorderPanel {
 		}
 	}
 	
+	protected SelectedItem getSelectedItemByKeyboard(int selectedIndex) {
+		int xpos = (int)getLocation().getX();
+		int ypos = (int)getLocation().getY();
+		xpos+=getBorderWidth();
+		ypos+=getBorderWidth();
+		if (legend == null)
+			legend = title;
+		String[] legends = legend.split("XXX");
+		int fontSize = getFont().getSize();
+		final int lineHeight = (int)Math.round(fontSize*1.5);
+		for (int i = 0; i < legends.length; i++){
+			ypos += lineHeight;
+		}
+		
+		if (legends.length > 0)
+			ypos += lineHeight;
+		
+		// Draw the items
+		int startingY = ypos;
+		int startingX = xpos;
+		
+		int xCursor = (int) Math.floor((double)selectedIndex / (double)gridY);
+		int yCursor = selectedIndex % gridY;
+		
+		xpos = startingX + xCursor * itemWidth;
+		ypos = startingY + yCursor * itemHeight;
+			
+		SelectedItem ret = new SelectedItem();
+		ret.cursorX = xpos;
+		ret.cursorY = ypos;
+		ret.selectedIndex = selectedIndex;
+		return ret;
+		
+		
+	}
+	
 	public void setMenuItems(List<? extends GFXMenuItem> items){
 		currentPage = 0;
 		this.items = items;
@@ -223,6 +262,9 @@ public class BorderedGridBox extends AddornedBorderPanel {
 			GFXMenuItem item = (GFXMenuItem) shownItems.get(i);
 			if (item instanceof CustomGFXMenuItem){
 				((CustomGFXMenuItem) item).drawMenuItem(si, xpos, ypos, i, false);
+				if (selectedItem != null && selectedItem.selectedIndex == i){
+					((CustomGFXMenuItem) item).drawTooltip(si, xpos, ypos, i);
+				}
 			} else {
 				defaultMenuItemPrint(item, 32, xpos, ypos, i);
 			}
@@ -309,9 +351,10 @@ public class BorderedGridBox extends AddornedBorderPanel {
 					int fontSize = getFont().getSize();
 					final int lineHeight = (int)Math.round(fontSize*1.5);
 					final int legendLines = legends.length > 0 ? legends.length: 1;
-					SelectedItem selectedItem = getSelectedItemByClick(e.getPoint(), legendLines, lineHeight);
+					selectedItem = getSelectedItemByClick(e.getPoint(), legendLines, lineHeight);
 					if (selectedItem != null)
 						handler.put(selectedItem.selectedIndex + CharKey.a);
+					
 					onItemSelected();
 				} catch (InterruptedException e1) {}
 			}
