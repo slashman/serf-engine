@@ -138,6 +138,7 @@ public abstract class Actor implements Cloneable, java.io.Serializable, Priority
 
 	public void die(){
 		/** Request to be removed from any dispatcher or structure */
+		level.removeActor(this);
 		aWannaDie = true;
 	}
 	
