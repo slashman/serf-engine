@@ -278,7 +278,7 @@ public class GFXUISelector extends UISelector implements ActionSelector, Seriali
 		}
 	}
 
-	private Action advanceInDirection(int direction) {
+	protected Action advanceInDirection(int direction) {
 		Actor vMonster = player.getLevel().getActorAt(Position.add(player.getPosition(), Action.directionToVariation(direction)));
 		if (vMonster != null && vMonster.isHostile() && attack.canPerform(player)){
 			attack.setDirection(direction);
