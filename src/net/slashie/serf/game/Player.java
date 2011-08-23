@@ -182,14 +182,15 @@ public abstract class Player extends AwareActor {
 			return;
        	}
         onCellStep(destinationCell);
-        setPosition(destinationPoint);
         
 		if (destinationCell.isSolid()){
 			Position tryp = getFreeSquareAround(destinationPoint);
 			if (tryp == null){
+				setPosition(destinationPoint);
         		onSolidDestination();
 				return;
 			} else {
+				setPosition(destinationPoint);
 				landOn(tryp);
 				return;
 			}
@@ -218,6 +219,8 @@ public abstract class Player extends AwareActor {
 			getLevel().scheduledTasks();
 		}
 			
+		setPosition(destinationPoint);
+		
 		if (getLevel().isExit(getPosition())){
 			String exit = getLevel().getExitOn(getPosition());
 			if (exit.equals("_START") || exit.startsWith("#")){
