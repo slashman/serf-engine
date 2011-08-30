@@ -19,6 +19,7 @@ import net.slashie.libjcsi.CharKey;
 import net.slashie.serf.ui.oryxUI.AddornedBorderPanel;
 import net.slashie.serf.ui.oryxUI.SwingSystemInterface;
 import net.slashie.utils.Util;
+import net.slashie.utils.swing.BorderedGridBox.SelectedItem;
 
 /**
  * Clickable grid with an option for on hover popups
@@ -45,6 +46,8 @@ public class GridBox extends JPanel {
 	protected List<GFXMenuItem> shownItems;
 	private MouseMotionListener mml;
 	protected boolean hoverDisabled;
+	protected boolean wasJustOnHovered;
+	private int usedBuffer;
 	
 	protected SwingSystemInterface si;
 
@@ -57,6 +60,7 @@ public class GridBox extends JPanel {
 		public int cursorX;
 		public int cursorY;
 	}
+
 	
 	
 	public GridBox(SwingSystemInterface g, final int itemHeight, final int itemWidth, final int gridX, final int gridY){
@@ -91,6 +95,13 @@ public class GridBox extends JPanel {
 				
 				SelectedItem selectedItem = getSelectedItemByClick(e.getPoint(), legendLines, lineHeight);
 				if (selectedItem != null){
+					//selectedItem = selectedItemByMouse;
+					if (wasJustOnHovered){
+						si.restoreFromBuffer(usedBuffer, getDrawingLayer());
+					} else {
+						si.commitLayer(getDrawingLayer());
+						si.backupInBuffer(usedBuffer, getDrawingLayer());
+					}
 					GFXMenuItem item = (GFXMenuItem) shownItems.get(selectedItem.selectedIndex);
 					int xpos = selectedItem.cursorX * itemWidth + getLocation().x;
 					int ypos = selectedItem.cursorY * itemHeight + getLocation().y + (legendLines + 1) * lineHeight;
@@ -104,10 +115,18 @@ public class GridBox extends JPanel {
 					}
 					si.commitLayer(getDrawingLayer());
 					si.setCursor(getHandCursor());
+					wasJustOnHovered = true;
 				} else {
-					// No grid selected
-					si.commitLayer(getDrawingLayer());
-					si.setCursor(getDefaultCursor());
+					if (wasJustOnHovered){
+						// No grid selected
+						//si.loadAndDrawLayer(getDrawingLayer());
+						si.restoreFromBuffer(usedBuffer, getDrawingLayer());
+						si.commitLayer(getDrawingLayer());
+						wasJustOnHovered = false;
+					} else {
+						si.commitLayer(getDrawingLayer());
+						//si.setCursor(getDefaultCursor());
+					}
 				}
 			}
 		};
@@ -417,6 +436,14 @@ public class GridBox extends JPanel {
 	public void setCurrentPage(int page){
 		if (isValidPage(page))
 			currentPage = page;
+	}
+
+	public int getUsedBuffer() {
+		return usedBuffer;
+	}
+
+	public void setUsedBuffer(int usedBuffer) {
+		this.usedBuffer = usedBuffer;
 	}
 	
 }
