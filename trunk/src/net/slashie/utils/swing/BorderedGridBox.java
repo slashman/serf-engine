@@ -2,8 +2,10 @@ package net.slashie.utils.swing;
 
 import java.awt.Color;
 import java.awt.Cursor;
+import java.awt.Image;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionAdapter;
@@ -63,7 +65,7 @@ public class BorderedGridBox extends AddornedBorderPanel {
 	
 	/*UPLEFT, UPRIGHT, DOWNLEFT, DOWNRIGHT*/
 	public BorderedGridBox(BufferedImage border1, BufferedImage border2,BufferedImage border3,BufferedImage border4, SwingSystemInterface g, Color backgroundColor, Color borderIn, Color borderOut, int borderWidth, int outsideBound, int inBound, int insideBound, 
-			final int itemHeight, final int itemWidth, final int gridX, final int gridY, BufferedImage box, CleanButton closeButton){
+			final int itemHeight, final int itemWidth, final int gridX, final int gridY, BufferedImage box, CleanButton closeButton, Image rePagIcon, Image avPagIcon, Cursor cursor){
 		super (border1, border2, border3, border4, borderOut, borderIn, backgroundColor, borderWidth, outsideBound, inBound, insideBound );
 		this.si = g;
 		this.box = box;
@@ -82,7 +84,12 @@ public class BorderedGridBox extends AddornedBorderPanel {
 		final int lineHeight = (int)Math.round(fontSize*1.5);
 		final int legendLines = legends.length > 0 ? legends.length: 1;
 		
+		initializePageButtons(rePagIcon, avPagIcon, cursor);
+
+		
 		setSize(gridX * itemWidth + borderWidth * 2, gridY * itemHeight + borderWidth * 2 + legendLines * lineHeight);
+		
+		
 		// Mouse things
 		mml = new MouseMotionAdapter(){
 			@Override
@@ -134,6 +141,42 @@ public class BorderedGridBox extends AddornedBorderPanel {
 		si.addMouseMotionListener(mml);
 	}
 	
+	protected CleanButton rePagButton;
+	protected CleanButton avPagButton;
+	
+	private void initializePageButtons(Image rePagIcon, Image avPagIcon, Cursor cursor) {
+		rePagButton = new CleanButton(rePagIcon, cursor);
+		avPagButton = new CleanButton(avPagIcon, cursor);
+		rePagButton.setVisible(false);
+		avPagButton.setVisible(false);
+		updateButtonsLocation();
+		si.add(rePagButton);
+		si.add(avPagButton);
+	}
+	
+	@Override
+	public void setLocation(int x, int y) {
+		super.setLocation(x, y);
+		updateButtonsLocation();
+	}
+	
+	private void updateButtonsLocation() {
+		rePagButton.setLocation((int)getLocation().getX()+getBorderWidth()+100, (int)getLocation().getY()+getHeight()-getBorderWidth() - rePagButton.getHeight());
+		avPagButton.setLocation((int)getLocation().getX()+getBorderWidth()+130, (int)getLocation().getY()+getHeight()-getBorderWidth() - avPagButton.getHeight());
+	}
+
+	@Override
+	public void setLocation(Point p) {
+		super.setLocation(p);
+		updateButtonsLocation();
+	}
+	
+	@Override
+	public void setBounds(int x, int y, int width, int height) {
+		super.setBounds(x, y, width, height);
+		updateButtonsLocation();
+	}
+
 	protected Cursor getDefaultCursor() {
 		return Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR);
 	}
@@ -272,7 +315,9 @@ public class BorderedGridBox extends AddornedBorderPanel {
 		
 		// Draw the footer
 		if (pages > 1){
-			si.printAtPixel(getDrawingLayer(), (int)getLocation().getX()+getBorderWidth(), (int)getLocation().getY()+getHeight()-getBorderWidth()-lineHeight, "Page "+(currentPage+1)+"/"+pages, Color.WHITE);
+			si.printAtPixel(getDrawingLayer(), (int)getLocation().getX()+getBorderWidth(), (int)getLocation().getY()+getHeight()-getBorderWidth(), "Page "+(currentPage+1)+"/"+pages, Color.WHITE);
+			// Activate page flip buttons
+			
 		}
 		if (refresh)
 			si.commitLayer(getDrawingLayer());
@@ -307,7 +352,7 @@ public class BorderedGridBox extends AddornedBorderPanel {
 	public GFXMenuItem getSelection (){
 		int itemsPerPage = gridX * gridY;
 		final int pageElements = itemsPerPage;
-		BlockingQueue<Integer> selectionQueue = new LinkedBlockingQueue<Integer>(1);
+		BlockingQueue<Integer> selectionQueue = new LinkedBlockingQueue<Integer>();
 		boolean preselected = false;
 		// Preselection
 		if (preselectedCode != null){
@@ -330,8 +375,8 @@ public class BorderedGridBox extends AddornedBorderPanel {
 						code != CharKey.ESC &&
 						code != CharKey.UARROW &&
 						code != CharKey.DARROW &&
-						code != CharKey.N8 &&
-						code != CharKey.N2 &&
+						code != CharKey.LARROW &&
+						code != CharKey.RARROW &&
 						(code < CharKey.A || code > CharKey.A + pageElements-1) &&
 						(code < CharKey.a || code > CharKey.a + pageElements-1)
 						){
@@ -371,10 +416,34 @@ public class BorderedGridBox extends AddornedBorderPanel {
 		
 		si.addKeyListener(cbkl);
 		si.addMouseListener(cbml);
+		
 		if (closeButton != null)
 			closeButton.addActionListener(cbal);
+		
+		ActionListener avPagActionListener = new CallbackActionListener<Integer>(selectionQueue) {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				try {
+					handler.put(CharKey.PAGEDOWN);
+				} catch (InterruptedException e1) {}
+			}
+		};
+		
+		ActionListener rePagActionListener = new CallbackActionListener<Integer>(selectionQueue) {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				try {
+					handler.put(CharKey.PAGEUP);
+				} catch (InterruptedException e1) {}
+			}
+		};
+		
+		avPagButton.addActionListener(avPagActionListener);
+		rePagButton.addActionListener(rePagActionListener);
+		
 		GFXMenuItem selection = null;
 		while (true){
+			updatePageButtonStatus();
 			List<GFXMenuItem> shownItems = Util.page(items, pageElements, currentPage);
 			if (!preselected)
 				draw(true);
@@ -390,10 +459,10 @@ public class BorderedGridBox extends AddornedBorderPanel {
 				selection = null;
 				break;
 			}
-			if (code == CharKey.UARROW || code == CharKey.N8)
+			if (code == CharKey.UARROW)
 				if (currentPage > 0)
 					currentPage --;
-			if (code == CharKey.DARROW || code == CharKey.N2)
+			if (code == CharKey.DARROW)
 				if (currentPage < pages-1)
 					currentPage ++;
 			
@@ -412,9 +481,29 @@ public class BorderedGridBox extends AddornedBorderPanel {
 		if (closeButton != null)
 			closeButton.removeActionListener(cbal);
 		wasJustOnHovered = false;
+		avPagButton.removeActionListener(avPagActionListener);
+		rePagButton.removeActionListener(rePagActionListener);
 		return selection;
 	}
 	
+	protected void updatePageButtonStatus() {
+		if (pages > 1){
+			if (currentPage != 0){
+				rePagButton.setVisible(true);
+			} else {
+				rePagButton.setVisible(false);
+			}
+			if (currentPage != pages-1){
+				avPagButton.setVisible(true);
+			} else {
+				avPagButton.setVisible(false);
+			}
+		} else {
+			rePagButton.setVisible(false);
+			avPagButton.setVisible(false);
+		}
+	}
+
 	public void setTitle(String s){
 		title = s;
 	}
@@ -443,6 +532,8 @@ public class BorderedGridBox extends AddornedBorderPanel {
 		si.removeMouseMotionListener(mml);
 		if (closeButton != null)
 			si.remove(closeButton);
+		si.remove(avPagButton);
+		si.remove(rePagButton);
 	}
 	
 	public void onItemSelected() {
