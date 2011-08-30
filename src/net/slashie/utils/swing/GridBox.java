@@ -114,7 +114,7 @@ public class GridBox extends JPanel {
 						defaultMenuItemPrint(item, 32, xpos, ypos, selectedItem.selectedIndex);
 					}
 					si.commitLayer(getDrawingLayer());
-					si.setCursor(getHandCursor());
+					//si.setCursor(getHandCursor());
 					wasJustOnHovered = true;
 				} else {
 					if (wasJustOnHovered){
@@ -398,6 +398,14 @@ public class GridBox extends JPanel {
 		si.removeMouseMotionListener(mml);
 		if (closeButton != null)
 			si.remove(closeButton);
+	}
+	
+	public void deactivate(){
+		si.removeMouseMotionListener(mml);
+	}
+	
+	public void reactivate(){
+		si.addMouseMotionListener(mml);
 	}
 	
 	public void onItemSelected() {
