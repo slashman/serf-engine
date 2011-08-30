@@ -140,8 +140,12 @@ public class BorderedGridBox extends AddornedBorderPanel {
 			}
 		};
 		si.addMouseMotionListener(mml);
+		customInit();
 	}
 	
+	protected void customInit() {
+	}
+
 	protected CleanButton rePagButton;
 	protected CleanButton avPagButton;
 	
@@ -187,6 +191,8 @@ public class BorderedGridBox extends AddornedBorderPanel {
 	}
 	
 	protected SelectedItem getSelectedItemByClick(Point point, int legendLines, int lineHeight) {
+		if (shownItems == null)
+			return null;
 		int pixelX = point.x;
 		int pixelY = point.y;
 		
