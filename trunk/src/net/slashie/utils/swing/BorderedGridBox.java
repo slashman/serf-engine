@@ -65,7 +65,8 @@ public class BorderedGridBox extends AddornedBorderPanel {
 	
 	/*UPLEFT, UPRIGHT, DOWNLEFT, DOWNRIGHT*/
 	public BorderedGridBox(BufferedImage border1, BufferedImage border2,BufferedImage border3,BufferedImage border4, SwingSystemInterface g, Color backgroundColor, Color borderIn, Color borderOut, int borderWidth, int outsideBound, int inBound, int insideBound, 
-			final int itemHeight, final int itemWidth, final int gridX, final int gridY, BufferedImage box, CleanButton closeButton, Image rePagIcon, Image avPagIcon, Cursor cursor){
+			final int itemHeight, final int itemWidth, final int gridX, final int gridY, BufferedImage box, CleanButton closeButton, Image rePagIcon, Image avPagIcon, Image rePagIconHover, Image avPagIconHover, Cursor cursor){
+		
 		super (border1, border2, border3, border4, borderOut, borderIn, backgroundColor, borderWidth, outsideBound, inBound, insideBound );
 		this.si = g;
 		this.box = box;
@@ -84,7 +85,7 @@ public class BorderedGridBox extends AddornedBorderPanel {
 		final int lineHeight = (int)Math.round(fontSize*1.5);
 		final int legendLines = legends.length > 0 ? legends.length: 1;
 		
-		initializePageButtons(rePagIcon, avPagIcon, cursor);
+		initializePageButtons(rePagIcon, avPagIcon, rePagIconHover, avPagIconHover, cursor);
 
 		
 		setSize(gridX * itemWidth + borderWidth * 2, gridY * itemHeight + borderWidth * 2 + legendLines * lineHeight);
@@ -144,9 +145,9 @@ public class BorderedGridBox extends AddornedBorderPanel {
 	protected CleanButton rePagButton;
 	protected CleanButton avPagButton;
 	
-	private void initializePageButtons(Image rePagIcon, Image avPagIcon, Cursor cursor) {
-		rePagButton = new CleanButton(rePagIcon, cursor);
-		avPagButton = new CleanButton(avPagIcon, cursor);
+	private void initializePageButtons(Image rePagIcon, Image avPagIcon, Image rePagIconHover, Image avPagIconHover, Cursor cursor) {
+		rePagButton = new CleanButton(rePagIcon, rePagIconHover, null, cursor);
+		avPagButton = new CleanButton(avPagIcon, avPagIconHover, null, cursor);
 		rePagButton.setVisible(false);
 		avPagButton.setVisible(false);
 		updateButtonsLocation();
@@ -317,7 +318,7 @@ public class BorderedGridBox extends AddornedBorderPanel {
 		if (pages > 1){
 			si.printAtPixel(getDrawingLayer(), (int)getLocation().getX()+getBorderWidth(), (int)getLocation().getY()+getHeight()-getBorderWidth(), "Page "+(currentPage+1)+"/"+pages, Color.WHITE);
 			// Activate page flip buttons
-			
+			updatePageButtonStatus();	
 		}
 		if (refresh)
 			si.commitLayer(getDrawingLayer());
@@ -486,7 +487,7 @@ public class BorderedGridBox extends AddornedBorderPanel {
 		return selection;
 	}
 	
-	protected void updatePageButtonStatus() {
+	public void updatePageButtonStatus() {
 		if (pages > 1){
 			if (currentPage != 0){
 				rePagButton.setVisible(true);
