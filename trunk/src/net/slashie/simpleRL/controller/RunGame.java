@@ -261,13 +261,13 @@ public class RunGame {
 		};
 
 		UserCommand[] userCommands = new UserCommand[]{
-			new UserCommand(CommandListener.PROMPTQUIT, CharKey.Q),
-			new UserCommand(CommandListener.HELP, CharKey.F1),
-			new UserCommand(CommandListener.LOOK, CharKey.l),
-			new UserCommand(CommandListener.PROMPTSAVE, CharKey.S),
-			new UserCommand(CommandListener.HELP, CharKey.h),
-			new UserCommand(CommandListener.SHOWINVEN, CharKey.i),
-			new UserCommand(CommandListener.SWITCHMUSIC, CharKey.T),
+			new UserCommand(CommandListener.Command.PROMPTQUIT, CharKey.Q),
+			new UserCommand(CommandListener.Command.HELP, CharKey.F1),
+			new UserCommand(CommandListener.Command.LOOK, CharKey.l),
+			new UserCommand(CommandListener.Command.PROMPTSAVE, CharKey.S),
+			new UserCommand(CommandListener.Command.HELP, CharKey.h),
+			new UserCommand(CommandListener.Command.SHOWINVEN, CharKey.i),
+			new UserCommand(CommandListener.Command.SWITCHMUSIC, CharKey.T),
 		};
 		switch (mode){
 		case SWING_GFX:

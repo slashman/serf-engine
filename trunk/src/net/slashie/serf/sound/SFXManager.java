@@ -9,8 +9,12 @@ import java.util.concurrent.LinkedBlockingQueue;
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.Control;
 import javax.sound.sampled.DataLine;
+import javax.sound.sampled.FloatControl;
+import javax.sound.sampled.Port;
 import javax.sound.sampled.SourceDataLine;
+import javax.sound.sampled.Control.Type;
 
 
 public class SFXManager {
@@ -53,6 +57,8 @@ public class SFXManager {
 				}
 				if (playFile.equals("KILL")){
 					break;
+				} else if (playFile.startsWith("VOLUME")){
+					lineVolume = (float) Integer.parseInt(playFile.substring(6)) / 100.0f;
 				} else {
 					play(playFile);
 				}
@@ -64,6 +70,7 @@ public class SFXManager {
 			DataLine.Info info;
 		}
 		private Map<String, PlaybackInfo> map = new HashMap<String, PlaybackInfo>();
+		private float lineVolume;
 		
 		public void play (String file){
 		   try{
@@ -72,21 +79,27 @@ public class SFXManager {
 			   if (pbi == null){
 				   pbi = new PlaybackInfo();
 				   pbi.af = ais.getFormat();
-				   pbi.info = new DataLine.Info (SourceDataLine.class, pbi.af);
+				   pbi.info = new DataLine.Info(SourceDataLine.class, pbi.af);
 				   map.put(file, pbi);
 			   }
 			   
-			   /*if (!AudioSystem.isLineSupported(info)){
-				   System.out.println( "Unsupported line" );
-				   System.exit(-1);
-			   }*/
 			   int frameRate = (int)pbi.af.getFrameRate();
 			   int frameSize = pbi.af.getFrameSize();
 			   int bufSize = frameRate * frameSize / 10;
 			   SourceDataLine line = (SourceDataLine)AudioSystem.getLine(pbi.info);
 			   line.open(pbi.af, bufSize);
-			   line.start();
 			   
+			   line.start();
+			  
+				try {
+					FloatControl gainControl = (FloatControl) line.getControl(FloatControl.Type.MASTER_GAIN);
+					float dB = (float)(Math.log(lineVolume)/Math.log(10.0)*20.0);
+					   gainControl.setValue(dB);
+				} catch (IllegalArgumentException e) {
+					// gain control not supported
+				}
+			   
+			   		   
 			   byte[] data = new byte[bufSize];
 			   int bytesRead;
 			   while ((bytesRead = ais.read( data, 0, data.length )) != -1 ){
@@ -99,11 +112,19 @@ public class SFXManager {
 		   }
 		   catch (Exception e){
 			   addReport("Error playing... "+e.toString());
+			   e.printStackTrace();
 		   }
 	   }
 			
 		public void addReport(String report){
 			System.err.println(report);
 		}
+	}
+
+	
+	public static void setVolume(double sfxVolume) {
+		try {
+			playList.put("VOLUME"+Math.round(sfxVolume*100.0d));
+		} catch (InterruptedException e) {}
 	}
 }

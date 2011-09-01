@@ -95,10 +95,10 @@ public class SimpleRL extends SworeGame{
 		return currentGame;
 	}
 
-	public void commandSelected (int commandCode){
+	public void commandSelected (Command commandCode){
 		super.commandSelected(commandCode);
 		switch (commandCode){
-		case CommandListener.HELP:
+		case HELP:
 			Display.thus.showHelp();
 			break;
 		}

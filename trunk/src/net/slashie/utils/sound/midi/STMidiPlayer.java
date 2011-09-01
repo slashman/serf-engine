@@ -50,6 +50,10 @@ public class STMidiPlayer implements Runnable {
         			continue;
         		}
         	}
+        	if (currentMidiFile.equals("__noneYet")){
+        		continue;
+        	}
+
         	File midiFile = new File(currentMidiFile);
         	if (currentInstruction == INS_LOAD){
 	        	if(!midiFile.exists() || midiFile.isDirectory() || !midiFile.canRead()) {

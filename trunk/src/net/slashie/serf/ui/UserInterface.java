@@ -7,6 +7,7 @@ import net.slashie.serf.action.Actor;
 import net.slashie.serf.action.Message;
 import net.slashie.serf.game.Player;
 import net.slashie.serf.level.AbstractLevel;
+import net.slashie.serf.sound.SFXManager;
 import net.slashie.serf.sound.STMusicManagerNew;
 import net.slashie.utils.Debug;
 import net.slashie.utils.Position;
@@ -125,24 +126,19 @@ public abstract class UserInterface implements CommandListener {
 		addCommandListener(this);
 	}
 
-	protected int getRelatedCommand(int keyCode){
-		Debug.enterMethod(this, "getRelatedCommand", keyCode+"");
+	protected Command getRelatedCommand(int keyCode){
     	UserCommand uc = (UserCommand ) gameCommands.get(keyCode+"");
     	if (uc == null){
-    		Debug.exitMethod(CommandListener.NONE);
-    		return CommandListener.NONE;
+    		return CommandListener.Command.NONE;
     	}
-
-    	int ret = uc.getCommand();
-    	Debug.exitMethod(ret+"");
-    	return ret;
+    	return uc.getCommand();
 	}
 	
     public void levelChange(){
 		level = player.getLevel();
 	}
     
-	protected void informPlayerCommand(int command) {
+	protected void informPlayerCommand(Command command) {
 
 	    for (int i =0; i < commandListeners.size(); i++){
 	    	commandListeners.get(i).commandSelected(command);
@@ -162,25 +158,26 @@ public abstract class UserInterface implements CommandListener {
 	private List<CommandListener> commandListeners = new ArrayList<CommandListener>(5);
 
 	//Command Listener Implementation
-	public void commandSelected (int commandCode){
+	public void commandSelected (Command commandCode){
 		switch (commandCode){
-			case CommandListener.PROMPTQUIT:
+			case PROMPTQUIT:
 				processQuit();
 				break;
-			case CommandListener.PROMPTSAVE:
+			case PROMPTSAVE:
 				processSave();
 				break;
-			case CommandListener.HELP:
+			case HELP:
 				processHelp();
 				break;
-			case CommandListener.LOOK:
+			case LOOK:
 				doLook();
 				break;
-			case CommandListener.SHOWINVEN:
+			case SHOWINVEN:
 				showInventory();
 				break;
-			case CommandListener.SWITCHMUSIC:
-				boolean enabled = STMusicManagerNew.thus.isEnabled();
+			case SWITCHMUSIC:
+				
+				/*boolean enabled = STMusicManagerNew.thus.isEnabled();
 				if (enabled){
 					showMessage("Turn off music");
 					STMusicManagerNew.thus.stopMusic();
@@ -189,8 +186,57 @@ public abstract class UserInterface implements CommandListener {
 					showMessage("Turn on music");
 					STMusicManagerNew.thus.setEnabled(true);
 					onMusicOn();
-				}
+				}*/
+				currentSoundCycle = currentSoundCycle.nextCycle();
+				STMusicManagerNew.thus.setVolume(currentSoundCycle.getGain());
+				showMessage("Music volume set to "+currentSoundCycle.getDescription());
 				break;
+			case SWITCHSFX:
+				currentSFXCycle = currentSFXCycle.nextCycle();
+				SFXManager.setVolume(currentSFXCycle.getGain());
+				showMessage("SFX volume set to "+currentSFXCycle.getDescription());
+				break;
+		}
+	}
+	
+	public void setSoundCycle(SoundCycle cycle){
+		this.currentSoundCycle = cycle;
+	}
+	
+	private SoundCycle currentSoundCycle = SoundCycle.FULLGAIN;
+	private SoundCycle currentSFXCycle = SoundCycle.FULLGAIN;
+
+	
+	public enum SoundCycle {
+		FULLGAIN (1.0d, "100%"),
+		GAIN_75 (0.75d, "75%"),
+		GAIN_50 (0.5d, "50%"),
+		GAIN_25 (0.25d, "25%"),
+		MUTE (0.0d, "Mute");
+		
+		public SoundCycle nextCycle(){
+			if (ordinal() < values().length-1)
+				return values()[ordinal()+1];
+			else
+				return values()[0];
+		}
+		
+		private double dblGain;
+		private String description;
+		
+		SoundCycle(double dblGain, String description){
+			this.dblGain = dblGain;
+			this.description = description;
+		}
+
+
+		public double getGain(){
+			return dblGain;
+		}
+
+
+		public String getDescription() {
+			return description;
 		}
 	}
 	

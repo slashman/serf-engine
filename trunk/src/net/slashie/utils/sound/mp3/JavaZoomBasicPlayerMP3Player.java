@@ -25,6 +25,9 @@ public class JavaZoomBasicPlayerMP3Player implements BasicPlayerListener{
 		
 	}
 	private String currentFile;
+
+	private double currentGain = 1.0d;
+	
 	public void play(String filename){
 		currentFile = filename;
 		try
@@ -38,7 +41,7 @@ public class JavaZoomBasicPlayerMP3Player implements BasicPlayerListener{
 			
 			// Set Volume (0 to 1.0).
 			// setGain should be called after control.play().
-			control.setGain(0.85);
+			control.setGain(currentGain);
 			
 			// Set Pan (-1.0 to 1.0).
 			// setPan should be called after control.play().
@@ -64,7 +67,6 @@ public class JavaZoomBasicPlayerMP3Player implements BasicPlayerListener{
 		try {
 			control.stop();
 		} catch (BasicPlayerException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
@@ -74,22 +76,18 @@ public class JavaZoomBasicPlayerMP3Player implements BasicPlayerListener{
 	}
 
 	public void opened(Object arg0, Map arg1) {
-		// TODO Auto-generated method stub
-		
+	
 	}
 
 	public void progress(int arg0, long arg1, byte[] arg2, Map arg3) {
-		// TODO Auto-generated method stub
-		
+	
 	}
 
 	public void setController(BasicController arg0) {
-		// TODO Auto-generated method stub
-		
+	
 	}
 
 	public void stateUpdated(BasicPlayerEvent arg0) {
-		// TODO Auto-generated method stub
 		// Notification of BasicPlayer states (opened, playing, end of media, ...)
 		if (arg0.getCode()==BasicPlayerEvent.EOM)
 		{
@@ -98,5 +96,22 @@ public class JavaZoomBasicPlayerMP3Player implements BasicPlayerListener{
 		
 	}
 	
+	public static void doStop(){
+		thus.stop();
+	}
+
+	public static void doSetVolume(double volume) {
+		thus.setVolume(volume);
+		
+	}
+
+	private void setVolume(double volume) {
+		currentGain  = volume;
+		try {
+			player.setGain(volume);
+		} catch (BasicPlayerException e) {
+			e.printStackTrace();
+		}
+	}
 	
 }
