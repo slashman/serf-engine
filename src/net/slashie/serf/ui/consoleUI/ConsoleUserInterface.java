@@ -636,7 +636,7 @@ public abstract class ConsoleUserInterface extends UserInterface implements Comm
 			si.refresh();
 			si.waitKeys(CharKey.ENTER, CharKey.SPACE, CharKey.ESC);
 			player.getGameSessionInfo().setDeathCause(GameSessionInfo.QUIT);
-			informPlayerCommand(CommandListener.QUIT);
+			informPlayerCommand(CommandListener.Command.QUIT);
 		}
 		messageBox.draw();
 		messageBox.clear();
@@ -657,7 +657,7 @@ public abstract class ConsoleUserInterface extends UserInterface implements Comm
 			messageBox.draw();
 			si.refresh();
 			si.waitKeys(CharKey.ENTER, CharKey.SPACE, CharKey.ESC);
-			informPlayerCommand(CommandListener.SAVE);
+			informPlayerCommand(CommandListener.Command.SAVE);
 		}
 		messageBox.draw();
 		messageBox.clear();
@@ -779,7 +779,7 @@ public abstract class ConsoleUserInterface extends UserInterface implements Comm
 	
 
     public Action selectCommand (CharKey input){
-		int com = getRelatedCommand(input.code);
+		Command com = getRelatedCommand(input.code);
 		informPlayerCommand(com);
 		Action ret = actionSelectedByCommand;
 		actionSelectedByCommand = null;

@@ -1095,7 +1095,7 @@ public abstract class GFXUserInterface extends UserInterface implements Runnable
 		if (promptChat(getQuitMessage())){
 			shutdown();
 			player.getGameSessionInfo().setDeathCause(GameSessionInfo.QUIT);
-			informPlayerCommand(CommandListener.QUIT);
+			informPlayerCommand(CommandListener.Command.QUIT);
 		}
 	}
 	
@@ -1110,7 +1110,7 @@ public abstract class GFXUserInterface extends UserInterface implements Runnable
 			messageBox.setText("Saving... ");
 			si.commitLayer(getUILayer());
 			enterScreen();
-			informPlayerCommand(CommandListener.SAVE);
+			informPlayerCommand(CommandListener.Command.SAVE);
 		}
 	}
 
@@ -1280,7 +1280,7 @@ public abstract class GFXUserInterface extends UserInterface implements Runnable
 	}
 	
 	public Action selectCommand (CharKey input){
-		int com = getRelatedCommand(input.code);
+		Command com = getRelatedCommand(input.code);
 		informPlayerCommand(com);
 		Action ret = actionSelectedByCommand;
 		actionSelectedByCommand = null;

@@ -19,7 +19,6 @@ public class STMusicManagerNew {
 		thus = new STMusicManagerNew();
 	}
 	
-	//private static MidisLoader midiPlayer;
 	public STMusicManagerNew () {
 		//midiPlayer = new MidisLoader();
 		STMidiPlayer midiPlayer = new STMidiPlayer();
@@ -29,13 +28,17 @@ public class STMusicManagerNew {
 	
 	public void stopMusic(){
 		if (playing.endsWith("mp3")) {
-			JavaZoomBasicPlayerMP3Player.thus.stop();
+			JavaZoomBasicPlayerMP3Player.doStop();
 		} else if (playing.endsWith("mid") || playing.endsWith("midi")) {
 			STMidiPlayer.setInstruction(STMidiPlayer.INS_STOP);
 			if (currentMidiThread != null)
 				currentMidiThread.interrupt();
 		}
 		playing = "__nuthin";
+	}
+	
+	public void setVolume(double volume){
+		JavaZoomBasicPlayerMP3Player.doSetVolume(volume);
 	}
 	
 	public boolean isEnabled(){

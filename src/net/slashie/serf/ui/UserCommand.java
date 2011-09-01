@@ -1,9 +1,11 @@
 package net.slashie.serf.ui;
 
+import net.slashie.serf.ui.CommandListener.Command;
+
 public class UserCommand implements java.io.Serializable {
 	/** Links a Command with a KeyCode with which it is triggered*/
 	private int keyCode;
-	private int command;
+	private Command command;
 
 	public int getKeyCode() {
 		return keyCode;
@@ -16,11 +18,11 @@ public class UserCommand implements java.io.Serializable {
 			keyCode = value;
 	}
 
-	public int getCommand() {
+	public Command getCommand() {
 		return command;
 	}
 
-	public UserCommand(int command, int keycode){
+	public UserCommand(Command command, int keycode){
 		this.command = command;
 		setKeyCode(keycode);
 	}

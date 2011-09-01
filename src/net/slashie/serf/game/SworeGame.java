@@ -49,10 +49,10 @@ public abstract class SworeGame implements CommandListener, PlayerEventListener,
 	private long turns;
 	private Hashtable<String, LevelMetaData> hashMetadata = new Hashtable<String, LevelMetaData>();
 	
-	public void commandSelected (int commandCode){
-		if (commandCode == CommandListener.QUIT){
+	public void commandSelected (Command commandCode){
+		if (commandCode == CommandListener.Command.QUIT){
 			finishGame();
-		} else if (commandCode == CommandListener.SAVE) {
+		} else if (commandCode == CommandListener.Command.SAVE) {
 			if (canSave()){
 				freezeUniqueRegister();
 				saveGame(player);
