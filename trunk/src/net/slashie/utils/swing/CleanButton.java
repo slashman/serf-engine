@@ -2,6 +2,7 @@ package net.slashie.utils.swing;
 
 import java.awt.Component;
 import java.awt.Cursor;
+import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.Image;
 import java.awt.event.MouseAdapter;
@@ -46,8 +47,18 @@ public class CleanButton extends JButton{
 				public void mouseEntered(MouseEvent e) {
 					onHover = true;
 					Component b = (Component) e.getSource();
+					String text = getPopupText();
+					if (text == null)
+						return;
+					FontMetrics metrics = legendLabel.getFontMetrics(legendLabel.getFont());
+					int textWidth = (int)(metrics.stringWidth(text));
+					int xLocation = b.getLocationOnScreen().x+36-ssi.getScreenPosition().x;
+					if (xLocation + textWidth + 30  > 800){
+						int diff = xLocation + textWidth + 30 - 800;
+						xLocation -= diff;
+					}
 					legendLabel.setText(getPopupText());
-					legendLabel.setLocation(b.getLocationOnScreen().x+36-ssi.getScreenPosition().x, b.getLocationOnScreen().y+18-ssi.getScreenPosition().y);
+					legendLabel.setLocation(xLocation, b.getLocationOnScreen().y+18-ssi.getScreenPosition().y);
 					legendLabel.setVisible(true);
 				}
 				
@@ -70,7 +81,11 @@ public class CleanButton extends JButton{
 	
 	public CleanButton(Image background, Image hover, Image face, Cursor c, String text){
 		setBackground(background);
-		setSize(background.getWidth(null), background.getHeight(null));
+		if (background != null)
+			setSize(background.getWidth(null), background.getHeight(null));
+		else if (face != null){
+			setSize(face.getWidth(null), face.getHeight(null));
+		}
 		setPreferredSize(getSize());
 		setHover(hover);
 		setFace(face);
