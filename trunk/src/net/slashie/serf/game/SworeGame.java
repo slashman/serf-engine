@@ -216,6 +216,7 @@ public abstract class SworeGame implements CommandListener, PlayerEventListener,
 		AbstractLevel storedLevel = storedLevels.get(levelID);
 		if (storedLevel != null) {
 			currentLevel = storedLevel;
+			player.setLevel(currentLevel);
 			player.setPosition(currentLevel.getExitFor(formerLevelID));
 			onLevelLoad(currentLevel);
 		} else {
@@ -234,7 +235,6 @@ public abstract class SworeGame implements CommandListener, PlayerEventListener,
 				crash("Error while creating level "+levelID, sworee);
 			}
 		}
-		player.setLevel(currentLevel);
 		
 		dispatcher = currentLevel.getDispatcher();
 		

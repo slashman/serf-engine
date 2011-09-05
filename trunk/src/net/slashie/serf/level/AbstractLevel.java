@@ -602,4 +602,6 @@ public abstract class AbstractLevel implements FOVMap, Serializable{
 	public void updateActorPosition(Actor actor, Position p) {
 		updateActorPosition(actor, p.x, p.y, p.z);
 	}
+	
+	
 }

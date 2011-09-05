@@ -166,8 +166,9 @@ public abstract class Actor implements Cloneable, java.io.Serializable, Priority
 		return position;
 	}
 
-	public void setLevel(AbstractLevel what){
-		level = what;
+	public void setLevel(AbstractLevel newLevel){
+		level = newLevel;
+		level.updateActorPosition(this, getPosition());
 	}
 
 	public AbstractLevel getLevel(){
