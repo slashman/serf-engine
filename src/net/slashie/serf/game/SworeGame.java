@@ -79,7 +79,7 @@ public abstract class SworeGame implements CommandListener, PlayerEventListener,
 
 	
 	private void run(){
-		player.setFOV(new FOV());
+		player.setFOV(getNewFOV());
 		UserInterface.getUI().reset();
 		UserInterface.getUI().showMessage(getFirstMessage(player));
 		ui.refresh();
@@ -134,7 +134,7 @@ public abstract class SworeGame implements CommandListener, PlayerEventListener,
 	public void setPlayer(Player p){
 		player = p;
 		player.setLevel(currentLevel);
-		player.setFOV(new FOV());
+		player.setFOV(getNewFOV());
 		currentLevel.setPlayer(player);
 		if (player.getGameSessionInfo() == null)
 			player.setGameSessionInfo(new GameSessionInfo());
@@ -145,6 +145,10 @@ public abstract class SworeGame implements CommandListener, PlayerEventListener,
 		player.setGame(this);
 	}
 	
+	protected FOV getNewFOV() {
+		return new FOV();
+	}
+
 	public void newGame(int gameType){
 		storedLevels = new Hashtable<String, AbstractLevel>();
 		player = generatePlayer(gameType, this);
