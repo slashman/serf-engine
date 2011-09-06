@@ -143,10 +143,12 @@ public class GridLevelReader extends AbstractLevel {
 					String iconic = charMap.get(map[y].charAt(x)+"");
 					if (iconic == null)
 						SworeGame.crash("mapchar "+map[y].charAt(x)+" not found on the level charMap", new Exception());
+					
+					
 					String[] cmds = iconic.split(" ");
 					if (!cmds[0].equals("NOTHING"))
 						ret[x][y] = MapCellFactory.getMapCellFactory().getMapCell(cmds[0]);
-						
+					
 					if (cmds.length > 1){
 						if (cmds[1].equals("ABS_FEATURE")){
 							if (cmds.length < 4 || Util.chance(Integer.parseInt(cmds[3]))){
