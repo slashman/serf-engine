@@ -5,6 +5,7 @@ import java.util.*;
 
 import net.slashie.serf.action.Action;
 import net.slashie.serf.action.Actor;
+import net.slashie.serf.action.EnvironmentInfo;
 import net.slashie.serf.action.Message;
 import net.slashie.serf.baseDomain.AbstractItem;
 import net.slashie.serf.game.Equipment;
@@ -173,50 +174,46 @@ public abstract class ConsoleUserInterface extends UserInterface implements Comm
 	private void drawLevel(){
 		//Cell[] [] cells = level.getCellsAround(player.getPosition().x,player.getPosition().y, player.getPosition().z, range);
 		AbstractCell[] [] rcells = level.getMemoryCellsAround(player.getPosition().x,player.getPosition().y, player.getPosition().z, xrange,yrange);
-		AbstractCell[] [] vcells = level.getVisibleCellsAround(player, player.getPosition().x,player.getPosition().y, player.getPosition().z, xrange,yrange);
+		EnvironmentInfo environmentInfo = level.getEnvironmentAroundActor(player, player.getPosition().x,player.getPosition().y, player.getPosition().z, xrange,yrange);
 		
-		int xScale = getXScale();
-		int yScale = getYScale();
-		
-		Position runner = new Position(player.getPosition().x - xrange * xScale, player.getPosition().y-yrange * yScale, player.getPosition().z);
-		
+		Position runner = new Position(0,0);
+		monstersOnSight.removeAllElements();
+		featuresOnSight.removeAllElements();
+		itemsOnSight.removeAllElements();
+
 		for (int x = 0; x < rcells.length; x++){
 			for (int y=0; y<rcells[0].length; y++){
 				if (rcells[x][y] != null && !rcells[x][y].getAppearance().getID().equals("NOTHING")){
 					CharAppearance app = (CharAppearance)rcells[x][y].getAppearance(); 
 					char cellChar = app.getChar();
-					if (vcells[x][y] == null)
+					if (environmentInfo.getCellsAround()[x][y] == null)
 						si.print(PC_POS.x-xrange+x,PC_POS.y-yrange+y, cellChar, ConsoleSystemInterface.GRAY);
-				} else if (vcells[x][y] == null || vcells[x][y].getID().equals("AIR")){
+				} else if (environmentInfo.getCellsAround()[x][y] == null || environmentInfo.getCellsAround()[x][y].getID().equals("AIR")){
 					si.print(PC_POS.x-xrange+x,PC_POS.y-yrange+y, CharAppearance.getVoidAppearance().getChar(), CharAppearance.BLACK);
+					
+					
 				}
-				runner.y+=yScale;
 			}
-			runner.y = player.getPosition().y-yrange*yScale;
-			runner.x += xScale;
 		}
 		
 		
-		runner.x = player.getPosition().x - xrange * xScale;
-		runner.y = player.getPosition().y-yrange * yScale;
+	
 		
-		monstersOnSight.removeAllElements();
-		featuresOnSight.removeAllElements();
-		itemsOnSight.removeAllElements();
-		
-		for (int x = 0; x < vcells.length; x++){
-			for (int y=0; y<vcells[0].length; y++){
+		for (int x = 0; x < environmentInfo.getCellsAround().length; x++){
+			runner.x = x - xrange;
+			for (int y=0; y<environmentInfo.getCellsAround()[0].length; y++){
+				runner.y = y - yrange;
 				FOVMask[PC_POS.x-xrange+x][PC_POS.y-yrange+y] = false;
-				if (vcells[x][y] != null){
+				if (environmentInfo.getCellsAround()[x][y] != null){
 					FOVMask[PC_POS.x-xrange+x][PC_POS.y-yrange+y] = true;
 					
-					CharAppearance cellApp = (CharAppearance)vcells[x][y].getAppearance();
+					CharAppearance cellApp = (CharAppearance)environmentInfo.getCellsAround()[x][y].getAppearance();
 					int cellColor = cellApp.getColor();
 					char cellChar = cellApp.getChar();
 					
 					if (player.isInvisible() || x!=xrange || y != yrange)
 						si.print(PC_POS.x-xrange+x,PC_POS.y-yrange+y, cellChar, cellColor);
-					List<AbstractFeature> feats = level.getFeaturesAt(runner);
+					List<AbstractFeature> feats = environmentInfo.getFeaturesAt(runner);
 					if (feats != null){
 						for (AbstractFeature feat: feats){
 							if (feat.isVisible()) {
@@ -235,11 +232,7 @@ public abstract class ConsoleUserInterface extends UserInterface implements Comm
 					
 					drawAfterCells(runner,PC_POS.x-xrange+x,PC_POS.y-yrange+y);
 					
-					List<AbstractItem> items = level.getItemsAt(runner);
-					AbstractItem item = null;
-					if (items != null){
-						item = items.get(0);
-					}
+					AbstractItem item = environmentInfo.getItemAt(runner);
 					if (item != null){
 						if (item.isVisible()){
 							CharAppearance itemApp = (CharAppearance)item.getAppearance();
@@ -255,7 +248,7 @@ public abstract class ConsoleUserInterface extends UserInterface implements Comm
 						}
 					}
 					
-					Actor monster = level.getActorAt(runner);
+					Actor monster = environmentInfo.getActorAt(runner);
 					if (monster != null && !monster.isInvisible()){
 						BasicListItem li = sightListItems.get(monster.getClassifierID());
 						if (li == null){
@@ -279,10 +272,7 @@ public abstract class ConsoleUserInterface extends UserInterface implements Comm
 				} else {
 					
 				}
-				runner.y += yScale;
 			}
-			runner.y = player.getPosition().y-yrange * yScale;
-			runner.x += xScale;
 		}
 		
 		idList.clear();
@@ -292,14 +282,6 @@ public abstract class ConsoleUserInterface extends UserInterface implements Comm
 		idList.addElements(featuresOnSight);
 	}
 	
-	protected int getXScale() {
-		return 1;
-	}
-	
-	protected int getYScale() {
-		return 1;
-	}
-
 	public void drawAfterCells(Position runner, int x, int y) {
 		
 	}

@@ -72,8 +72,8 @@ public abstract class AwareActor extends Actor{
 
 	public void seeMapCell(AbstractCell abstractCell) {}
 
-	public AbstractCell [][] getVisibleCellsAround(int xrange, int yrange){
-		return getLevel().getVisibleCellsAround(this, getPosition().x, getPosition().y, getPosition().z, xrange, yrange);
+	public EnvironmentInfo getEnvironmentAround(int xrange, int yrange){
+		return getLevel().getEnvironmentAroundActor(this, getPosition().x, getPosition().y, getPosition().z, xrange, yrange);
 	}
 	
 	public void landOn (Position destinationPoint) throws ActionCancelException {

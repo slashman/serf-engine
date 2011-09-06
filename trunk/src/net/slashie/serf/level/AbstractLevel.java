@@ -10,6 +10,7 @@ import java.util.Map;
 
 import net.slashie.serf.action.Actor;
 import net.slashie.serf.action.AwareActor;
+import net.slashie.serf.action.EnvironmentInfo;
 import net.slashie.serf.action.Message;
 import net.slashie.serf.baseDomain.AbstractItem;
 import net.slashie.serf.fov.FOVMap;
@@ -17,6 +18,7 @@ import net.slashie.serf.game.Player;
 import net.slashie.serf.game.SworeGame;
 import net.slashie.serf.ui.Effect;
 import net.slashie.serf.ui.UserInterface;
+import net.slashie.serf.ui.oryxUI.GFXAppearance;
 import net.slashie.utils.Counter;
 import net.slashie.utils.Debug;
 import net.slashie.utils.Position;
@@ -256,38 +258,64 @@ public abstract class AbstractLevel implements FOVMap, Serializable{
 		player.setLevel(this);
 	}
 
-	public AbstractCell[][] getVisibleCellsAround(AwareActor watcher, int x, int y, int z, int xspan, int yspan){
+	public EnvironmentInfo getEnvironmentAroundActor(AwareActor watcher, int x, int y, int z, int xspan, int yspan){
+		EnvironmentInfo ret = new EnvironmentInfo();
 		int xstart = x - xspan;
 		int ystart = y - yspan;
 		int xend = x + xspan;
 		int yend = y + yspan;
-		AbstractCell [][] ret = new AbstractCell [2 * xspan + 1][2 * yspan + 1];
+		AbstractCell[][] cellsAround = new AbstractCell [2 * xspan + 1][2 * yspan + 1];
 		int px = 0;
+		Position runner = new Position(0,0);
 		for (int ix = xstart; ix <=xend; ix++){
+			runner.x = ix;
 			int py = 0;
 			for (int iy =  ystart ; iy <= yend; iy++){
+				runner.y = iy;
 				if (ix >= 0 && ix < getWidth() && iy >= 0 && iy < getHeight() && isVisible(ix, iy, z)){
-					ret[px][py] = getMapCell(ix, iy, z);
-					watcher.seeMapCell(ret[px][py]);
+					cellsAround[px][py] = getMapCell(ix, iy, z);
+					watcher.seeMapCell(cellsAround[px][py]);
 					/* Look to the cells behind
 					 */
-					if (isValidCoordinate(ix,iy,z) && (ret[px][py] == null || ret[px][py].getID().equals("AIR"))){
+					if (isValidCoordinate(ix,iy,z) && (cellsAround[px][py] == null || cellsAround[px][py].getID().equals("AIR"))){
 						int pz = z;
 						while (pz < getDepth()-1){
 							if (getMapCell(ix, iy, pz+1) == null || getMapCell(ix, iy, pz+1).getID().equals("AIR")){
 								pz++;
 							} else {
-								ret[px][py] = getMapCell(ix, iy, pz+1);
-								watcher.seeMapCell(ret[px][py]);
+								cellsAround[px][py] = getMapCell(ix, iy, pz+1);
+								watcher.seeMapCell(cellsAround[px][py]);
 								break;
 							}
 						}
+					}
+					
+					List<AbstractFeature> feats = getFeaturesAt(runner);
+					if (feats != null){
+						ret.addFeature(px-xspan, py-yspan, feats);
+					}
+					
+					List<AbstractItem> items = getItemsAt(runner);
+					AbstractItem item = null;
+					if (items != null){
+						item = items.get(0);
+					}
+					if (item != null){
+						if (item.isVisible()){
+							ret.addItem(px-xspan, py-yspan, item);
+						}
+					}
+					
+					Actor actor = getActorAt(runner);
+					if (actor != player && actor != null && !actor.isInvisible()){
+						ret.addActor(px-xspan, py-yspan, actor);
 					}
 				}
 				py++;
 			}
 			px++;
 		}
+		ret.setCellsAround(cellsAround);
 		return ret;
 	}
 	
