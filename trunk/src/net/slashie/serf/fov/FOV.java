@@ -28,7 +28,7 @@ import net.slashie.utils.Position;
 public class FOV {
 	private final static boolean DEBUG = false;
 	private int xScale = 1;
-	private int yScale = 1;
+	protected int yScale = 1;
 	
 	public void setScale(int xScale, int yScale) {
 		this.xScale = xScale;
@@ -897,9 +897,10 @@ public class FOV {
 		}
 	}
 	
-	private int maxRadius;
-	private int startX, startY;
-	private boolean circle;
+	protected int maxRadius;
+	protected int startX;
+	protected int startY;
+	protected boolean circle;
 	
 	public void startCircle(FOVMap map, int x, int y, int range){
 		circle = true;
@@ -1103,7 +1104,7 @@ public class FOV {
 		}
 	}
 	
-	boolean scanCell(FOVMap map, int x, int y)
+	public  boolean scanCell(FOVMap map, int x, int y)
 	{
 		int relx = x - startX;
 		int rely = y - startY;
@@ -1114,7 +1115,7 @@ public class FOV {
 	}
 	
 	
-	void applyCell(FOVMap map, int x, int y)
+	public void applyCell(FOVMap map, int x, int y)
 	{
 		int relx = x - startX;
 		int rely = y - startY;
