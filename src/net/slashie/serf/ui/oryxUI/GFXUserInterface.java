@@ -27,6 +27,7 @@ import javax.swing.SwingUtilities;
 import net.slashie.libjcsi.CharKey;
 import net.slashie.serf.action.Action;
 import net.slashie.serf.action.Actor;
+import net.slashie.serf.action.EnvironmentInfo;
 import net.slashie.serf.action.Message;
 import net.slashie.serf.baseDomain.AbstractItem;
 import net.slashie.serf.game.Equipment;
@@ -558,32 +559,29 @@ public abstract class GFXUserInterface extends UserInterface implements Runnable
 		return FOVMask[x][y];
 	}
 	
-	public int getXScale(){
-		return 1;
-	}
-	
-	public int getYScale(){
-		return 1;
-	}
-
 	private synchronized void drawLevel(){
-		AbstractCell[] [] rcells = level.getMemoryCellsAround(player.getPosition().x,player.getPosition().y, player.getPosition().z, xrange,yrange);
-		AbstractCell[] [] vcells = player.getVisibleCellsAround(xrange,yrange);
+		AbstractCell [][] rcells = level.getMemoryCellsAround(player.getPosition().x,player.getPosition().y, player.getPosition().z, xrange,yrange);
+		EnvironmentInfo environmentInfo = player.getEnvironmentAround(xrange,yrange);
+		AbstractCell [][] vcells = environmentInfo.getCellsAround();
 
-		int xScale = getXScale();
-		int yScale = getYScale();
-		Position runner = new Position(player.getPosition().x - xrange * xScale, player.getPosition().y-yrange*yScale, player.getPosition().z);
 		
 		monstersOnSight.removeAllElements();
 		featuresOnSight.removeAllElements();
 		itemsOnSight.removeAllElements();
 		
-		for (int y = 0; y < vcells[0].length; y++){
-			for (int x=0; x<vcells.length; x++){
+		Position runner = new Position(0,0);
+		for (int y = 0; y < yrange*2+1; y++){
+			runner.y = y-yrange;
+			for (int x=0; x < xrange*2+1; x++){
+				runner.x = x-xrange;
+				
 				FOVMask[PC_POS.x-xrange+x][PC_POS.y-yrange+y] = false;
+				
+				// Draw the visible cells
 				if (vcells[x][y] == null || vcells[x][y].getID().equals("AIR")){
 					if (rcells[x][y] != null && !rcells[x][y].getAppearance().getID().equals("NOTHING")){
 						GFXAppearance app = (GFXAppearance)rcells[x][y].getAppearance();
+						// Draw Cells
 						try {
 							si.drawImage(getMapLayer(),(PC_POS.x-xrange+x)*tileSize,(PC_POS.y-yrange+y)*tileSize-app.getSuperHeight(), app.getDarkImage());
 						} catch (NullPointerException npe){
@@ -601,14 +599,12 @@ public abstract class GFXUserInterface extends UserInterface implements Runnable
 					FOVMask[PC_POS.x-xrange+x][PC_POS.y-yrange+y] = true;
 					GFXAppearance cellApp = (GFXAppearance)vcells[x][y].getAppearance();
 					si.drawImage(getMapLayer(), (PC_POS.x-xrange+x)*tileSize,(PC_POS.y-yrange+y)*tileSize-cellApp.getSuperHeight(), cellApp.getImage());
-				}
-			}
-			runner.x = player.getPosition().x-xrange*xScale;
-			for (int x=0; x<vcells.length; x++){
-				int cellHeight = 0;
-				if (vcells[x][y] != null){
-					cellHeight = vcells[x][y].getHeight();
-					List<AbstractFeature> feats = level.getFeaturesAt(runner);
+					
+					int cellHeight = vcells[x][y].getHeight();
+
+					
+					//  Draw Features
+					List<AbstractFeature> feats = environmentInfo.getFeaturesAt(runner);
 					if (feats != null){
 						for (AbstractFeature feat: feats){
 							if (feat.isVisible()) {
@@ -619,11 +615,7 @@ public abstract class GFXUserInterface extends UserInterface implements Runnable
 					}
 					
 					
-					List<AbstractItem> items = level.getItemsAt(runner);
-					AbstractItem item = null;
-					if (items != null){
-						item = items.get(0);
-					}
+					AbstractItem item = environmentInfo.getItemAt(runner);
 					if (item != null){
 						if (item.isVisible()){
 							GFXAppearance itemApp = (GFXAppearance)item.getAppearance();
@@ -647,16 +639,15 @@ public abstract class GFXUserInterface extends UserInterface implements Runnable
 								si.drawImage(getMapLayer(), PC_POS.x*tileSize-playerAppearance.getSuperWidth(),PC_POS.y*tileSize-playerAppearance.getSuperHeight(), playerImage);
 						}
 					}
-					Actor actor = level.getActorAt(runner);
+					Actor actor = environmentInfo.getActorAt(runner);
 					if (actor != player && actor != null && !actor.isInvisible()){
 						GFXAppearance monsterApp = (GFXAppearance) actor.getAppearance();
 						si.drawImage(getMapLayer(), (PC_POS.x-xrange+x)*tileSize-monsterApp.getSuperWidth(),(PC_POS.y-yrange+y)*tileSize-4*cellHeight-monsterApp.getSuperHeight(), monsterApp.getImage());
 					}
 				}
-				runner.x+=xScale;
-			} 
-			runner.x = player.getPosition().x-xrange*xScale;
-			runner.y += yScale;
+				
+				// Draw the features and other actors
+			}
 		}
 	}
 	
