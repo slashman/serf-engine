@@ -131,6 +131,8 @@ public class BorderedMenuBox extends AddornedBorderPanel {
 		final int pageElements = itemsPerPage;
 		BlockingQueue<Integer> selectionQueue = new LinkedBlockingQueue<Integer>(1);
 		// Keyboard Selection
+		
+		final long selectionStart = System.currentTimeMillis(); 
 
 		CallbackKeyListener<Integer> cbkl = new CallbackKeyListener<Integer>(selectionQueue){
 			@Override
@@ -158,6 +160,12 @@ public class BorderedMenuBox extends AddornedBorderPanel {
 		CallbackMouseListener<Integer> cbml = new CallbackMouseListener<Integer>(selectionQueue){
 			@Override
 			public void mouseClicked(MouseEvent e) {
+				long currentTime = System.currentTimeMillis();
+				if (currentTime - selectionStart < 500){
+					// Too soon, ignore this event
+					return;
+				}
+					
 				try {
 					int selectedItem = getSelectedItemByClick(e.getPoint());
 					if (selectedItem != -1)
