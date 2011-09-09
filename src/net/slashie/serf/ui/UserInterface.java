@@ -176,17 +176,6 @@ public abstract class UserInterface implements CommandListener {
 				showInventory();
 				break;
 			case SWITCHMUSIC:
-				
-				/*boolean enabled = STMusicManagerNew.thus.isEnabled();
-				if (enabled){
-					showMessage("Turn off music");
-					STMusicManagerNew.thus.stopMusic();
-					STMusicManagerNew.thus.setEnabled(false);
-				} else {
-					showMessage("Turn on music");
-					STMusicManagerNew.thus.setEnabled(true);
-					onMusicOn();
-				}*/
 				currentSoundCycle = currentSoundCycle.nextCycle();
 				STMusicManagerNew.thus.setVolume(currentSoundCycle.getGain());
 				showMessage("Music volume set to "+currentSoundCycle.getDescription());
@@ -215,10 +204,10 @@ public abstract class UserInterface implements CommandListener {
 		MUTE (0.0d, "Mute");
 		
 		public SoundCycle nextCycle(){
-			if (ordinal() < values().length-1)
-				return values()[ordinal()+1];
+			if (ordinal() > 0)
+				return values()[ordinal()-1];
 			else
-				return values()[0];
+				return values()[values().length-1];
 		}
 		
 		private double dblGain;
