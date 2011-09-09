@@ -24,15 +24,34 @@ public class STMidiPlayer implements Runnable {
 	}
 	
 	public static void setVolume(double gain){
-		Synthesizer synthesizer = (Synthesizer)sequencer;
-        MidiChannel[] channels = synthesizer.getChannels();
-        // gain is a value between 0 and 1 (loudest)
-        for (int i=0; i<channels.length; i++) {
-            channels[i].controlChange(7, (int)(gain * 127.0d));
-        }
+		/* TAKE 1, failure
+		 * try {
+			Synthesizer synthesizer = MidiSystem.getSynthesizer();
+			MidiChannel[] channels = synthesizer.getChannels();
+	        // gain is a value between 0 and 1 (loudest)
+	        for (int i=0; i<channels.length; i++) {
+	            channels[i].controlChange(7, (int)(gain * 127.0d));
+	        }
+		} catch (MidiUnavailableException e) {
+			e.printStackTrace();
+		}*/
+		/* TAKE 2, failure */
+		/*ShortMessage volMessage = new ShortMessage();
+		for (int i = 0; i < 16; i++) {
+			try {
+				volMessage.setMessage(ShortMessage.CONTROL_CHANGE, i, 7, (int)(gain * 127.0d));
+			} catch (InvalidMidiDataException e) {}
+			receiver.send(volMessage, -1);
+		}*/
+		
+		/* This is all I can do */
+
+		
 	}
 	
-	public static Sequencer sequencer;
+	private static Sequencer sequencer;
+	private static Receiver receiver;
+
 	
 	public synchronized void run() {
 		boolean leave = false;
@@ -119,5 +138,15 @@ public class STMidiPlayer implements Runnable {
 
 	public static void addReport(String report){
 		System.err.println(report);
+	}
+
+	
+	public static void initializeSequencer() throws MidiUnavailableException {
+		sequencer = MidiSystem.getSequencer ();
+		/**/ receiver = MidiSystem.getReceiver();
+		sequencer.open();
+		/**/ sequencer.getTransmitter().setReceiver(receiver);
+		
+		
 	}
 }
