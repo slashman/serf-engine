@@ -9,12 +9,9 @@ import java.util.concurrent.LinkedBlockingQueue;
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
-import javax.sound.sampled.Control;
 import javax.sound.sampled.DataLine;
 import javax.sound.sampled.FloatControl;
-import javax.sound.sampled.Port;
 import javax.sound.sampled.SourceDataLine;
-import javax.sound.sampled.Control.Type;
 
 
 public class SFXManager {
@@ -70,7 +67,7 @@ public class SFXManager {
 			DataLine.Info info;
 		}
 		private Map<String, PlaybackInfo> map = new HashMap<String, PlaybackInfo>();
-		private float lineVolume;
+		private float lineVolume = 1.0f;
 		
 		public void play (String file){
 		   try{
