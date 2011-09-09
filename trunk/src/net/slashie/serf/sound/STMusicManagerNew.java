@@ -12,6 +12,8 @@ public class STMusicManagerNew {
 	private Map<String, String> musics = new Hashtable<String, String>();
 	private boolean enabled;
 	private String playing = "__nuthin";
+	private boolean midiDisabled = false;
+	private String wasPlaying;
 	
 	public static STMusicManagerNew thus;
 	
@@ -39,6 +41,34 @@ public class STMusicManagerNew {
 	
 	public void setVolume(double volume){
 		JavaZoomBasicPlayerMP3Player.doSetVolume(volume);
+		if (volume == 0.0d){
+			if (midiDisabled ){
+				// disabled already, do naught
+			} else {
+				midiDisabled = true;
+				if (!playing.equals("__nuthin"))
+					wasPlaying = playing;
+				else
+					wasPlaying = "";
+				//Stop the music
+				if (playing.endsWith("mid") || playing.endsWith("midi")) {
+					stopMusic();
+				}
+			}
+		} else {
+			if (midiDisabled){
+				// enable
+				midiDisabled = false;
+				// resume playing
+				if (!wasPlaying.equals(""))
+					play(wasPlaying);
+			} else {
+				// Enabled already, do nothing
+			}
+		}
+		
+		// This isn't working for midi :( STMidiPlayer.setVolume(volume);
+
 	}
 	
 	public boolean isEnabled(){
@@ -62,6 +92,8 @@ public class STMusicManagerNew {
 			if (fileName.endsWith("mp3")){
 				JavaZoomBasicPlayerMP3Player.thus.play(fileName);
 			} else if (fileName.endsWith("mid") || fileName.endsWith("midi")) {
+				if (midiDisabled)
+					return;
 				STMidiPlayer.setMidi(fileName);
 				STMidiPlayer.setInstruction(STMidiPlayer.INS_LOAD);
 				if (currentMidiThread != null){
@@ -84,6 +116,8 @@ public class STMusicManagerNew {
 			if (fileName.endsWith("mp3")){
 				JavaZoomBasicPlayerMP3Player.thus.play(fileName);
 			} else if (playing.endsWith("mid") || playing.endsWith("midi")) {
+				if (midiDisabled)
+					return;
 				STMidiPlayer.setMidi(fileName);
 				STMidiPlayer.setInstruction(STMidiPlayer.INS_LOAD_ONCE);
 				if (currentMidiThread != null){

@@ -138,9 +138,7 @@ public class RunGame {
     		    } else {
     		    	System.out.println("Initializing Midi Sequencer");
     	    		try {
-    	    			STMidiPlayer.sequencer = MidiSystem.getSequencer ();
-    	    			//STMidiPlayer.setVolume(0.1d);
-    	    			STMidiPlayer.sequencer.open();
+    	    			STMidiPlayer.initializeSequencer();
     	    			
     	    		} catch(MidiUnavailableException mue) {
     	            	SworeGame.addReport("Midi device unavailable");
