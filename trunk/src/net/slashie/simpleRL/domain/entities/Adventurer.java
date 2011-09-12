@@ -56,7 +56,12 @@ public class Adventurer extends Player{
 	}
 	
 	@Override
-	public int getSightRange() {
+	public int getSightRangeInCells() {
+		return 5;
+	}
+	
+	@Override
+	public int getSightRangeInDots() {
 		return 5;
 	}
 	

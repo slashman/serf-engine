@@ -12,7 +12,12 @@ public class Monster extends AwareActor{
 	}
 	
 	@Override
-	public int getSightRange() {
+	public int getSightRangeInCells() {
+		return 4;
+	}
+	
+	@Override
+	public int getSightRangeInDots() {
 		return 4;
 	}
 	

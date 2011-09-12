@@ -6,12 +6,14 @@ import net.slashie.utils.Position;
 
 public abstract class AwareActor extends Actor{
 	
-	public abstract int getSightRange();
+	public abstract int getSightRangeInCells();
+	public abstract int getSightRangeInDots();
+
 	
 	public int stare(Actor target) {
 		if (target == null || target.isInvisible() || target.getPosition().z != getPosition().z)
 			return -1;
-		if (getLevel().getDistance(target.getPosition(), getPosition()) <= getSightRange()){
+		if (getLevel().getDistance(target.getPosition(), getPosition()) <= getSightRangeInDots()){
 			Position pp = getLevel().getPlayer().getPosition();
 			if (pp.x == getPosition().x){
 				if (pp.y > getPosition().y){
@@ -67,7 +69,7 @@ public abstract class AwareActor extends Actor{
 		}
 		return true;*/
 		
-		return wasSeen() && mainTarget.getLevel().getDistance(mainTarget.getPosition(), getPosition()) <= getSightRange();
+		return wasSeen() && mainTarget.getLevel().getDistance(mainTarget.getPosition(), getPosition()) <= getSightRangeInDots();
 	}
 
 	public void seeMapCell(AbstractCell abstractCell) {}
