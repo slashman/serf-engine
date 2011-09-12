@@ -472,13 +472,11 @@ public abstract class AbstractLevel implements FOVMap, Serializable{
 	
 	private Position tempSeen = new Position(0,0);
 	
-	
-	
 	public void setSeen(int x, int y) {
 		if (!isValidCoordinate(x,y))
 			return;
 		tempSeen.x = x; tempSeen.y = y; tempSeen.z = player.getPosition().z;
-		if (getDistance(tempSeen, player.getPosition())<= player.getSightRange() || isLit(tempSeen)){
+		if (getDistance(tempSeen, player.getPosition())<= player.getSightRangeInDots() || isLit(tempSeen)){
 			markVisible(x, y, player.getPosition().z);
 			markRemembered(x, y, player.getPosition().z);
 			Actor m = getActorAt(tempSeen);

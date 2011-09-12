@@ -273,8 +273,6 @@ public abstract class Player extends AwareActor {
 		return "";
 	}
 
-	public abstract int getSightRange();
-	
 	public abstract int getDarkSightRange();
 
 	public void setFOV(FOV fov){
