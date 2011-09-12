@@ -49,7 +49,7 @@ public class CharSplashEffect extends CharEffect{
 		Position runner = new Position(0, radius);
 		Position zero = new Position(0,0);
 		while (true) {
-			if (Position.flatDistance(zero, runner) <= radius)
+			if (Position.distance(zero, runner) <= radius)
 				drawCirclePixels(ui, p, runner.x,runner.y, tile, color);
 			if (d < 0)
 				d = d + (4*runner.x)+6;

@@ -1,5 +1,6 @@
 package net.slashie.utils;
 
+@SuppressWarnings("serial")
 public class Position implements java.io.Serializable {
 	public int x,y,z;
 
@@ -79,26 +80,18 @@ public class Position implements java.io.Serializable {
 		return "("+x+","+y+","+z+")";
 	}
 
-	public static int flatDistance(Position a, Position b){
-		return (int) Math.sqrt(Math.pow(a.x - b.x, 2) + Math.pow (a.y - b.y, 2));
-	}
-
-	public static int flatDistance(int x1, int y1, int x2, int y2){
-		return (int) Math.sqrt(Math.pow(x1 - x2, 2) + Math.pow (y1 - y2, 2));
-	}
-	
-	public static int flatDistanceRound(int x1, int y1, int x2, int y2){
-		return (int) Math.floor(Math.sqrt((x1 - x2)*(x1 - x2) + (y1 - y2)*(y1-y2)));
-	}
-	
 	public static int distance(Position a, Position b){
 		return (int) Math.sqrt(Math.pow(a.x - b.x, 2) + Math.pow (a.y - b.y, 2));
 	}
-	
-/*	public static int distance(Position a, Position b){
-		return (int) Math.s(Math.pow(a.x - b.x, 2) + Math.pow (a.y - b.y, 2));
-	}*/
 
+	public static int distance(int x1, int y1, int x2, int y2){
+		return (int) Math.sqrt(Math.pow(x1 - x2, 2) + Math.pow (y1 - y2, 2));
+	}
+	
+	public static int distanceRound(int x1, int y1, int x2, int y2){
+		return (int) Math.floor(Math.sqrt((x1 - x2)*(x1 - x2) + (y1 - y2)*(y1-y2)));
+	}
+	
 	public void add(Position p){
 		x += p.x;
 		y += p.y;
