@@ -11,7 +11,7 @@ public abstract class AwareActor extends Actor{
 	public int stare(Actor target) {
 		if (target == null || target.isInvisible() || target.getPosition().z != getPosition().z)
 			return -1;
-		if (Position.flatDistance(target.getPosition(), getPosition()) <= getSightRange()){
+		if (getLevel().getDistance(target.getPosition(), getPosition()) <= getSightRange()){
 			Position pp = getLevel().getPlayer().getPosition();
 			if (pp.x == getPosition().x){
 				if (pp.y > getPosition().y){
@@ -67,7 +67,7 @@ public abstract class AwareActor extends Actor{
 		}
 		return true;*/
 		
-		return wasSeen() && Position.distance(mainTarget.getPosition(), getPosition()) <= getSightRange();
+		return wasSeen() && mainTarget.getLevel().getDistance(mainTarget.getPosition(), getPosition()) <= getSightRange();
 	}
 
 	public void seeMapCell(AbstractCell abstractCell) {}

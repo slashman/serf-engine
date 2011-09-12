@@ -44,7 +44,7 @@ public class SimpleAI extends BasicAI{
 		int targetDistance = 500;
 		if (getMainTarget(who) != null){
 			directionToTarget = aware.stare(getMainTarget(who));
-			targetDistance = Position.flatDistance(who.getPosition(), getMainTarget(who).getPosition());
+			targetDistance = aware.getLevel().getDistance(who.getPosition(), getMainTarget(who).getPosition());
 			if (lastKnowTargetPosition == null){
 				lastKnowTargetPosition = getMainTarget(who).getPosition();
 			}

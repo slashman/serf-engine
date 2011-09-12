@@ -160,7 +160,7 @@ public abstract class AbstractLevel implements FOVMap, Serializable{
 			lightAt(what.getPosition(), what.getLight(), false);
 			for(int i = 0; i < lightSources.size(); i++){
 				AbstractFeature lightSource = lightSources.get(i);
-				if (Position.distance(what.getPosition(), lightSource.getPosition()) < 10){
+				if (getDistance(what.getPosition(), lightSource.getPosition()) < 10){
 					lightAt(lightSource.getPosition(), lightSource.getLight(), true); 
 				}
 			}
@@ -232,7 +232,7 @@ public abstract class AbstractLevel implements FOVMap, Serializable{
 				lightRunner.x = x; lightRunner.y = y;
 				if (!isValidCoordinate(lightRunner))
 					continue;
-				if (Position.distance(where, lightRunner) <= intensity){
+				if (getDistance(where, lightRunner) <= intensity){
 					if (light)
 						markLit(x,y,where.z);
 					else
@@ -418,7 +418,7 @@ public abstract class AbstractLevel implements FOVMap, Serializable{
 	public void signal (Position center, int range, String message){
 		List<Actor> actors = dispatcher.getActors();
 		for (Actor actor: actors){
-			if (Position.flatDistance(center, actor.getPosition()) <= range)
+			if (getDistance(center, actor.getPosition()) <= range)
 				actor.message(message);
 		}
 	}
@@ -478,7 +478,7 @@ public abstract class AbstractLevel implements FOVMap, Serializable{
 		if (!isValidCoordinate(x,y))
 			return;
 		tempSeen.x = x; tempSeen.y = y; tempSeen.z = player.getPosition().z;
-		if (Position.distance(tempSeen, player.getPosition())<= player.getSightRange() || isLit(tempSeen)){
+		if (getDistance(tempSeen, player.getPosition())<= player.getSightRange() || isLit(tempSeen)){
 			markVisible(x, y, player.getPosition().z);
 			markRemembered(x, y, player.getPosition().z);
 			Actor m = getActorAt(tempSeen);
@@ -488,6 +488,10 @@ public abstract class AbstractLevel implements FOVMap, Serializable{
 		}
 	}
 	
+	public int getDistance(Position a, Position b) {
+		return Position.distance(a, b);
+	}
+
 	public void darken(){
 		for (int z = 0; z < getDepth(); z++)
 			for (int x = 0; x < getWidth(); x++)

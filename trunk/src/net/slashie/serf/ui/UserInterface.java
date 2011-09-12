@@ -41,7 +41,7 @@ public abstract class UserInterface implements CommandListener {
 		for (Actor actor: actors){
 			if (actor.getPosition().z() != level.getPlayer().getPosition().z())
 				continue;
-			int distance = Position.flatDistance(level.getPlayer().getPosition(), actor.getPosition());
+			int distance = level.getDistance(level.getPlayer().getPosition(), actor.getPosition());
 			if (distance < maxDist && distance< minDist && player.sees(actor)){
 				minDist = distance;
 				nearActor = actor;

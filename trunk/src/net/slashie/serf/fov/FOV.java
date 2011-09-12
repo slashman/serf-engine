@@ -1123,7 +1123,7 @@ public class FOV {
 		int gridY = startY + rely * yScale;
 		
 		if (circle){
-			int distance = Position.flatDistanceRound(relx, rely, 0, 0);
+			int distance = Position.distanceRound(relx, rely, 0, 0);
 			if (distance > maxRadius)
 				return;
 			if (DEBUG)
