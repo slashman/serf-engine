@@ -18,12 +18,10 @@ import net.slashie.serf.game.Player;
 import net.slashie.serf.game.SworeGame;
 import net.slashie.serf.ui.Effect;
 import net.slashie.serf.ui.UserInterface;
-import net.slashie.serf.ui.oryxUI.GFXAppearance;
 import net.slashie.utils.Counter;
 import net.slashie.utils.Debug;
 import net.slashie.utils.Position;
 import net.slashie.utils.SZQueue;
-
 
 public abstract class AbstractLevel implements FOVMap, Serializable{
 	private String ID;
@@ -166,7 +164,11 @@ public abstract class AbstractLevel implements FOVMap, Serializable{
 			}
 		}
 		features.remove(what);
-		featuresMap.get(what.getPosition().toString()).remove(what); 
+		List<AbstractFeature> featuresList = featuresMap.get(what.getPosition().toString());
+		featuresList.remove(what);
+		if (featuresList.size() == 0){
+			featuresMap.remove(what.getPosition().toString());
+		}
 	}
 
 	public AbstractCell getMapCell(Position where){
