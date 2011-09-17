@@ -58,7 +58,7 @@ public class CleanButton extends JButton{
 						xLocation -= diff;
 					}
 					legendLabel.setText(getPopupText());
-					legendLabel.setLocation(xLocation, b.getLocationOnScreen().y+18-ssi.getScreenPosition().y);
+					legendLabel.setLocation(xLocation, b.getLocationOnScreen().y+getHeight()-ssi.getScreenPosition().y);
 					legendLabel.setVisible(true);
 				}
 				
