@@ -269,7 +269,7 @@ public abstract class SworeGame implements CommandListener, PlayerEventListener,
 	}
 	
 	public static String getVersion(){
-		return "0.22 - r198";
+		return "0.23 - r202";
 	}
 	
 	public void setInterfaces(UserInterface pui, UISelector ps){
