@@ -1,6 +1,5 @@
 package net.slashie.serf.ui.oryxUI;
 
-
 import java.awt.Color;
 import java.awt.Cursor;
 import java.awt.Font;
@@ -824,7 +823,7 @@ public abstract class GFXUserInterface extends UserInterface implements Runnable
 		/*-- Init Components*/
 		messageBox = new SwingInformBox();
 		/*idList = new ListBox(psi);*/
-		messageBox.setBounds(1*10,22*24,78*10,2*24);
+		messageBox.setBounds(PropertyFilters.getRectangle(UIProperties.getProperty("MSGBOX_BOUNDS")));
 		messageBox.setForeground(COLOR_LAST_MESSAGE);
 		messageBox.setBackground(Color.BLACK);
 		messageBox.setFont(FNT_MESSAGEBOX);
