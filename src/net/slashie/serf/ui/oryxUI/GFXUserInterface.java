@@ -1228,8 +1228,6 @@ public abstract class GFXUserInterface extends UserInterface implements Runnable
 		si.waitKeys(CharKey.ENTER, CharKey.SPACE, CharKey.ESC);
 	}
 	
-	
-
 	public void setPlayer(Player pPlayer) {
 		super.setPlayer(pPlayer);
 		flipFacing = false;
@@ -1245,7 +1243,6 @@ public abstract class GFXUserInterface extends UserInterface implements Runnable
 			x = si.inkey();
 	}
 
-
 	private void drawStepsTo(int x, int y, Image tile, int cellHeight){
 		Position target = new Position(x,y);
 		Line line = new Line(PC_POS, target);
@@ -1256,10 +1253,6 @@ public abstract class GFXUserInterface extends UserInterface implements Runnable
 		}
 		
 	}
-	
-	
-	
-	
 	
 	public Vector getMessageBuffer() {
 		//return new Vector(messageHistory.subList(0,21));
@@ -1419,7 +1412,12 @@ public abstract class GFXUserInterface extends UserInterface implements Runnable
 		si.loadAndDrawLayer(getUILayer());
 	}
 	
+	protected void hideStandardMessageBox(){
+		messageBox.setVisible(false);
+	}
 	
+	protected void showStandardMessageBox(){
+	}
 }
 
 
