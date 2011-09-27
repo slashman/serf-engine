@@ -192,7 +192,7 @@ public abstract class GFXUserInterface extends UserInterface implements Runnable
     	isCursorEnabled = false;
     }
     
-    private void leaveScreen(){
+    protected void leaveScreen(){
     	messageBox.setVisible(true);
     	isCursorEnabled = true;
     }
