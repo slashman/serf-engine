@@ -185,6 +185,9 @@ public abstract class UserInterface implements CommandListener {
 				SFXManager.setVolume(currentSFXCycle.getGain());
 				showMessage("SFX volume set to "+currentSFXCycle.getDescription());
 				break;
+			case SHOWMESSAGEHISTORY:
+				showMessageHistory();
+				break;
 		}
 	}
 	
