@@ -83,11 +83,11 @@ public abstract class AbstractLevel implements FOVMap, Serializable{
 	}
 
 	public void addMessage(String what){
-		addMessage(new Message(what, player.getPosition()));
+		addMessage(what, player.getPosition());
 	}
 
 	public void addMessage(String what, Position where){
-		addMessage(new Message(what, where));
+		addMessage(new Message(what, where, "-"));
 	}
 
 	public void addActor (Actor what){

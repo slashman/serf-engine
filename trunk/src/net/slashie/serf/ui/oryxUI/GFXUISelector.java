@@ -238,7 +238,7 @@ public class GFXUISelector extends UISelector implements ActionSelector, Seriali
 	                    	return ret;
 						}
 					}catch (ActionCancelException ace){
-		 				ui().addMessage(new Message("- Cancelled", player.getPosition()));
+						//player.getLevel().addMessage("Cancelled Action");
 						continue;
 					}
 				}
@@ -264,7 +264,7 @@ public class GFXUISelector extends UISelector implements ActionSelector, Seriali
                      	mousePosition = null;
                     	return ret;
 					} catch (ActionCancelException ace){
-		 				ui().addMessage(new Message("- Cancelled", player.getPosition()));
+						//player.getLevel().addMessage("Cancelled Action");
 						continue;
 					}
 				}
@@ -300,7 +300,7 @@ public class GFXUISelector extends UISelector implements ActionSelector, Seriali
 			if (advance.canPerform(player)){
 				return advance;
 			} else {
-				ui().addMessage(new Message(advance.getInvalidationMessage(), player.getPosition()));
+				player.getLevel().addMessage(advance.getInvalidationMessage());
 				return null;
 			}
 		}
