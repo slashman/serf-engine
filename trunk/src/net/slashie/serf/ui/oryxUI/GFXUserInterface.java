@@ -216,9 +216,8 @@ public abstract class GFXUserInterface extends UserInterface implements Runnable
 			si.print(getUILayer(), 1,i+2, (String)messageHistory.elementAt(messageHistory.size()-1-i), Color.WHITE);
 		}
 		
-		si.print(getUILayer(), 55, 24, "[ Space to Continue ]", Color.WHITE);
 		si.commitLayer(getUILayer());
-		si.waitKeys(CharKey.ENTER, CharKey.SPACE, CharKey.ESC);
+		si.waitKeysOrClick(CharKey.ENTER, CharKey.SPACE, CharKey.ESC);
 		resetMapLayer();
 		leaveScreen();
 	}
