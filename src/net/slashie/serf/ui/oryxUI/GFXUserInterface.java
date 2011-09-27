@@ -15,6 +15,7 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 import java.util.Vector;
@@ -74,7 +75,8 @@ public abstract class GFXUserInterface extends UserInterface implements Runnable
 	
 	private boolean eraseOnArrival; // Erase the buffer upon the arrival of a new msg
 	private boolean flipFacing;
-	private Vector<String> messageHistory = new Vector<String>(10);
+	private List<String> resumedMessageHistory = new ArrayList<String>();
+	private List<Message> messageHistory = new ArrayList<Message>();
 	
 	// Relations
 
@@ -209,11 +211,22 @@ public abstract class GFXUserInterface extends UserInterface implements Runnable
     	enterScreen();
 		saveMapLayer();
 		si.drawImage(getUILayer(), IMG_STATUSSCR_BGROUND);
-		si.print(getUILayer(), 1, 1, "Message Buffer", COLOR_BOLD);
-		for (int i = 0; i < 22; i++){
-			if (i >= messageHistory.size())
-				break;
-			si.print(getUILayer(), 1,i+2, (String)messageHistory.elementAt(messageHistory.size()-1-i), Color.WHITE);
+		si.print(getUILayer(), 1, 1, "Message History", COLOR_BOLD);
+		int fromIndex = messageHistory.size()-23;
+		if (fromIndex < 0)
+			fromIndex = 0;
+		List<Message> latestMessages = messageHistory.subList(fromIndex, messageHistory.size());
+		String previousTime = "noTime";
+		for (int i = 0; i < latestMessages.size(); i++){
+			Message m = latestMessages.get(i);
+			String time = m.getTime();
+			if (!time.equals(previousTime)){
+				si.print(getUILayer(), 1,i+2, m.getTime()+": "+m.getText(), COLOR_BOLD);
+			} else {
+				si.print(getUILayer(), 1,i+2, m.getText(), Color.WHITE);
+			}
+			previousTime = time;
+			
 		}
 		
 		si.commitLayer(getUILayer());
@@ -656,12 +669,13 @@ public abstract class GFXUserInterface extends UserInterface implements Runnable
 		if (message.getLocation().z != player.getPosition().z || !insideViewPort(getAbsolutePosition(message.getLocation()))){
 			return;
 		}
+		messageHistory.add(message);
 		
-		if (messageHistory.size() > 0 && message.getText().equals(lastMessage)) {
+		if (resumedMessageHistory.size() > 0 && message.getText().equals(lastMessage)) {
 			sameMessageCount++;
 			String multiplier = "(x"+sameMessageCount+")";
-			messageHistory.remove(messageHistory.size()-1);
-			messageHistory.add(message.getText()+multiplier);
+			resumedMessageHistory.remove(resumedMessageHistory.size()-1);
+			resumedMessageHistory.add(message.getText()+multiplier);
 			if (currentText.equals("")){
 				messageBox.setText(message.getText()+" "+multiplier);
 			} else {
@@ -680,12 +694,11 @@ public abstract class GFXUserInterface extends UserInterface implements Runnable
 		 		eraseOnArrival = false;
 			}
 			currentText = messageBox.getText();
-			messageHistory.add(message.getText());
-			if (messageHistory.size()>500)
-				messageHistory.removeElementAt(0);
+			resumedMessageHistory.add(message.getText());
+			if (resumedMessageHistory.size()>500)
+				resumedMessageHistory.remove(0);
 			messageBox.addText(message.getText());
 		}
-		
 		dimMsg = 0;
 	}
 
@@ -1253,8 +1266,7 @@ public abstract class GFXUserInterface extends UserInterface implements Runnable
 		
 	}
 	
-	public Vector getMessageBuffer() {
-		//return new Vector(messageHistory.subList(0,21));
+	public List<Message> getMessageBuffer() {
 		if (messageHistory.size()>20)
 			return new Vector(messageHistory.subList(messageHistory.size()-21,messageHistory.size()));
 		else

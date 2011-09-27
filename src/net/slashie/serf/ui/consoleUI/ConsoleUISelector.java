@@ -86,7 +86,7 @@ public class ConsoleUISelector extends UISelector {
     				target.setPerformer(player);
 					ui().setTargets(target);
 				} catch (ActionCancelException e) {
-					ui().addMessage(new Message("Cancelled", player.getPosition()));
+					player.getLevel().addMessage("Cancelled Action");
 					return null;
 				}
 				return target;
@@ -107,7 +107,7 @@ public class ConsoleUISelector extends UISelector {
 
 				}
 				catch (ActionCancelException ace){
-					ui().addMessage(new Message("Cancelled", player.getPosition()));
+					player.getLevel().addMessage("Cancelled Action");
 					ret = null;
 				}
 			}

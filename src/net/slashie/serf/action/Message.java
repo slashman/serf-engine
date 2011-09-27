@@ -5,14 +5,12 @@ import net.slashie.utils.Position;
 public class Message{
 	private String text;
 	private Position location;
+	private String time;
 
-/*	public void act(){
-		die();
-	}   */
-
-	public Message (String pText, Position pLocation){
+	public Message (String pText, Position pLocation, String pTime){
 		text = pText;
 		location = pLocation;
+		time = pTime;
 	}
 
 	public String getText() {
@@ -21,6 +19,10 @@ public class Message{
 
 	public Position getLocation() {
 		return location;
+	}
+	
+	public String getTime() {
+		return time;
 	}
 
 	public String toString(){
