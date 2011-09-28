@@ -221,9 +221,9 @@ public abstract class GFXUserInterface extends UserInterface implements Runnable
 			Message m = latestMessages.get(i);
 			String time = m.getTime();
 			if (!time.equals(previousTime)){
-				si.print(getUILayer(), 1,i+2, m.getTime()+": "+m.getText(), COLOR_BOLD);
+				si.print(getUILayer(), 1,i+2, m.getTime()+": "+m.getText(), Color.WHITE);
 			} else {
-				si.print(getUILayer(), 1,i+2, m.getText(), Color.WHITE);
+				si.print(getUILayer(), 1,i+2, " >"+m.getText(), Color.WHITE);
 			}
 			previousTime = time;
 			
