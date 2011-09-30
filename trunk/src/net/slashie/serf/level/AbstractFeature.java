@@ -120,4 +120,14 @@ public abstract class AbstractFeature extends Actor implements Cloneable, Serial
 	public void setOpaque(boolean isOpaque) {
 		this.isOpaque = isOpaque;
 	}
+
+	
+	/**
+	 * Determines if the feature causes the underlying opaque cell
+	 * to become traslucent 
+	 * @return
+	 */
+	public boolean overrideOpacity() {
+		return false;
+	}
 }
