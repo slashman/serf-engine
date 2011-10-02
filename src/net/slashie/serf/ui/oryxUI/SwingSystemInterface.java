@@ -180,12 +180,11 @@ public class SwingSystemInterface implements Runnable{
         Timer t = new Timer(frameRate, new ActionListener(){
         	@Override
         	public void actionPerformed(ActionEvent e) {
-        		//synchronized(_si){
         		if (sip.isUpdated()){
-        			sip.repaint();
         			sip.outdate();
+        			//System.out.println("Repaint ");
+        			sip.repaint();
         		}
-        		//}
         	}
         });
         t.start();
@@ -378,8 +377,17 @@ public class SwingSystemInterface implements Runnable{
 		sip.restoreAndDraw(buffer, layer);
 	}
 	
+	/**
+	 * 
+	 * @param layer
+	 * @param setUpdated Determines if the panel should be redrawn after this commit
+	 */
+	public void commitLayer(int layer, boolean setUpdated){
+		sip.commit(layer, setUpdated);
+	}
+	
 	public void commitLayer(int layer){
-		sip.commit(layer);
+		sip.commit(layer, true);
 	}
 	
 	// Input methods
@@ -437,7 +445,7 @@ public class SwingSystemInterface implements Runnable{
 		while (true){
 			sip.loadAndDraw(layer);
 			printAtPixel(layer, xpos, ypos, ret+"_", textColor);
-			commitLayer(layer);
+			commitLayer(layer, true);
 			Integer code = null;
 			try {
 				Thread.sleep(10);
@@ -838,11 +846,19 @@ class SwingInterfacePanel extends JPanel{
 	 */
 	private Image[] savedImages; private Graphics[] savedGraphics;
 
+	private boolean updated = true;
+	
 	public void outdate() {
 		updated = false;
 	}
 	
+	private void setUpdated() {
+		updated = true;
+	}
 	
+	public boolean isUpdated() {
+		return updated;
+	}
 
 	/**
 	 * Backup boards, they can contain copies of any layer
@@ -1001,9 +1017,11 @@ class SwingInterfacePanel extends JPanel{
 		layerImages[layer] =  getTransparentImage();
 		layerGraphics[layer] = layerImages[layer].getGraphics();
 		layerGraphics[layer].drawImage(savedImages[layer], 0,0,this);
-		updated = true;
+		setUpdated();
 	}
 	
+	
+
 	public void loadAndDraw(int layer){
 		drawingImages[layer] =  getTransparentImage();
 		Font f = drawingGraphics[layer].getFont(); 
@@ -1019,7 +1037,7 @@ class SwingInterfacePanel extends JPanel{
 	
 	public synchronized void restore(int buffer, int layer){
 		layerGraphics[layer].drawImage(backupImages[buffer], 0,0,this);
-		updated = true;
+		setUpdated();
 	}
 	
 	public synchronized void restoreAndDraw(int buffer, int layer){
@@ -1030,19 +1048,25 @@ class SwingInterfacePanel extends JPanel{
 		drawingGraphics[layer].drawImage(backupImages[buffer], 0,0,this);
 	}
 	
-	
 	/**
 	 * NOTE: It's very important for this method to be synchronized to avoid flickering
 	 * @param layer
 	 */
 	public synchronized void commit(int layer){
+		commit(layer, true);
+	}
+	
+	/**
+	 * NOTE: It's very important for this method to be synchronized to avoid flickering
+	 * @param layer
+	 */
+	public synchronized void commit(int layer, boolean setUpdated){
 		// Clean the layer 
-		//if (layer > 0){
-			layerImages[layer] =  getTransparentImage();
-			layerGraphics[layer] = layerImages[layer].getGraphics();
-		//}
+		layerImages[layer] =  getTransparentImage();
+		layerGraphics[layer] = layerImages[layer].getGraphics();
 		layerGraphics[layer].drawImage(drawingImages[layer], 0,0,this);
-		updated = true;
+		if (setUpdated)
+			setUpdated();
 	}
 
 	/**
@@ -1052,6 +1076,8 @@ class SwingInterfacePanel extends JPanel{
 	public synchronized void paintComponent(Graphics g){
 		if (layerImages != null && compositeGraphics != null){
 			super.paintComponent(compositeGraphics);
+			compositeGraphics.setColor(Color.BLACK);
+			compositeGraphics.fillRect(0,0,800,600);
 			for (int i = 0; i < layerImages.length; i++){
 				compositeGraphics.drawImage(layerImages[i], 0,0,this);
 			}
@@ -1059,12 +1085,6 @@ class SwingInterfacePanel extends JPanel{
 		}
 	}
 	
-	private boolean updated = true;
-	
-	public boolean isUpdated() {
-		return updated;
-	}
-
 	public Component add(Component comp) {
 		return super.add(comp);
 	}
