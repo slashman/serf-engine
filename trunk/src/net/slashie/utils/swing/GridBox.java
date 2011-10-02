@@ -91,7 +91,7 @@ public class GridBox extends JPanel {
 					return;
 				if (items == null)
 					return;
-				draw(true);
+				//draw(true);
 				
 				SelectedItem selectedItem = getSelectedItemByClick(e.getPoint(), legendLines, lineHeight);
 				if (selectedItem != null){
@@ -124,8 +124,7 @@ public class GridBox extends JPanel {
 						si.commitLayer(getDrawingLayer());
 						wasJustOnHovered = false;
 					} else {
-						si.commitLayer(getDrawingLayer());
-						//si.setCursor(getDefaultCursor());
+						// si.commitLayer(getDrawingLayer());
 					}
 				}
 			}

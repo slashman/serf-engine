@@ -78,13 +78,18 @@ public abstract class GFXUserInterface extends UserInterface implements Runnable
 	private List<String> resumedMessageHistory = new ArrayList<String>();
 	private List<Message> messageHistory = new ArrayList<Message>();
 	
+	private TiledLayer mapLayer;
+	private TiledLayer featuresLayer;
+	private TiledLayer itemsLayer;
+	private TiledLayer actorsLayer;
+	
 	// Relations
 
  	protected transient SwingSystemInterface si;
 
  	private Font FNT_MESSAGEBOX;
  	private Font FNT_PERSISTANTMESSAGEBOX;
- 	protected int tileSize;
+ 	protected static int tileSize;
 	private BufferedImage 
 		TILE_LINE_STEPS, 
 		TILE_LINE_AIM,
@@ -200,11 +205,23 @@ public abstract class GFXUserInterface extends UserInterface implements Runnable
     }
     
     public int getUILayer(){
-    	return 0;
+    	return 4;
     }
     
     public int getMapLayer(){
     	return 0;
+    }
+    
+    public int getFeaturesLayer(){
+    	return 1;
+    }
+    
+    public int getItemsLayer(){
+    	return 2;
+    }
+    
+    public int getActorsLayer(){
+    	return 3;
     }
     
     public void showMessageHistory(){
@@ -575,12 +592,18 @@ public abstract class GFXUserInterface extends UserInterface implements Runnable
 		EnvironmentInfo environmentInfo = player.getEnvironmentAround(xrange,yrange);
 		AbstractCell [][] vcells = environmentInfo.getCellsAround();
 
-		
 		monstersOnSight.removeAllElements();
 		featuresOnSight.removeAllElements();
 		itemsOnSight.removeAllElements();
 		
+		mapLayer.resetBuffer();
+		featuresLayer.resetBuffer();
+		itemsLayer.resetBuffer();
+		actorsLayer.resetBuffer();
+		
 		Position runner = new Position(0,0);
+		
+		
 		for (int y = 0; y < yrange*2+1; y++){
 			runner.y = y-yrange;
 			for (int x=0; x < xrange*2+1; x++){
@@ -592,27 +615,12 @@ public abstract class GFXUserInterface extends UserInterface implements Runnable
 				if (vcells[x][y] == null || vcells[x][y].getID().equals("AIR")){
 					if (rcells[x][y] != null && !rcells[x][y].getAppearance().getID().equals("NOTHING")){
 						GFXAppearance app = (GFXAppearance)rcells[x][y].getAppearance();
-						// Draw Cells
-						try {
-							si.drawImage(getMapLayer(),(PC_POS.x-xrange+x)*tileSize,(PC_POS.y-yrange+y)*tileSize-app.getSuperHeight(), app.getDarkImage());
-						} catch (NullPointerException npe){
-							Color c = si.getDrawingGraphics(0).getColor();
-							si.getDrawingGraphics(getMapLayer()).setColor(Color.RED);
-							si.getDrawingGraphics(getMapLayer()).fillRect((PC_POS.x-xrange+x)*tileSize,(PC_POS.y-yrange+y)*tileSize-app.getSuperHeight(), tileSize,49);
-							si.getDrawingGraphics(getMapLayer()).setColor(c);
-						}
-					} else {
-						//Draw nothing
-						//si.drawImage((PC_POS.x-xrange+x)*tileSize,(PC_POS.y-yrange+y)*tileSize, "gfx/black.gif");
-						//si.print(PC_POS.x-xrange+x,PC_POS.y-yrange+y, CharAppearance.getVoidAppearance().getChar(), CharAppearance.getVoidAppearance().BLACK);
+						mapLayer.setBuffer(x,y, app);
 					}
 				} else {
 					FOVMask[PC_POS.x-xrange+x][PC_POS.y-yrange+y] = true;
 					GFXAppearance cellApp = (GFXAppearance)vcells[x][y].getAppearance();
-					si.drawImage(getMapLayer(), (PC_POS.x-xrange+x)*tileSize,(PC_POS.y-yrange+y)*tileSize-cellApp.getSuperHeight(), cellApp.getImage());
-					
-					int cellHeight = vcells[x][y].getHeight();
-
+					mapLayer.setBuffer(x,y, cellApp);
 					
 					//  Draw Features
 					List<AbstractFeature> feats = environmentInfo.getFeaturesAt(runner);
@@ -620,46 +628,55 @@ public abstract class GFXUserInterface extends UserInterface implements Runnable
 						for (AbstractFeature feat: feats){
 							if (feat.isVisible()) {
 								GFXAppearance featApp = (GFXAppearance)feat.getAppearance();
-								si.drawImage(getMapLayer(), (PC_POS.x-xrange+x)*tileSize-featApp.getSuperWidth(),(PC_POS.y-yrange+y)*tileSize-4*cellHeight-featApp.getSuperHeight(), featApp.getImage());
+								featuresLayer.setBuffer(x,y, featApp);
 							}
 						}
 					}
-					
 					
 					AbstractItem item = environmentInfo.getItemAt(runner);
 					if (item != null){
 						if (item.isVisible()){
 							GFXAppearance itemApp = (GFXAppearance)item.getAppearance();
-							si.drawImage(getMapLayer(), (PC_POS.x-xrange+x)*tileSize-itemApp.getSuperWidth(),(PC_POS.y-yrange+y)*tileSize-4*cellHeight -itemApp.getSuperHeight(), itemApp.getImage());
+							itemsLayer.setBuffer(x,y, itemApp);
 						}
 					}
 					
 					if (yrange == y && x == xrange){
 						if (player.isInvisible()){
-							si.drawImage(getMapLayer(), PC_POS.x*tileSize,PC_POS.y*tileSize-4*cellHeight, ((GFXAppearance)AppearanceFactory.getAppearanceFactory().getAppearance("SHADOW")).getImage());
+							actorsLayer.setBuffer(x,y, (GFXAppearance)AppearanceFactory.getAppearanceFactory().getAppearance("SHADOW"));
 						}else{
 							GFXAppearance playerAppearance = (GFXAppearance)player.getAppearance();
-							BufferedImage playerImage = (BufferedImage)playerAppearance.getImage();
 							if (flipEnabled && flipFacing){
-								playerImage = ImageUtils.vFlip(playerImage);
-								//flipFacing = false;
+								//TODO: Acquire flipped player apperance
+								actorsLayer.setBuffer(x,y,playerAppearance);
+							} else {
+								actorsLayer.setBuffer(x,y,playerAppearance);
 							}
-							if (level.getMapCell(player.getPosition())!= null && level.getMapCell(player.getPosition()).isShallowWater())
-								si.drawImage(getMapLayer(), PC_POS.x*tileSize-playerAppearance.getSuperWidth(),PC_POS.y*tileSize-playerAppearance.getSuperHeight()+16, playerImage);
-							else
-								si.drawImage(getMapLayer(), PC_POS.x*tileSize-playerAppearance.getSuperWidth(),PC_POS.y*tileSize-playerAppearance.getSuperHeight(), playerImage);
 						}
 					}
 					Actor actor = environmentInfo.getActorAt(runner);
 					if (actor != player && actor != null && !actor.isInvisible()){
-						GFXAppearance monsterApp = (GFXAppearance) actor.getAppearance();
-						si.drawImage(getMapLayer(), (PC_POS.x-xrange+x)*tileSize-monsterApp.getSuperWidth(),(PC_POS.y-yrange+y)*tileSize-4*cellHeight-monsterApp.getSuperHeight(), monsterApp.getImage());
+						GFXAppearance actorApp = (GFXAppearance) actor.getAppearance();
+						actorsLayer.setBuffer(x,y,actorApp);
 					}
 				}
-				
-				// Draw the features and other actors
 			}
 		}
+		mapLayer.updateBuffer();
+		featuresLayer.updateBuffer();
+		itemsLayer.updateBuffer();
+		actorsLayer.updateBuffer();
+		
+		mapLayer.draw();
+		featuresLayer.draw();
+		itemsLayer.draw();
+		actorsLayer.draw();
+		
+		si.commitLayer(getMapLayer(), false);
+		si.commitLayer(getFeaturesLayer(), false);
+		si.commitLayer(getItemsLayer(), false);
+		si.commitLayer(getActorsLayer(), false);
+		
 	}
 	
 	private String lastMessage;
@@ -861,7 +878,32 @@ public abstract class GFXUserInterface extends UserInterface implements Runnable
 
 		LOOK_CURSOR = createCursor(UIProperties.getProperty("IMG_CURSORS"), 6, 2, 10, 4);
 		
+		mapLayer = new TiledLayer(xrange*2+1, yrange*2+1, tileSize, tileSize, new Position((PC_POS.x-xrange)*tileSize,(PC_POS.y-yrange)*tileSize), getMapLayer(), si);
+		featuresLayer = new TiledLayer(xrange*2+1, yrange*2+1, tileSize, tileSize, new Position((PC_POS.x-xrange)*tileSize,(PC_POS.y-yrange)*tileSize), getFeaturesLayer(), si);
+		itemsLayer = new TiledLayer(xrange*2+1, yrange*2+1, tileSize, tileSize, new Position((PC_POS.x-xrange)*tileSize,(PC_POS.y-yrange)*tileSize), getItemsLayer(), si);
+		actorsLayer = new TiledLayer(xrange*2+1, yrange*2+1, tileSize, tileSize, new Position((PC_POS.x-xrange)*tileSize,(PC_POS.y-yrange)*tileSize), getActorsLayer(), si);
+		
+		//new Thread(new MapUpdateRunnable(mapLayer)).start();
+		
 		si.setVisible(true);
+	}
+	
+	class MapUpdateRunnable implements Runnable {
+		private TiledLayer mapLayer;
+		
+		public MapUpdateRunnable(TiledLayer mapLayer) {
+			this.mapLayer = mapLayer;
+		}
+
+		@Override
+		public void run() {
+			while (true){
+				mapLayer.draw();
+				try {
+					Thread.sleep(1000);
+				} catch (InterruptedException e) {}
+			}
+		}
 	}
 	
 	public void setPersistantMessage(String description) {
@@ -1132,8 +1174,7 @@ public abstract class GFXUserInterface extends UserInterface implements Runnable
 			beforeDrawLevel();
 		 	drawLevel();
 			beforeRefresh();
-			si.commitLayer(getUILayer());
-			si.commitLayer(getMapLayer());
+			si.commitLayer(getUILayer(), true);
 			leaveScreen();
 			if (dimMsg == 3){
 				messageBox.setForeground(COLOR_OLD_MESSAGE);
@@ -1320,7 +1361,7 @@ public abstract class GFXUserInterface extends UserInterface implements Runnable
    			selectionBox.setBounds(80, 300, 640,250);
    		else {
    			int add = options.length - 5;
-   			selectionBox.setBounds(80, 300 - add * 24, 640,250 + add * 24);
+   			selectionBox.setBounds(80, 300 - add * tileSize, 640,250 + add * tileSize);
    		}
   		Vector<GFXMenuItem> menuItems = new Vector<GFXMenuItem>();
   		int i = 0;
@@ -1347,7 +1388,6 @@ public abstract class GFXUserInterface extends UserInterface implements Runnable
 			resetAndDrawMapLayer();
 			return itemChoice.getValue();
 		}
-		
 	}
 	
 		
@@ -1395,7 +1435,7 @@ public abstract class GFXUserInterface extends UserInterface implements Runnable
 	public static Cursor createCursor (String cursorsFile, int x, int y, int hotX, int hotY){
 		Toolkit tk = Toolkit.getDefaultToolkit();
 		try {
-			Image cursorImage = ImageUtils.crearImagen(cursorsFile , x*24, y*24, 24, 24);
+			Image cursorImage = ImageUtils.crearImagen(cursorsFile , x*tileSize, y*tileSize, tileSize, tileSize);
 			Cursor c = tk.createCustomCursor(cursorImage, new Point(hotX, hotY), "gfxui-"+x+"-"+y);
 			return c;
 		} catch (IOException e) {
