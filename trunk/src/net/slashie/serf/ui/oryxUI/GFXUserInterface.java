@@ -500,6 +500,9 @@ public abstract class GFXUserInterface extends UserInterface implements Runnable
 			}
 		};
 		
+		si.changeZOrder(addornedTextArea, 1);
+
+		
 		CleanButton yesButton = new CleanButton(IMG_YES_BUTTON, getHandCursor());
 		yesButton.setVisible(false);
 		yesButton.setHover(IMG_YES_HOVER_BUTTON);
@@ -614,7 +617,7 @@ public abstract class GFXUserInterface extends UserInterface implements Runnable
 				// Draw the visible cells
 				if (vcells[x][y] == null || vcells[x][y].getID().equals("AIR")){
 					if (rcells[x][y] != null && !rcells[x][y].getAppearance().getID().equals("NOTHING")){
-						mapLayer.setBuffer(x,y, rcells[x][y].getAppearance());
+						//mapLayer.setBuffer(x,y, rcells[x][y].getAppearance()); TODO: Re-add dark appearance
 					}
 				} else {
 					FOVMask[PC_POS.x-xrange+x][PC_POS.y-yrange+y] = true;
@@ -1327,6 +1330,7 @@ public abstract class GFXUserInterface extends UserInterface implements Runnable
 	public boolean promptChat(String message) {
 		return promptChat(message, 20,20,200,100);
 	}
+	
 
 	public int switchChat(String title, String prompt, Color titleColor, Color textColor, String... options) {
 		final Cursor defaultCursor = getDefaultCursor();
