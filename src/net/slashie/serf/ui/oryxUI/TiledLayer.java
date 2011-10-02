@@ -1,10 +1,11 @@
 package net.slashie.serf.ui.oryxUI;
 
+import net.slashie.serf.ui.Appearance;
 import net.slashie.utils.Position;
 
 public class TiledLayer {
-	private GFXAppearance[][] tiles;
-	private GFXAppearance[][] tileBuffer;
+	private Appearance[][] tiles;
+	private Appearance[][] tileBuffer;
 
 	private Position position;
 	private int layerIndex;
@@ -13,8 +14,8 @@ public class TiledLayer {
 	private SwingSystemInterface si;
 	
 	public TiledLayer(int width, int height, int cellWidth, int cellHeight, Position position, int layerIndex, SwingSystemInterface si) {
-		tiles = new GFXAppearance[width][height];
-		tileBuffer = new GFXAppearance[width][height];
+		tiles = new Appearance[width][height];
+		tileBuffer = new Appearance[width][height];
 		this.position = position;
 		this.layerIndex = layerIndex;
 		this.cellWidth = cellWidth;
@@ -30,7 +31,7 @@ public class TiledLayer {
 		}
 	}
 	
-	public void setBuffer(int x, int y, GFXAppearance appearance){
+	public void setBuffer(int x, int y, Appearance appearance){
 		tileBuffer[x][y] = appearance;
 	}
 	
@@ -40,11 +41,26 @@ public class TiledLayer {
 	
 	public void draw(){
 		si.cleanLayer(layerIndex);
+		long currentMillis = System.currentTimeMillis();
 		for (int y = 0; y < tiles[0].length; y++){
 			for (int x=0; x < tiles.length; x++){
-				if (tiles[x][y] != null)
-					si.drawImage(layerIndex, position.x+x*cellWidth,position.y + y*cellHeight, tiles[x][y].getImage());
+				if (tiles[x][y] != null){
+					if (tiles[x][y] instanceof GFXAppearance){
+						si.drawImage(layerIndex, position.x+x*cellWidth,position.y + y*cellHeight, ((GFXAppearance)tiles[x][y]).getImage());
+					} else if (tiles[x][y] instanceof AnimatedGFXAppearance){
+						AnimatedGFXAppearance animated = (AnimatedGFXAppearance)tiles[x][y];
+						long animationLength = animated.getDelay()*animated.getFrames();
+						long snap = currentMillis % animationLength;
+						int frame = (int)Math.floor((double)snap / (double)animated.getDelay());
+						si.drawImage(layerIndex, position.x+x*cellWidth,position.y + y*cellHeight, animated.getImage(frame));
+					}
+				}
+					
 			}
 		}
+	}
+
+	public void commit() {
+		si.commitLayer(layerIndex);
 	}
 }

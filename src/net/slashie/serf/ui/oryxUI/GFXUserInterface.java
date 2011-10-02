@@ -614,13 +614,11 @@ public abstract class GFXUserInterface extends UserInterface implements Runnable
 				// Draw the visible cells
 				if (vcells[x][y] == null || vcells[x][y].getID().equals("AIR")){
 					if (rcells[x][y] != null && !rcells[x][y].getAppearance().getID().equals("NOTHING")){
-						GFXAppearance app = (GFXAppearance)rcells[x][y].getAppearance();
-						mapLayer.setBuffer(x,y, app);
+						mapLayer.setBuffer(x,y, rcells[x][y].getAppearance());
 					}
 				} else {
 					FOVMask[PC_POS.x-xrange+x][PC_POS.y-yrange+y] = true;
-					GFXAppearance cellApp = (GFXAppearance)vcells[x][y].getAppearance();
-					mapLayer.setBuffer(x,y, cellApp);
+					mapLayer.setBuffer(x,y, vcells[x][y].getAppearance());
 					
 					//  Draw Features
 					List<AbstractFeature> feats = environmentInfo.getFeaturesAt(runner);
@@ -883,7 +881,7 @@ public abstract class GFXUserInterface extends UserInterface implements Runnable
 		itemsLayer = new TiledLayer(xrange*2+1, yrange*2+1, tileSize, tileSize, new Position((PC_POS.x-xrange)*tileSize,(PC_POS.y-yrange)*tileSize), getItemsLayer(), si);
 		actorsLayer = new TiledLayer(xrange*2+1, yrange*2+1, tileSize, tileSize, new Position((PC_POS.x-xrange)*tileSize,(PC_POS.y-yrange)*tileSize), getActorsLayer(), si);
 		
-		//new Thread(new MapUpdateRunnable(mapLayer)).start();
+		new Thread(new MapUpdateRunnable(mapLayer)).start();
 		
 		si.setVisible(true);
 	}
@@ -899,8 +897,9 @@ public abstract class GFXUserInterface extends UserInterface implements Runnable
 		public void run() {
 			while (true){
 				mapLayer.draw();
+				mapLayer.commit();
 				try {
-					Thread.sleep(1000);
+					Thread.sleep(500);
 				} catch (InterruptedException e) {}
 			}
 		}
