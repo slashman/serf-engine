@@ -82,6 +82,7 @@ public abstract class GFXUserInterface extends UserInterface implements Runnable
 	private TiledLayer featuresLayer;
 	private TiledLayer itemsLayer;
 	private TiledLayer actorsLayer;
+	private MapUpdateRunnable mapUpdateRunnable;
 	
 	// Relations
 
@@ -469,6 +470,7 @@ public abstract class GFXUserInterface extends UserInterface implements Runnable
 	}
 	
 	public void printTextBox(String text, int x, int y, int w, int h){
+		si.changeZOrder(addornedTextArea, 0);
 		addornedTextArea.setBounds(x, y, w, h);
 		addornedTextArea.setText(text);
 		addornedTextArea.setVisible(true);
@@ -481,6 +483,8 @@ public abstract class GFXUserInterface extends UserInterface implements Runnable
 	protected AddornedBorderTextArea addornedTextArea;
 
 	public boolean showTextBoxPrompt(String text, int xPos, int yPos, int width, int height){
+		boolean wasVisible = messageBox.isVisible();
+		messageBox.setVisible(false);
 		addornedTextArea.setBounds(xPos, yPos, width, height);
 		addornedTextArea.setText(text);
 		addornedTextArea.setCursor(getDefaultCursor());
@@ -501,7 +505,6 @@ public abstract class GFXUserInterface extends UserInterface implements Runnable
 		};
 		
 		si.changeZOrder(addornedTextArea, 1);
-
 		
 		CleanButton yesButton = new CleanButton(IMG_YES_BUTTON, getHandCursor());
 		yesButton.setVisible(false);
@@ -567,6 +570,7 @@ public abstract class GFXUserInterface extends UserInterface implements Runnable
 		si.remove(yesButton);
 		
 		si.removeKeyListener(cbkl);
+		messageBox.setVisible(wasVisible);
 		return ret;
 	}
    
@@ -591,6 +595,7 @@ public abstract class GFXUserInterface extends UserInterface implements Runnable
 	}
 	
 	private synchronized void drawLevel(){
+		mapUpdateRunnable.setEnabled(true);
 		AbstractCell [][] rcells = level.getMemoryCellsAround(player.getPosition().x,player.getPosition().y, player.getPosition().z, xrange,yrange);
 		EnvironmentInfo environmentInfo = player.getEnvironmentAround(xrange,yrange);
 		AbstractCell [][] vcells = environmentInfo.getCellsAround();
@@ -883,14 +888,16 @@ public abstract class GFXUserInterface extends UserInterface implements Runnable
 		featuresLayer = new TiledLayer(xrange*2+1, yrange*2+1, tileSize, tileSize, new Position((PC_POS.x-xrange)*tileSize,(PC_POS.y-yrange)*tileSize), getFeaturesLayer(), si);
 		itemsLayer = new TiledLayer(xrange*2+1, yrange*2+1, tileSize, tileSize, new Position((PC_POS.x-xrange)*tileSize,(PC_POS.y-yrange)*tileSize), getItemsLayer(), si);
 		actorsLayer = new TiledLayer(xrange*2+1, yrange*2+1, tileSize, tileSize, new Position((PC_POS.x-xrange)*tileSize,(PC_POS.y-yrange)*tileSize), getActorsLayer(), si);
-		
-		new Thread(new MapUpdateRunnable(mapLayer)).start();
+		mapUpdateRunnable = new MapUpdateRunnable(mapLayer);
+		mapUpdateRunnable.setEnabled(false);
+		new Thread(mapUpdateRunnable).start();
 		
 		si.setVisible(true);
 	}
 	
 	class MapUpdateRunnable implements Runnable {
 		private TiledLayer mapLayer;
+		private boolean enabled;
 		
 		public MapUpdateRunnable(TiledLayer mapLayer) {
 			this.mapLayer = mapLayer;
@@ -899,12 +906,20 @@ public abstract class GFXUserInterface extends UserInterface implements Runnable
 		@Override
 		public void run() {
 			while (true){
-				mapLayer.draw();
-				mapLayer.commit();
+				if (enabled){
+					mapLayer.draw();
+					if (enabled){
+						mapLayer.commit();
+					}
+				}
 				try {
 					Thread.sleep(500);
 				} catch (InterruptedException e) {}
 			}
+		}
+
+		public void setEnabled(boolean b) {
+			this.enabled = b;
 		}
 	}
 	
@@ -1130,10 +1145,23 @@ public abstract class GFXUserInterface extends UserInterface implements Runnable
 	@Override
 	public void shutdown(){
 		enterScreen();
+		mapUpdateRunnable.setEnabled(false);
 		si.cleanLayer(getUILayer());
-		si.commitLayer(getUILayer());
+		si.commitLayer(getUILayer(), false);
+		
 		si.cleanLayer(getMapLayer());
-		si.commitLayer(getMapLayer());
+		si.commitLayer(getMapLayer(), false);
+		
+		si.cleanLayer(getActorsLayer());
+		si.commitLayer(getActorsLayer(), false);
+		
+		si.cleanLayer(getFeaturesLayer());
+		si.commitLayer(getFeaturesLayer(), false);
+		
+		si.cleanLayer(getItemsLayer());
+		si.commitLayer(getItemsLayer(), true);
+		
+		
 		lastMessage = null;
 	}
 	
