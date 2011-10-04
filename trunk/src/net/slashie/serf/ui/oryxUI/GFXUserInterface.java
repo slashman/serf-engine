@@ -626,7 +626,7 @@ public abstract class GFXUserInterface extends UserInterface implements Runnable
 					}
 				} else {
 					FOVMask[PC_POS.x-xrange+x][PC_POS.y-yrange+y] = true;
-					mapLayer.setBuffer(x,y, vcells[x][y].getAppearance());
+					mapLayer.setBuffer(x,y, level.filterAppearance(vcells[x][y].getAppearance()));
 					
 					//  Draw Features
 					List<AbstractFeature> feats = environmentInfo.getFeaturesAt(runner);
