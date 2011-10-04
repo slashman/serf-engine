@@ -16,6 +16,7 @@ import net.slashie.serf.baseDomain.AbstractItem;
 import net.slashie.serf.fov.FOVMap;
 import net.slashie.serf.game.Player;
 import net.slashie.serf.game.SworeGame;
+import net.slashie.serf.ui.Appearance;
 import net.slashie.serf.ui.Effect;
 import net.slashie.serf.ui.UserInterface;
 import net.slashie.utils.Counter;
@@ -633,6 +634,11 @@ public abstract class AbstractLevel implements FOVMap, Serializable{
 
 	public void updateActorPosition(Actor actor, Position p) {
 		updateActorPosition(actor, p.x, p.y, p.z);
+	}
+
+	
+	public Appearance filterAppearance(Appearance appearance) {
+		return appearance;
 	}
 	
 	
