@@ -30,7 +30,7 @@ public class BorderedGridBox extends AddornedBorderPanel {
 	//Configurable properties
 	private String title = "";
 	protected String legend;
-	private BufferedImage box;
+	private Image box;
 	private Color foreColor = Color.WHITE;
 	private Color titleColor = Color.WHITE;
 	private int itemHeight;
@@ -65,7 +65,7 @@ public class BorderedGridBox extends AddornedBorderPanel {
 	
 	/*UPLEFT, UPRIGHT, DOWNLEFT, DOWNRIGHT*/
 	public BorderedGridBox(BufferedImage border1, BufferedImage border2,BufferedImage border3,BufferedImage border4, SwingSystemInterface g, Color backgroundColor, Color borderIn, Color borderOut, int borderWidth, int outsideBound, int inBound, int insideBound, 
-			final int itemHeight, final int itemWidth, final int gridX, final int gridY, BufferedImage box, CleanButton closeButton, Image rePagIcon, Image avPagIcon, Image rePagIconHover, Image avPagIconHover, Cursor cursor){
+			final int itemHeight, final int itemWidth, final int gridX, final int gridY, Image box, CleanButton closeButton, Image rePagIcon, Image avPagIcon, Image rePagIconHover, Image avPagIconHover, Cursor cursor){
 		
 		super (border1, border2, border3, border4, borderOut, borderIn, backgroundColor, borderWidth, outsideBound, inBound, insideBound );
 		this.si = g;

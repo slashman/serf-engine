@@ -40,18 +40,24 @@ public class ImageUtils {
         return image;
     }
 	
-	private static Image tempImage; 
-	
-	public static BufferedImage crearImagen(String filename, int x, int y, int width, int height) throws IOException{
+	public static BufferedImage createImage(String filename, int x, int y, int width, int height) throws IOException{
 		BufferedImage tempImage = createImage(filename);
 		return crearImagen(tempImage, x, y, width, height);
     }
 	
+	public static BufferedImage crearImagen(String filename, int x, int y, int width, int height) throws IOException{
+		return createImage(filename, x, y, width, height);
+    }
+
 	public static BufferedImage crearImagen(BufferedImage tempImage, int x, int y, int width, int height) {
+		return createImage(tempImage, x, y, width, height);
+	}
+
+	public static BufferedImage createImage(BufferedImage tempImage, int x, int y, int width, int height) {
 		GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
 	    GraphicsConfiguration gc = ge.getDefaultScreenDevice( ).getDefaultConfiguration( );
 
-	    int transparency = tempImage.getColorModel( ).getTransparency( );
+	    int transparency = tempImage.getColorModel().getTransparency( );
 
 	    BufferedImage ret =gc.createCompatibleImage(width,height,transparency);
         // create a graphics context
@@ -62,8 +68,6 @@ public class ImageUtils {
                     0,0, width,height, x,y,x+width,y+height,null);
         retGC.dispose();
         return ret;
-
-		//return Toolkit.getDefaultToolkit().createImage(new FilteredImageSource(tempImage.getSource(), new CropImageFilter(x, y, width, height)));
     }
 
 	public static BufferedImage hFlip(BufferedImage image){
