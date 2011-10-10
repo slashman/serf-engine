@@ -53,17 +53,17 @@ public class GFXUISelector extends UISelector implements ActionSelector, Seriali
 	
 	protected BlockingQueue<String> selectionHandler;
 	
-	private void initializeCursors (String cursorsFile){
+	private void initializeCursors (Assets assets){
 		QCURSORS = new Cursor[]{
-			GFXUserInterface.createCursor(cursorsFile, 1, 2, 4, 4),
-			GFXUserInterface.createCursor(cursorsFile, 1, 3, 12, 4),
-			GFXUserInterface.createCursor(cursorsFile, 2, 2, 20, 4),
-			GFXUserInterface.createCursor(cursorsFile, 4, 3, 4, 12),
-			GFXUserInterface.createCursor(cursorsFile, 3, 1, 12, 12),
-			GFXUserInterface.createCursor(cursorsFile, 2, 3, 20, 12),
-			GFXUserInterface.createCursor(cursorsFile, 4, 2, 4, 20),
-			GFXUserInterface.createCursor(cursorsFile, 3, 3, 12, 20),
-			GFXUserInterface.createCursor(cursorsFile, 3, 2, 20, 20)
+			assets.getCursorAsset("QUADRANT_0_CURSOR"),
+			assets.getCursorAsset("QUADRANT_1_CURSOR"),
+			assets.getCursorAsset("QUADRANT_2_CURSOR"),
+			assets.getCursorAsset("QUADRANT_3_CURSOR"),
+			assets.getCursorAsset("QUADRANT_4_CURSOR"),
+			assets.getCursorAsset("QUADRANT_5_CURSOR"),
+			assets.getCursorAsset("QUADRANT_6_CURSOR"),
+			assets.getCursorAsset("QUADRANT_7_CURSOR"),
+			assets.getCursorAsset("QUADRANT_8_CURSOR"),
 		};
 	}
 	
@@ -73,7 +73,7 @@ public class GFXUISelector extends UISelector implements ActionSelector, Seriali
 	protected boolean selectionActive = false;
 	
 	public void init(SwingSystemInterface psi, UserAction[] gameActions, Properties UIProperties,
-			Action advance, Action target, Action attack, GFXUserInterface ui, Properties keyBindings){
+			Action advance, Action target, Action attack, GFXUserInterface ui, Properties keyBindings, Assets assets){
 		super.init(gameActions, advance, target, attack, ui,keyBindings);
 		this.si = psi;
 		selectionHandler = new LinkedBlockingQueue<String>();
@@ -97,7 +97,7 @@ public class GFXUISelector extends UISelector implements ActionSelector, Seriali
 				} catch (InterruptedException e1) {}
 			}
 		});
-		initializeCursors(UIProperties.getProperty("IMG_CURSORS"));
+		initializeCursors(assets);
 		Rectangle r = PropertyFilters.getRectangle(UIProperties.getProperty("mouseQuadrant"));
 		x1 = r.x;
 		x2 = r.x + r.width;

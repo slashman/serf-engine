@@ -3,7 +3,6 @@ package net.slashie.serf.ui.oryxUI;
 import java.awt.Color;
 import java.awt.Cursor;
 import java.awt.Font;
-import java.awt.FontFormatException;
 import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.Point;
@@ -88,25 +87,18 @@ public abstract class GFXUserInterface extends UserInterface implements Runnable
 
  	protected transient SwingSystemInterface si;
 
- 	private Font FNT_MESSAGEBOX;
- 	private Font FNT_PERSISTANTMESSAGEBOX;
  	protected static int tileSize;
-	private BufferedImage 
+	private Image 
 		TILE_LINE_STEPS, 
 		TILE_LINE_AIM,
 		TILE_SCAN;
-	protected BufferedImage BORDER1, BORDER2, BORDER3, BORDER4, IMG_STATUSSCR_BGROUND, IMG_BORDERS, IMG_ICON;
-	private int GADGETSIZE;
+	protected BufferedImage BORDER1, BORDER2, BORDER3, BORDER4, IMG_BORDERS;
+	private Image IMG_ICON;
+	
 	protected Color COLOR_BORDER_OUT, COLOR_BORDER_IN, COLOR_WINDOW_BACKGROUND, COLOR_BOLD;
 	private Color
 		COLOR_LAST_MESSAGE = Color.WHITE,
 		COLOR_OLD_MESSAGE = Color.GRAY;
-
-
-	public static Font FNT_TEXT;
-	public static Font FNT_TITLE;
-	public static Font FNT_DIALOGUEIN;
-	public static Font FNT_MONO;
 	
 	// Setters
 	/** Sets the object which will be informed of the player commands.
@@ -228,7 +220,7 @@ public abstract class GFXUserInterface extends UserInterface implements Runnable
     public void showMessageHistory(){
     	enterScreen();
 		saveMapLayer();
-		si.drawImage(getUILayer(), IMG_STATUSSCR_BGROUND);
+		si.drawImage(getUILayer(), getImageAsset("IMG_STATUSSCR_BGROUND"));
 		si.print(getUILayer(), 1, 1, "Message History", COLOR_BOLD);
 		int fromIndex = messageHistory.size()-23;
 		if (fromIndex < 0)
@@ -253,7 +245,9 @@ public abstract class GFXUserInterface extends UserInterface implements Runnable
 		leaveScreen();
 	}
     
-    private Position getRelativeMapCoordinates_recycle = new Position(0,0);
+    
+
+	private Position getRelativeMapCoordinates_recycle = new Position(0,0);
     private Position getRelativeMapCoordinates(MouseEvent e) {
     	int mouseX = e.getX();
     	int mouseY = e.getY();
@@ -740,81 +734,46 @@ public abstract class GFXUserInterface extends UserInterface implements Runnable
 	protected BufferedImage IMG_YES_HOVER_BUTTON;
 	protected BufferedImage IMG_NO_HOVER_BUTTON;
 	
+	private void initAssets(Assets assets){
+		this.assets = assets;
+		TILE_LINE_AIM = assets.getImageAsset("TILE_LINE_AIM");
+		TILE_SCAN = assets.getImageAsset("TILE_SCAN");
+		TILE_LINE_STEPS = assets.getImageAsset("TILE_LINE_STEPS");
+		IMG_ICON = assets.getImageAsset("IMG_ICON");
+		IMG_BORDERS = (BufferedImage) assets.getImageAsset("IMG_BORDERS");
+		BORDER1 = ImageUtils.crearImagen(IMG_BORDERS, tileSize,0,tileSize,tileSize);
+		BORDER2 = ImageUtils.crearImagen(IMG_BORDERS, 0,0,tileSize,tileSize);
+		BORDER3 = ImageUtils.crearImagen(IMG_BORDERS, tileSize*3,0,tileSize,tileSize);
+		BORDER4 = ImageUtils.crearImagen(IMG_BORDERS, tileSize*2,0, tileSize,tileSize);
+		
+		IMG_YES_BUTTON = (BufferedImage) assets.getImageAsset("BTN_YES");
+		IMG_NO_BUTTON = (BufferedImage) assets.getImageAsset("BTN_NO");
+		IMG_YES_HOVER_BUTTON = (BufferedImage) assets.getImageAsset("BTN_YES_HOVER");
+		IMG_NO_HOVER_BUTTON = (BufferedImage) assets.getImageAsset("BTN_NO_HOVER");
+		
+	}
 	private void initProperties(Properties p){
 		xrange = PropertyFilters.inte(p.getProperty("XRANGE"));
 		yrange = PropertyFilters.inte(p.getProperty("YRANGE"));
-		
-		//POS_LEVELDESC_X = PropertyFilters.inte(p.getProperty("POS_LEVELDESC_X"));
-		//POS_LEVELDESC_Y = PropertyFilters.inte(p.getProperty("POS_LEVELDESC_Y"));
-		
-		//UPLEFTBORDER = PropertyFilters.inte(p.getProperty("UPLEFTBORDER"));
 		PC_POS = PropertyFilters.getPosition(p.getProperty("PC_POS"));
 		
 		VP_START = Position.add(PC_POS, new Position (-xrange,-yrange));
 		VP_END = Position.add(PC_POS, new Position (xrange,yrange));
 		
-		
-		/*TILESIZE = PropertyFilters.inte(p.getProperty("TILESIZE"));*/
 		COLOR_WINDOW_BACKGROUND = PropertyFilters.getColor(p.getProperty("COLOR_WINDOW_BACKGROUND"));
 		COLOR_BORDER_IN = PropertyFilters.getColor(p.getProperty("COLOR_BORDER_IN"));
 		COLOR_BORDER_OUT = PropertyFilters.getColor(p.getProperty("COLOR_BORDER_OUT"));
-		/*COLOR_MSGBOX_ACTIVE = PropertyFilters.getColor(p.getProperty("COLOR_MSGBOX_ACTIVE"));
-		COLOR_MSGBOX_INACTIVE = PropertyFilters.getColor(p.getProperty("COLOR_MSGBOX_INACTIVE"));*/
-		try {
-			FNT_MESSAGEBOX = PropertyFilters.getFont(p.getProperty("FNT_MESSAGEBOX"),p.getProperty("FNT_MESSAGEBOX_SIZE"));
-			FNT_PERSISTANTMESSAGEBOX = PropertyFilters.getFont(p.getProperty("FNT_PERSISTANTMESSAGEBOX"),p.getProperty("FNT_PERSISTANTMESSAGEBOX_SIZE"));
-			
-		} catch (FontFormatException ffe){
-			SworeGame.crash("Error loading the font", ffe);
-		} catch (IOException ioe){
-			SworeGame.crash("Error loading the font", ioe);
-		}
-		
-		/*-- Load UI Images */
-		try {
-			IMG_STATUSSCR_BGROUND = ImageUtils.createImage(p.getProperty("IMG_STATUSSCR_BGROUND"));
-			GADGETSIZE = PropertyFilters.inte(p.getProperty("GADGETSIZE"));
-			BufferedImage IMG_GADGETS = PropertyFilters.getImage(p.getProperty("IMG_GADGETS"), p.getProperty("IMG_GADGETS_BOUNDS"));
-			TILE_LINE_AIM  = ImageUtils.crearImagen(IMG_GADGETS, 0, 0, GADGETSIZE, GADGETSIZE);
-			TILE_SCAN  = ImageUtils.crearImagen(IMG_GADGETS, GADGETSIZE, 0, GADGETSIZE, GADGETSIZE);
-			TILE_LINE_STEPS  = ImageUtils.crearImagen(IMG_GADGETS, GADGETSIZE*2, 0, GADGETSIZE, GADGETSIZE);
-			
-			IMG_ICON = ImageUtils.createImage(p.getProperty("IMG_ICON"));
-			COLOR_BOLD = PropertyFilters.getColor(p.getProperty("COLOR_BOLD"));
-			IMG_BORDERS = PropertyFilters.getImage(p.getProperty("IMG_BORDERS"), p.getProperty("IMG_BORDERS_BOUNDS"));
-			
-			BORDER1 = ImageUtils.crearImagen(IMG_BORDERS, tileSize,0,tileSize,tileSize);
-			BORDER2 = ImageUtils.crearImagen(IMG_BORDERS, 0,0,tileSize,tileSize);
-			BORDER3 = ImageUtils.crearImagen(IMG_BORDERS, tileSize*3,0,tileSize,tileSize);
-			BORDER4 = ImageUtils.crearImagen(IMG_BORDERS, tileSize*2,0, tileSize,tileSize);
-			
-			FNT_TITLE = PropertyFilters.getFont(p.getProperty("FNT_TITLE"), p.getProperty("FNT_TITLE_SIZE"));
-			FNT_TEXT = PropertyFilters.getFont(p.getProperty("FNT_TEXT"), p.getProperty("FNT_TEXT_SIZE"));
-			FNT_DIALOGUEIN  = FNT_TEXT;
-			FNT_MONO = PropertyFilters.getFont(p.getProperty("FNT_MONO"), p.getProperty("FNT_MONO_SIZE"));
-			
-			IMG_YES_BUTTON = PropertyFilters.getImage(p.getProperty("IMG_UI"), p.getProperty("BTN_YES_BOUNDS"));
-			IMG_NO_BUTTON = PropertyFilters.getImage(p.getProperty("IMG_UI"), p.getProperty("BTN_NO_BOUNDS"));
-			IMG_YES_HOVER_BUTTON = PropertyFilters.getImage(p.getProperty("IMG_UI"), p.getProperty("BTN_YES_HOVER_BOUNDS"));
-			IMG_NO_HOVER_BUTTON = PropertyFilters.getImage(p.getProperty("IMG_UI"), p.getProperty("BTN_NO_HOVER_BOUNDS"));
-			
-		} catch (Exception e){
-			SworeGame.crash(e.getMessage(),e);
-		}
-		
-		
-		
-		
+		COLOR_BOLD = PropertyFilters.getColor(p.getProperty("COLOR_BOLD"));
 	}
     
 	private Cursor LOOK_CURSOR;
 	private boolean useMouse = false;
 	
-	public void init(SwingSystemInterface psi, String title, UserCommand[] gameCommands, Properties UIProperties, Action target){
+	public void init(SwingSystemInterface psi, String title, UserCommand[] gameCommands, Properties UIProperties, Assets assets, Action target){
 		super.init(gameCommands);
 		this.target = target;
 		tileSize = PropertyFilters.inte(UIProperties.getProperty("TILE_SIZE"));
-
+		initAssets(assets);
 		initProperties(UIProperties);
 		//GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice().setDisplayMode(new DisplayMode(800,600,8, DisplayMode.REFRESH_RATE_UNKNOWN));
 		
@@ -841,7 +800,7 @@ public abstract class GFXUserInterface extends UserInterface implements Runnable
 		addornedTextArea.setEnabled(false);
 		addornedTextArea.setForeground(Color.WHITE);
 		addornedTextArea.setBackground(Color.BLACK);
-		addornedTextArea.setFont(FNT_DIALOGUEIN);
+		addornedTextArea.setFont(getFontAsset("FNT_DIALOGUE"));
 		addornedTextArea.setOpaque(false);
 		addornedTextArea.setForeground(new Color(244,226,108));
 		psi.add(addornedTextArea);
@@ -861,7 +820,7 @@ public abstract class GFXUserInterface extends UserInterface implements Runnable
 		messageBox.setBounds(PropertyFilters.getRectangle(UIProperties.getProperty("MSGBOX_BOUNDS")));
 		messageBox.setForeground(COLOR_LAST_MESSAGE);
 		messageBox.setBackground(Color.BLACK);
-		messageBox.setFont(FNT_MESSAGEBOX);
+		messageBox.setFont(getFontAsset("FNT_MESSAGEBOX"));
 		messageBox.setEditable(false);
 		messageBox.setVisible(false);
 		messageBox.setOpaque(false);
@@ -878,11 +837,11 @@ public abstract class GFXUserInterface extends UserInterface implements Runnable
 				6,9,12);
 		persistantMessageBox.setBounds(520,90,260,400);
 		persistantMessageBox.setVisible(false);
-		persistantMessageBox.setFont(FNT_PERSISTANTMESSAGEBOX);
+		persistantMessageBox.setFont(getFontAsset("FNT_PERSISTANTMESSAGEBOX"));
 		persistantMessageBox.setForeground(Color.WHITE);
 		psi.add(persistantMessageBox);
 
-		LOOK_CURSOR = createCursor(UIProperties.getProperty("IMG_CURSORS"), 6, 2, 10, 4);
+		LOOK_CURSOR = assets.getCursorAsset("LOOK_CURSOR");
 		
 		mapLayer = new TiledLayer(xrange*2+1, yrange*2+1, tileSize, tileSize, new Position((PC_POS.x-xrange)*tileSize,(PC_POS.y-yrange)*tileSize), getMapLayer(), si);
 		featuresLayer = new TiledLayer(xrange*2+1, yrange*2+1, tileSize, tileSize, new Position((PC_POS.x-xrange)*tileSize,(PC_POS.y-yrange)*tileSize), getFeaturesLayer(), si);
@@ -1462,19 +1421,6 @@ public abstract class GFXUserInterface extends UserInterface implements Runnable
 		messageHistory.clear();
 	}
 
-	
-	public static Cursor createCursor (String cursorsFile, int x, int y, int hotX, int hotY){
-		Toolkit tk = Toolkit.getDefaultToolkit();
-		try {
-			Image cursorImage = ImageUtils.crearImagen(cursorsFile , x*tileSize, y*tileSize, tileSize, tileSize);
-			Cursor c = tk.createCustomCursor(cursorImage, new Point(hotX, hotY), "gfxui-"+x+"-"+y);
-			return c;
-		} catch (IOException e) {
-			SworeGame.crash("Error loading cursors", e);
-			return null;
-		}
-	}
-	
 	/**
 	 * Saves the contents of the map and UI Layer in order to reset 
 	 * them after using the UILayer  
@@ -1499,6 +1445,24 @@ public abstract class GFXUserInterface extends UserInterface implements Runnable
 	}
 	
 	protected void showStandardMessageBox(){
+	}
+	
+	private Assets assets;
+	
+	public Assets getAssets() {
+		return assets;
+	}
+	
+	public Font getFontAsset(String assetId){
+		return assets.getFontAsset(assetId);
+	}
+	
+	protected Image getImageAsset(String assetId) {
+		return assets.getImageAsset(assetId);
+	}
+	
+	public Cursor getCursorAsset(String assetId){
+		return assets.getCursorAsset(assetId);
 	}
 }
 
