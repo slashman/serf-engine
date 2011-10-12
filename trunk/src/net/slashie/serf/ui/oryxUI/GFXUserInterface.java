@@ -475,6 +475,7 @@ public abstract class GFXUserInterface extends UserInterface implements Runnable
 	}
 	
 	protected AddornedBorderTextArea addornedTextArea;
+	private long lastDrawLevel;
 
 	public boolean showTextBoxPrompt(String text, int xPos, int yPos, int width, int height){
 		boolean wasVisible = messageBox.isVisible();
@@ -589,6 +590,7 @@ public abstract class GFXUserInterface extends UserInterface implements Runnable
 	}
 	
 	private synchronized void drawLevel(){
+		mapUpdateRunnable.setIdle(true);
 		mapUpdateRunnable.setEnabled(true);
 		AbstractCell [][] rcells = level.getMemoryCellsAround(player.getPosition().x,player.getPosition().y, player.getPosition().z, xrange,yrange);
 		EnvironmentInfo environmentInfo = player.getEnvironmentAround(xrange,yrange);
@@ -676,6 +678,7 @@ public abstract class GFXUserInterface extends UserInterface implements Runnable
 		si.commitLayer(getFeaturesLayer(), false);
 		si.commitLayer(getItemsLayer(), false);
 		si.commitLayer(getActorsLayer(), false);
+		lastDrawLevel = System.currentTimeMillis();
 		
 	}
 	
@@ -857,23 +860,33 @@ public abstract class GFXUserInterface extends UserInterface implements Runnable
 	class MapUpdateRunnable implements Runnable {
 		private TiledLayer mapLayer;
 		private boolean enabled;
+		private boolean idle;
 		
 		public MapUpdateRunnable(TiledLayer mapLayer) {
 			this.mapLayer = mapLayer;
+		}
+
+		public void setIdle(boolean b) {
+			this.idle = b;
 		}
 
 		@Override
 		public void run() {
 			while (true){
 				if (enabled){
-					mapLayer.draw();
-					if (enabled){
-						mapLayer.commit();
+					if (idle){
+						if (System.currentTimeMillis() - lastDrawLevel > 1000)
+							idle = false;
+					} else {
+						mapLayer.draw();
+						if (enabled){
+							mapLayer.commit();
+						}
+						try {
+							Thread.sleep(500);
+						} catch (InterruptedException e) {}
 					}
 				}
-				try {
-					Thread.sleep(500);
-				} catch (InterruptedException e) {}
 			}
 		}
 
