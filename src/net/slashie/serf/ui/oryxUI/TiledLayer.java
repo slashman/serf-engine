@@ -39,8 +39,10 @@ public class TiledLayer {
 		System.arraycopy(tileBuffer, 0, tiles, 0, tileBuffer.length);
 	}
 	
-	public void draw(){
-		si.cleanLayer(layerIndex);
+	public void draw(boolean clean){
+		if (clean){
+			si.cleanLayer(layerIndex);
+		}
 		long currentMillis = System.currentTimeMillis();
 		for (int y = 0; y < tiles[0].length; y++){
 			for (int x=0; x < tiles.length; x++){
