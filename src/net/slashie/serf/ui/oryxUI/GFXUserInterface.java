@@ -1186,6 +1186,11 @@ public abstract class GFXUserInterface extends UserInterface implements Runnable
 		  	if (!player.getFlag("KEEPMESSAGES"))
 		  		eraseOnArrival = true;
 		  	si.saveLayer(getMapLayer());
+		  	//Yield a bit
+		  	try {
+				Thread.sleep(100);
+			} catch (InterruptedException e) {
+			}
 		}
 	  	
     }
