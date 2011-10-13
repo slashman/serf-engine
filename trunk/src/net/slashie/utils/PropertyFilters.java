@@ -3,6 +3,7 @@ package net.slashie.utils;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.FontFormatException;
+import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -40,5 +41,10 @@ public class PropertyFilters {
 	public static Position getPosition(String coord){
 		String [] components = coord.split(",");
 		return new Position(inte(components[0]), inte(components[1]));
+	}
+	
+	public static Point getPoint(String coord){
+		String [] components = coord.split(",");
+		return new Point(inte(components[0]), inte(components[1]));
 	}
 }

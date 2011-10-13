@@ -174,10 +174,15 @@ public class UIAssetsLoader {
 	}
 	private static Image processTilesetImage(String graphicsPackPath, String filename, Element imageElement, Assets assets) throws IOException {
 		String strBounds = imageElement.getAttribute("bounds");
-		if (strBounds == null || strBounds.equals("")){
-			return ImageUtils.createImage(graphicsPackPath+"/"+filename);
-		} else {
-			return PropertyFilters.getImage(graphicsPackPath+"/"+filename, strBounds);
+		try {
+			if (strBounds == null || strBounds.equals("")){
+				return ImageUtils.createImage(graphicsPackPath+"/"+filename);
+			} else {
+				return PropertyFilters.getImage(graphicsPackPath+"/"+filename, strBounds);
+			}
+		} catch (IOException e) {
+			System.err.println("Error loading image "+filename+" "+strBounds);
+			throw e;
 		}	
 	}
 
@@ -199,10 +204,15 @@ public class UIAssetsLoader {
 	private static Image processImage(String graphicsPackPath, Element imageElement, Assets assets) throws IOException {
 		String strBounds = imageElement.getAttribute("bounds");
 		String filename = imageElement.getAttribute("file");
-		if (strBounds == null || strBounds.equals("")){
-			return ImageUtils.createImage(graphicsPackPath+"/"+filename);
-		} else {
-			return PropertyFilters.getImage(graphicsPackPath+"/"+filename, strBounds);
+		try {
+			if (strBounds == null || strBounds.equals("")){
+				return ImageUtils.createImage(graphicsPackPath+"/"+filename);
+			} else {
+				return PropertyFilters.getImage(graphicsPackPath+"/"+filename, strBounds);
+			}
+		} catch (IOException e) {
+			System.err.println("Error loading "+filename);
+			throw e;
 		}
 	}
 	
