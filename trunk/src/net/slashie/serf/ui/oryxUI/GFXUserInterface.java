@@ -471,7 +471,6 @@ public abstract class GFXUserInterface extends UserInterface implements Runnable
 	}
 	
 	protected AddornedBorderTextArea addornedTextArea;
-	private long lastDrawLevel;
 
 	public boolean showTextBoxPrompt(String text, int xPos, int yPos, int width, int height){
 		boolean wasVisible = messageBox.isVisible();
@@ -674,7 +673,7 @@ public abstract class GFXUserInterface extends UserInterface implements Runnable
 		si.commitLayer(getFeaturesLayer(), false);
 		si.commitLayer(getItemsLayer(), false);
 		si.commitLayer(getActorsLayer(), false);
-		lastDrawLevel = System.currentTimeMillis();
+		mapUpdateRunnable.setLastDrawLevel(System.currentTimeMillis());
 		
 	}
 	
@@ -857,9 +856,14 @@ public abstract class GFXUserInterface extends UserInterface implements Runnable
 		private TiledLayer mapLayer;
 		private boolean enabled;
 		private boolean idle;
+		private long lastDrawLevel;
 		
 		public MapUpdateRunnable(TiledLayer mapLayer) {
 			this.mapLayer = mapLayer;
+		}
+
+		public void setLastDrawLevel(long lastDrawLevel) {
+			this.lastDrawLevel = lastDrawLevel;
 		}
 
 		public void setIdle(boolean b) {
