@@ -50,6 +50,7 @@ public class SwingSystemInterface implements Runnable{
 	}
 	private SwingInterfacePanel sip;
 	private JPanel componentsPanel;
+	private int screenWidth, screenHeight;
 
 	private StrokeNClickInformer aStrokeInformer;
 	private Position caretPosition = new Position(0,0);
@@ -91,24 +92,26 @@ public class SwingSystemInterface implements Runnable{
 	// Initialization
 	
 	public SwingSystemInterface (){
-		this(false);
+		this(false, 800, 600);
 	}
 	
-	public SwingSystemInterface (boolean fullScreen){
-		this(1, fullScreen);
+	public SwingSystemInterface (boolean fullScreen, int screenWidth, int screenHeight){
+		this(1, fullScreen, screenWidth, screenHeight);
 	}
 	
-	public SwingSystemInterface (int layers, boolean fullScreen){
-		this (layers, fullScreen, 20);
+	public SwingSystemInterface (int layers, boolean fullScreen, int screenWidth, int screenHeight){
+		this (layers, fullScreen, screenWidth, screenHeight, 20);
 	}
 	
-	public SwingSystemInterface (int layers, boolean fullScreen, int fps){
+	public SwingSystemInterface (int layers, boolean fullScreen, final int screenWidth, int screenHeight, int fps){
+		this.screenWidth = screenWidth;
+		this.screenHeight = screenHeight;
 		if (fullScreen)
-			initFullScreen();
+			initFullScreen(screenWidth, screenHeight);
 		else {
 			Dimension size = Toolkit.getDefaultToolkit().getScreenSize();
     		frameMain = new JFrame();
-    		frameMain.setBounds((size.width - 800)/2,(size.height-600)/2,800,600);
+    		frameMain.setBounds((size.width - screenWidth)/2,(size.height-screenHeight)/2,screenWidth,screenHeight);
     		frameMain.getContentPane().setLayout(new GridLayout(1,1));
     		frameMain.setUndecorated(true);
     		frameMain.setVisible(true);
@@ -120,16 +123,16 @@ public class SwingSystemInterface implements Runnable{
 		
 		JLayeredPane layeredPane = new JLayeredPane();
 		frameMain.getContentPane().add(layeredPane);
-		layeredPane.setBounds(0,0,800,600);
+		layeredPane.setBounds(0,0,screenWidth,screenHeight);
 		
 		componentsPanel = new JPanel();
-		componentsPanel.setBounds(0,0,800,600);
+		componentsPanel.setBounds(0,0,screenWidth,screenHeight);
 		componentsPanel.setOpaque(false);
 		componentsPanel.setLayout(null);
 		layeredPane.add(componentsPanel);
 		
 		sip = new SwingInterfacePanel();
-		sip.setBounds(0,0,800,600);
+		sip.setBounds(0,0,screenWidth,screenHeight);
 		layeredPane.add(sip);
 		
 			
@@ -152,7 +155,7 @@ public class SwingSystemInterface implements Runnable{
 			public void mouseDragged(MouseEvent e) {
 				if (isFullScreen)
 					return;
-				if (posClic.getY() > 26 || posClic.getX() < 800 - 26)
+				if (posClic.getY() > 26 || posClic.getX() < screenWidth - 26)
 					return;
 		        frameMain.setLocation(e.getX()-posClic.x+frameMain.getLocation().x, e.getY()-posClic.y+frameMain.getLocation().y);
 			}
@@ -191,7 +194,7 @@ public class SwingSystemInterface implements Runnable{
 	}
 	
 	private boolean isFullScreen = false;
-	private Component initFullScreen() {
+	private Component initFullScreen(int screenWidth, int screenHeight) {
 		GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
 		GraphicsDevice gs = ge.getDefaultScreenDevice();
 		
@@ -200,7 +203,7 @@ public class SwingSystemInterface implements Runnable{
 			
 			// frameMain = new JFrame(gs.getDefaultConfiguration());
 			frameMain = new JFrame(gs.getDefaultConfiguration());
-			frameMain.setBounds(0,0,800,600);
+			frameMain.setBounds(0,0,screenWidth,screenHeight);
 			frameMain.getContentPane().setLayout(new GridLayout(1,1));
 			frameMain.setUndecorated(true);
 			frameMain.setVisible(true);
@@ -219,8 +222,6 @@ public class SwingSystemInterface implements Runnable{
     			System.out.println("Can change screen size");
     	        // Change the screen size and number of colors
     	        DisplayMode displayMode = gs.getDisplayMode();
-    	        int screenWidth = 800;
-    	        int screenHeight = 600;
     	        int bitDepth = 16;
     	        displayMode = new DisplayMode(screenWidth, screenHeight, bitDepth, displayMode.getRefreshRate());
     	        try {
@@ -240,7 +241,7 @@ public class SwingSystemInterface implements Runnable{
     	} else {
     		Dimension size = Toolkit.getDefaultToolkit().getScreenSize();
     		frameMain = new JFrame();
-    		frameMain.setBounds((size.width - 800)/2,(size.height-600)/2,800,600);
+    		frameMain.setBounds((size.width - screenWidth)/2,(size.height-screenHeight)/2,screenWidth,screenHeight);
     		frameMain.getContentPane().setLayout(new GridLayout(1,1));
     		frameMain.setUndecorated(true);
     		frameMain.setVisible(true);
@@ -920,10 +921,10 @@ class SwingInterfacePanel extends JPanel{
 	public void cls(int layer){
 		Color oldColor = drawingGraphics[layer].getColor();
 		drawingGraphics[layer].setColor(Color.BLACK);
-		drawingGraphics[layer].fillRect(0,0,800,600);
+		drawingGraphics[layer].fillRect(0,0,getWidth(),getHeight());
 		drawingGraphics[layer].setColor(oldColor);
 	}
-		
+	
 	public void setColor(int layer, Color color){
 		drawingGraphics[layer].setColor(color);
 	}
@@ -978,7 +979,7 @@ class SwingInterfacePanel extends JPanel{
 	GraphicsConfiguration gc = gs.getDefaultConfiguration();
 	// TODO: Fix this, should be expensive to create a new image everytime... just to clear the image to a transparent one.	
 	private Image getTransparentImage(){
-		return gc.createCompatibleImage(800, 600, Transparency.BITMASK);
+		return gc.createCompatibleImage(getWidth(), getHeight(), Transparency.BITMASK);
 	}
 	
 	public void flash(Color c){
@@ -1077,7 +1078,7 @@ class SwingInterfacePanel extends JPanel{
 		if (layerImages != null && compositeGraphics != null){
 			super.paintComponent(compositeGraphics);
 			compositeGraphics.setColor(Color.BLACK);
-			compositeGraphics.fillRect(0,0,800,600);
+			compositeGraphics.fillRect(0,0,getWidth(),getHeight());
 			for (int i = 0; i < layerImages.length; i++){
 				compositeGraphics.drawImage(layerImages[i], 0,0,this);
 			}
