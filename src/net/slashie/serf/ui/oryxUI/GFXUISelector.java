@@ -194,7 +194,7 @@ public class GFXUISelector extends UISelector implements ActionSelector, Seriali
 	    while (true){
 	    	activate();
 	    	if (ui().gameOver()){
-	    		deactivate();
+	    		shutdown();
 	    		return null;
 	    	}
 	    	String selection = null;
@@ -277,6 +277,10 @@ public class GFXUISelector extends UISelector implements ActionSelector, Seriali
 	    		return advanceInDirection(direction);
 	    	}
 		}
+	}
+
+	protected void shutdown() {
+		
 	}
 
 	protected Action advanceInDirection(int direction) {
