@@ -180,10 +180,10 @@ public class GFXUISelector extends UISelector implements ActionSelector, Seriali
 		};
 	}
 
-	int x1 = (int)Math.round((800.0/9.0)*4.0);
-	int x2 = (int)Math.round((800.0/9.0)*5.0);
-	int y1 = (int)Math.round((600.0/9.0)*4.0);
-	int y2 = (int)Math.round((600.0/9.0)*5.0);
+	int x1 = (int)Math.round(((double)si.getScreenWidth()/9.0)*4.0);
+	int x2 = (int)Math.round(((double)si.getScreenWidth()/9.0)*5.0);
+	int y1 = (int)Math.round(((double)si.getScreenHeight()/9.0)*4.0);
+	int y2 = (int)Math.round(((double)si.getScreenHeight()/9.0)*5.0);
 	
 	public GFXUserInterface ui(){
 		return (GFXUserInterface) getUI();
