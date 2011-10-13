@@ -134,7 +134,7 @@ public abstract class GFXUserInterface extends UserInterface implements Runnable
 		int remnanty = (int)((480 - (lh * 3))/2.0d);
 		Graphics2D g = si.getDrawingGraphics(getUILayer());
 		g.setColor(TRANSPARENT_GRAY);
-		g.fillRect(0,0,800,600);
+		g.fillRect(0,0,si.getScreenWidth(),si.getScreenHeight());
 		Color cellColor = null;
 		Position runner = new Position(0,0,player.getPosition().z);
 		boolean isBufferedLevel = level instanceof BufferedLevel;
@@ -808,7 +808,7 @@ public abstract class GFXUserInterface extends UserInterface implements Runnable
 		si = psi;
 		FOVMask = new boolean[80][25];
 		si.getDrawingGraphics(getMapLayer()).setColor(Color.BLACK);
-		si.getDrawingGraphics(getMapLayer()).fillRect(0,0,800,600);
+		si.getDrawingGraphics(getMapLayer()).fillRect(0,0,si.getScreenWidth(),si.getScreenHeight());
 		si.commitLayer(getMapLayer());
 		
 		si.setIcon(IMG_ICON);

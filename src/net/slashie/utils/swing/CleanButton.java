@@ -53,8 +53,8 @@ public class CleanButton extends JButton{
 					FontMetrics metrics = legendLabel.getFontMetrics(legendLabel.getFont());
 					int textWidth = (int)(metrics.stringWidth(text));
 					int xLocation = b.getLocationOnScreen().x+36-ssi.getScreenPosition().x;
-					if (xLocation + textWidth + 30  > 800){
-						int diff = xLocation + textWidth + 30 - 800;
+					if (xLocation + textWidth + 30  > ssi.getScreenWidth()){
+						int diff = xLocation + textWidth + 30 - ssi.getScreenWidth();
 						xLocation -= diff;
 					}
 					legendLabel.setText(getPopupText());

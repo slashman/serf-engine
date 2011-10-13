@@ -796,6 +796,15 @@ public class SwingSystemInterface implements Runnable{
 		FontMetrics metrics = getDrawingGraphics(layer).getFontMetrics(getDrawingGraphics(layer).getFont());
 		return (int)(metrics.stringWidth(text));
 	}
+
+	
+	public int getScreenWidth() {
+		return screenWidth;
+	}
+	
+	public int getScreenHeight(){
+		return screenHeight;
+	}
 }
 
 class SwingInterfacePanel extends JPanel{
