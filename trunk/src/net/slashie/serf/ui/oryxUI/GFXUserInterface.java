@@ -664,10 +664,10 @@ public abstract class GFXUserInterface extends UserInterface implements Runnable
 		itemsLayer.updateBuffer();
 		actorsLayer.updateBuffer();
 		
-		mapLayer.draw();
-		featuresLayer.draw();
-		itemsLayer.draw();
-		actorsLayer.draw();
+		mapLayer.draw(true);
+		featuresLayer.draw(true);
+		itemsLayer.draw(false);
+		actorsLayer.draw(false);
 		
 		si.commitLayer(getMapLayer(), false);
 		si.commitLayer(getFeaturesLayer(), false);
@@ -878,7 +878,7 @@ public abstract class GFXUserInterface extends UserInterface implements Runnable
 						if (System.currentTimeMillis() - lastDrawLevel > 1000)
 							idle = false;
 					} else {
-						mapLayer.draw();
+						mapLayer.draw(true);
 						if (enabled){
 							mapLayer.commit();
 						}
