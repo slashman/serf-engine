@@ -1,7 +1,9 @@
 package net.slashie.serf.sound;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -53,6 +55,12 @@ public class SFXManager {
 					}
 				}
 				if (playFile.equals("KILL")){
+					/*Close all lines*/
+					List<String> keys = new ArrayList<String>(map.keySet());
+					for (String key: keys){
+					   PlaybackInfo pbi = map.get(key);
+					   pbi.dataline.close();
+					}
 					break;
 				} else if (playFile.startsWith("VOLUME")){
 					lineVolume = (float) Integer.parseInt(playFile.substring(6)) / 100.0f;
@@ -65,28 +73,36 @@ public class SFXManager {
 		class PlaybackInfo {
 			AudioFormat af;
 			DataLine.Info info;
+			SourceDataLine dataline;
 		}
 		private Map<String, PlaybackInfo> map = new HashMap<String, PlaybackInfo>();
+
 		private float lineVolume = 1.0f;
 		
 		public void play (String file){
+			
 		   try{
-			   AudioInputStream ais = AudioSystem.getAudioInputStream (new File(file));
+			 AudioInputStream ais = AudioSystem.getAudioInputStream (new File(file));
+
 			   PlaybackInfo pbi = map.get(file);
 			   if (pbi == null){
 				   pbi = new PlaybackInfo();
 				   pbi.af = ais.getFormat();
 				   pbi.info = new DataLine.Info(SourceDataLine.class, pbi.af);
+				   
+				   int frameRate = (int)pbi.af.getFrameRate();
+				   int frameSize = pbi.af.getFrameSize();
+				   int bufSize = frameRate * frameSize / 10;
+				   SourceDataLine line = (SourceDataLine)AudioSystem.getLine(pbi.info);
+				   line.open(pbi.af, bufSize);
+				   pbi.dataline = line;
 				   map.put(file, pbi);
 			   }
-			   
+			   SourceDataLine line = pbi.dataline;
+			   line.start();
 			   int frameRate = (int)pbi.af.getFrameRate();
 			   int frameSize = pbi.af.getFrameSize();
 			   int bufSize = frameRate * frameSize / 10;
-			   SourceDataLine line = (SourceDataLine)AudioSystem.getLine(pbi.info);
-			   line.open(pbi.af, bufSize);
-			   
-			   line.start();
 			  
 				try {
 					FloatControl gainControl = (FloatControl) line.getControl(FloatControl.Type.MASTER_GAIN);
@@ -105,7 +121,6 @@ public class SFXManager {
 			   }
 			   line.drain();
 			   line.stop();
-			   line.close();
 		   }
 		   catch (Exception e){
 			   addReport("Error playing... "+e.toString());
