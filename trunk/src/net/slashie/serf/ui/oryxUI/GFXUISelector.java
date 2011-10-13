@@ -10,7 +10,6 @@ import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.io.Serializable;
 import java.util.Properties;
-import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
@@ -21,7 +20,6 @@ import net.slashie.libjcsi.CharKey;
 import net.slashie.serf.action.Action;
 import net.slashie.serf.action.ActionSelector;
 import net.slashie.serf.action.Actor;
-import net.slashie.serf.action.Message;
 import net.slashie.serf.ui.ActionCancelException;
 import net.slashie.serf.ui.UISelector;
 import net.slashie.serf.ui.UserAction;
@@ -69,6 +67,12 @@ public class GFXUISelector extends UISelector implements ActionSelector, Seriali
 	
 	protected int mouseDirection = -1;
 	protected Point mousePosition;
+	
+	// These define the mouse cuadrant
+	private int x1;
+	private int x2;
+	private int y1;
+	private int y2;
 	
 	protected boolean selectionActive = false;
 	
@@ -180,10 +184,7 @@ public class GFXUISelector extends UISelector implements ActionSelector, Seriali
 		};
 	}
 
-	int x1 = (int)Math.round(((double)si.getScreenWidth()/9.0)*4.0);
-	int x2 = (int)Math.round(((double)si.getScreenWidth()/9.0)*5.0);
-	int y1 = (int)Math.round(((double)si.getScreenHeight()/9.0)*4.0);
-	int y2 = (int)Math.round(((double)si.getScreenHeight()/9.0)*5.0);
+	
 	
 	public GFXUserInterface ui(){
 		return (GFXUserInterface) getUI();
