@@ -1357,10 +1357,10 @@ public abstract class GFXUserInterface extends UserInterface implements Runnable
 		};
    		selectionBox.setItemsPerPage(options.length);
    		if (options.length < 5)
-   			selectionBox.setBounds(80, 300, 640,250);
+   			selectionBox.setBounds(80, 250, 640,300);
    		else {
    			int add = options.length - 5;
-   			selectionBox.setBounds(80, 300 - add * tileSize, 640,250 + add * tileSize);
+   			selectionBox.setBounds(80, 250 - add * tileSize, 640,300 + add * tileSize);
    		}
   		Vector<GFXMenuItem> menuItems = new Vector<GFXMenuItem>();
   		int i = 0;
