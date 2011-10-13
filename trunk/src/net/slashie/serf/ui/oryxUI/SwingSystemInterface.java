@@ -185,7 +185,6 @@ public class SwingSystemInterface implements Runnable{
         	public void actionPerformed(ActionEvent e) {
         		if (sip.isUpdated()){
         			sip.outdate();
-        			//System.out.println("Repaint ");
         			sip.repaint();
         		}
         	}
@@ -897,19 +896,19 @@ class SwingInterfacePanel extends JPanel{
 		backupImages = new Image[layers];
 		backupGraphics = new Graphics[layers];
 		
-		compositeImage = getTransparentImage();
+		compositeImage = getTransparentImage_();
 		compositeGraphics = compositeImage.getGraphics();
 		
 		for (int i = 0; i < layers; i++){
-			layerImages[i] = getTransparentImage();
+			layerImages[i] = getTransparentImage_();
 			layerGraphics[i] = layerImages[i].getGraphics();
 			layerGraphics[i].setColor(Color.WHITE);
 			
-			drawingImages[i] = getTransparentImage();
+			drawingImages[i] = getTransparentImage_();
 			drawingGraphics[i] = drawingImages[i].getGraphics();
 			drawingGraphics[i].setColor(Color.WHITE);
 			
-			savedImages[i] = getTransparentImage();
+			savedImages[i] = getTransparentImage_();
 			savedGraphics[i] = savedImages[i].getGraphics();
 			savedGraphics[i].setColor(Color.WHITE);
 		}
@@ -918,7 +917,7 @@ class SwingInterfacePanel extends JPanel{
         backupImages = new Image[backupBoards];
         backupGraphics = new Graphics[backupBoards];
         for (int i = 0 ; i < backupBoards; i++){
-        	backupImages[i] = getTransparentImage();
+        	backupImages[i] = getTransparentImage_();
         	backupGraphics[i] = backupImages[i].getGraphics();
         }
         
@@ -975,20 +974,28 @@ class SwingInterfacePanel extends JPanel{
 	}
 	
 	public void cleanLayer(int layer){
-		//bufferGraphics[layer].clearRect(0, 0, 800, 600);
+		clearImage(drawingGraphics[layer]);
+/*
 		drawingImages[layer] =  getTransparentImage();
 		Font f =drawingGraphics[layer].getFont(); 
 		drawingGraphics[layer] = drawingImages[layer].getGraphics();
-		drawingGraphics[layer].setFont(f);
+		drawingGraphics[layer].setFont(f);*/
 	}
 	
 	
 	GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
 	GraphicsDevice gs = ge.getDefaultScreenDevice();
 	GraphicsConfiguration gc = gs.getDefaultConfiguration();
+	
 	// TODO: Fix this, should be expensive to create a new image everytime... just to clear the image to a transparent one.	
-	private Image getTransparentImage(){
+	private Image getTransparentImage_(){
 		return gc.createCompatibleImage(getWidth(), getHeight(), Transparency.BITMASK);
+	}
+	
+	Color transparent = new Color(255,255,255,0);
+	private void clearImage(Graphics g){
+		((Graphics2D)g).setBackground(transparent);
+		g.clearRect(0, 0, getWidth(), getHeight());
 	}
 	
 	public void flash(Color c){
@@ -1002,8 +1009,10 @@ class SwingInterfacePanel extends JPanel{
 	}*/
 	
 	public void save(int layer){
-		savedImages[layer] =  getTransparentImage();
-		savedGraphics[layer] = savedImages[layer].getGraphics();
+		clearImage(savedGraphics[layer]);
+
+		/*savedImages[layer] =  getTransparentImage();
+		savedGraphics[layer] = savedImages[layer].getGraphics();*/
 		
 		savedGraphics[layer].drawImage(layerImages[layer],0,0,this);
 	}
@@ -1013,8 +1022,9 @@ class SwingInterfacePanel extends JPanel{
 	}*/
 	
 	public void backup(int buffer, int layer){
-		backupImages[buffer] = getTransparentImage();
-		backupGraphics[buffer] = backupImages[buffer].getGraphics();
+		clearImage(backupGraphics[buffer]);
+		/*backupImages[buffer] = getTransparentImage();
+		backupGraphics[buffer] = backupImages[buffer].getGraphics();*/
 		backupGraphics[buffer].drawImage(layerImages[layer],0,0,this);
 	}
 	
@@ -1024,8 +1034,11 @@ class SwingInterfacePanel extends JPanel{
 	}*/
 	
 	public synchronized void load(int layer){
-		layerImages[layer] =  getTransparentImage();
-		layerGraphics[layer] = layerImages[layer].getGraphics();
+		clearImage(layerGraphics[layer]);
+
+		/*layerImages[layer] =  getTransparentImage();
+		layerGraphics[layer] = layerImages[layer].getGraphics();*/
+		
 		layerGraphics[layer].drawImage(savedImages[layer], 0,0,this);
 		setUpdated();
 	}
@@ -1033,10 +1046,12 @@ class SwingInterfacePanel extends JPanel{
 	
 
 	public void loadAndDraw(int layer){
-		drawingImages[layer] =  getTransparentImage();
+		clearImage(drawingGraphics[layer]);
+
+		/*drawingImages[layer] =  getTransparentImage();
 		Font f = drawingGraphics[layer].getFont(); 
 		drawingGraphics[layer] = drawingImages[layer].getGraphics();
-		drawingGraphics[layer].setFont(f);
+		drawingGraphics[layer].setFont(f);*/
 		drawingGraphics[layer].drawImage(savedImages[layer], 0,0,this);
 	}
 	
@@ -1051,10 +1066,11 @@ class SwingInterfacePanel extends JPanel{
 	}
 	
 	public synchronized void restoreAndDraw(int buffer, int layer){
-		drawingImages[layer] =  getTransparentImage();
+		clearImage(drawingGraphics[layer]);
+		/*drawingImages[layer] =  getTransparentImage();
 		Font f = drawingGraphics[layer].getFont(); 
 		drawingGraphics[layer] = drawingImages[layer].getGraphics();
-		drawingGraphics[layer].setFont(f);
+		drawingGraphics[layer].setFont(f);*/
 		drawingGraphics[layer].drawImage(backupImages[buffer], 0,0,this);
 	}
 	
@@ -1071,9 +1087,11 @@ class SwingInterfacePanel extends JPanel{
 	 * @param layer
 	 */
 	public synchronized void commit(int layer, boolean setUpdated){
+		clearImage(layerGraphics[layer]);
+
 		// Clean the layer 
-		layerImages[layer] =  getTransparentImage();
-		layerGraphics[layer] = layerImages[layer].getGraphics();
+		/*layerImages[layer] =  getTransparentImage();
+		layerGraphics[layer] = layerImages[layer].getGraphics();*/
 		layerGraphics[layer].drawImage(drawingImages[layer], 0,0,this);
 		if (setUpdated)
 			setUpdated();
@@ -1089,9 +1107,9 @@ class SwingInterfacePanel extends JPanel{
 			compositeGraphics.setColor(Color.BLACK);
 			compositeGraphics.fillRect(0,0,getWidth(),getHeight());
 			for (int i = 0; i < layerImages.length; i++){
-				compositeGraphics.drawImage(layerImages[i], 0,0,this);
+				compositeGraphics.drawImage(layerImages[i], 0,0,null);
 			}
-			g.drawImage(compositeImage, 0, 0, this);
+			g.drawImage(compositeImage, 0, 0, null);
 		}
 	}
 	
