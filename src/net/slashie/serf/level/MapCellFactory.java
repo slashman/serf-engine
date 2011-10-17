@@ -34,5 +34,10 @@ public class MapCellFactory {
 		for (int i = 0; i < defs.length; i++)
 			definitions.put(defs[i].getID(), defs[i]);
 	}
+	
+	public void init(List<AbstractCell> defs) {
+		for (int i = 0; i < defs.size(); i++)
+			definitions.put(defs.get(i).getID(), defs.get(i));
+	}
 
 }
