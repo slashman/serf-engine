@@ -1103,18 +1103,20 @@ class SwingInterfacePanel extends JPanel{
 	 */
 	public synchronized void paintComponent(Graphics g){
 		if (layerImages != null && compositeGraphics != null){
-			super.paintComponent(compositeGraphics);
+			/*super.paintComponent(compositeGraphics);
 			compositeGraphics.setColor(Color.BLACK);
 			compositeGraphics.fillRect(0,0,getWidth(),getHeight());
 			for (int i = 0; i < layerImages.length; i++){
 				compositeGraphics.drawImage(layerImages[i], 0,0,null);
 			}
-			g.drawImage(compositeImage, 0, 0, null);
+			g.drawImage(compositeImage, 0, 0, null);*/
+			super.paintComponent(g);
+			g.setColor(Color.BLACK);
+			g.fillRect(0,0,getWidth(),getHeight());
+			for (int i = 0; i < layerImages.length; i++){
+				g.drawImage(layerImages[i], 0,0,null);
+			}
 		}
-	}
-	
-	public Component add(Component comp) {
-		return super.add(comp);
 	}
 }
 
