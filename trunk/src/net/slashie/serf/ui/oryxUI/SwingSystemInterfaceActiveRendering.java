@@ -1,4 +1,4 @@
-package net.slashie.serf.ui;
+package net.slashie.serf.ui.oryxUI;
 
 import java.awt.Canvas;
 import java.awt.Color;
@@ -8,7 +8,6 @@ import java.awt.Dimension;
 import java.awt.DisplayMode;
 import java.awt.Font;
 import java.awt.FontMetrics;
-import java.awt.Frame;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.GraphicsConfiguration;
@@ -19,7 +18,6 @@ import java.awt.Image;
 import java.awt.Point;
 import java.awt.Toolkit;
 import java.awt.Transparency;
-import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
@@ -38,7 +36,6 @@ import javax.swing.JLayeredPane;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 import javax.swing.Timer;
-import javax.swing.border.LineBorder;
 
 import net.slashie.libjcsi.CharKey;
 import net.slashie.serf.game.SworeGame;
@@ -47,8 +44,8 @@ import net.slashie.utils.Position;
 import net.slashie.utils.swing.CallbackKeyListener;
 import net.slashie.utils.swing.CallbackMouseListener;
 
-public class SwingSystemInterfaceActiveRendering { 
-	private SwingInterfacePanel sip;
+public class SwingSystemInterfaceActiveRendering extends SwingSystemInterface { 
+	private SwingInterfacePanelAR sip;
 	private JPanel componentsPanel;
 	private int screenWidth, screenHeight;
 
@@ -131,7 +128,7 @@ public class SwingSystemInterfaceActiveRendering {
 		componentsPanel.setLayout(null);
 		layeredPane.add(componentsPanel);
 		
-		sip = new SwingInterfacePanel();
+		sip = new SwingInterfacePanelAR();
 		sip.setBounds(0,0,screenWidth,screenHeight);
 		layeredPane.add(sip);
 		
@@ -184,10 +181,7 @@ public class SwingSystemInterfaceActiveRendering {
         	public void actionPerformed(ActionEvent e) {
         		if (sip.isUpdated()){
         			sip.outdate();
-        			//sip.repaint();
-        			componentsPanel.repaint();
-        			//sip.draw();
-        			
+        			sip.draw(componentsPanel);
         		}
         	}
         });
@@ -563,9 +557,7 @@ public class SwingSystemInterfaceActiveRendering {
 		frameMain.removeMouseListener(listener);
 	}
 
-	public StrokeNClickInformer getStrokeInformer() {
-		return aStrokeInformer;
-	}
+	
 	
 	public static int charCode(KeyEvent x){
     	int code = x.getKeyCode();
@@ -808,7 +800,7 @@ public class SwingSystemInterfaceActiveRendering {
 	}
 }
 
-class SwingInterfacePanel extends Canvas{
+class SwingInterfacePanelAR extends Canvas{
 	/**
 	 * 
  	 *      Drawing         Layer       Composite 
@@ -884,11 +876,6 @@ class SwingInterfacePanel extends Canvas{
 		createBufferStrategy(2);
 	}
 	
-	public SwingInterfacePanel(){
-		/*setLayout(null);
-		setBorder(new LineBorder(Color.GRAY));*/
-	}
-
 	public void init(int layers){
 		init(layers, 2);
 	}
@@ -1085,7 +1072,7 @@ class SwingInterfacePanel extends Canvas{
 	 * NOTE: It's very important for this method to be synchronized to avoid flickering
 	 * @param layer
 	 */
-	public synchronized void draw(){
+	public synchronized void draw(JPanel componentsPanel){
 		BufferStrategy bs = getBufferStrategy();
 		if (bs == null)
 			return;
@@ -1098,36 +1085,8 @@ class SwingInterfacePanel extends Canvas{
 			}
 			g.drawImage(compositeImage, 0, 0, null);
 		}
+		componentsPanel.paint(g);
 		getBufferStrategy().show();
         g.dispose();
 	}
 }
-
-class StrokeInformer implements KeyListener{
-	protected int bufferCode;
-	protected transient Thread keyListener;
-
-	public StrokeInformer(){
-		bufferCode = -1;
-	}
-
-	public void informKey (Thread toWho){
-		keyListener = toWho;
-	}
-
-	public int getInkeyBuffer(){
-		return bufferCode;
-	}
-
-	public void keyPressed(KeyEvent e) {
-	    bufferCode = SwingSystemInterfaceActiveRendering.charCode(e);
-	    //if (!e.isShiftDown())
-	    if (keyListener != null)
-		    keyListener.interrupt();
-    }
-
-    public void keyReleased(KeyEvent e) {}
-    
-    public void keyTyped(KeyEvent e) {}
-}
-
