@@ -1,10 +1,13 @@
 package net.slashie.lang;
 
-public class Percentage {
+import java.io.Serializable;
+
+@SuppressWarnings("serial")
+public class Percentage implements Serializable{
 	private double value;
 	
 	public Percentage(int value) {
-		this.value = value;
+		this.value = (double) value / 100.0d;
 	}
 	
 	public Percentage(double value) {
