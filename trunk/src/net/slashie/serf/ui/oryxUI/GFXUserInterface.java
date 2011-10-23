@@ -770,7 +770,11 @@ public abstract class GFXUserInterface extends UserInterface implements Runnable
 	public void init(SwingSystemInterface psi, String title, UserCommand[] gameCommands, Properties UIProperties, Assets assets, Action target){
 		super.init(gameCommands);
 		this.target = target;
-		tileSize = PropertyFilters.inte(UIProperties.getProperty("TILE_SIZE"));
+		int tileHeight = PropertyFilters.inte(UIProperties.getProperty("TILE_HEIGHT"));
+		int tileWidth = PropertyFilters.inte(UIProperties.getProperty("TILE_WIDTH"));
+		int tileSuperHeight = PropertyFilters.inte(UIProperties.getProperty("TILE_SUPER_HEIGHT"));
+		int tileSuperWidth = PropertyFilters.inte(UIProperties.getProperty("TILE_SUPER_WIDTH"));
+		tileSize = tileHeight;
 		initAssets(assets);
 		initProperties(UIProperties);
 		//GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice().setDisplayMode(new DisplayMode(800,600,8, DisplayMode.REFRESH_RATE_UNKNOWN));
@@ -840,11 +844,12 @@ public abstract class GFXUserInterface extends UserInterface implements Runnable
 		psi.add(persistantMessageBox);
 
 		LOOK_CURSOR = assets.getCursorAsset("LOOK_CURSOR");
-		
-		mapLayer = new TiledLayer(xrange*2+1, yrange*2+1, tileSize, tileSize, new Position((PC_POS.x-xrange)*tileSize,(PC_POS.y-yrange)*tileSize), getMapLayer(), si);
-		featuresLayer = new TiledLayer(xrange*2+1, yrange*2+1, tileSize, tileSize, new Position((PC_POS.x-xrange)*tileSize,(PC_POS.y-yrange)*tileSize), getFeaturesLayer(), si);
-		itemsLayer = new TiledLayer(xrange*2+1, yrange*2+1, tileSize, tileSize, new Position((PC_POS.x-xrange)*tileSize,(PC_POS.y-yrange)*tileSize), getItemsLayer(), si);
-		actorsLayer = new TiledLayer(xrange*2+1, yrange*2+1, tileSize, tileSize, new Position((PC_POS.x-xrange)*tileSize,(PC_POS.y-yrange)*tileSize), getActorsLayer(), si);
+		Position mapPosition = PropertyFilters.getPosition(UIProperties.getProperty("POS_MAP"));
+		//Position mapPosition = new Position((PC_POS.x-xrange)*tileWidth,(PC_POS.y-yrange)*tileHeight);
+		mapLayer = new TiledLayer(xrange*2+1, yrange*2+1, tileWidth, tileHeight, tileSuperWidth, tileSuperHeight, mapPosition, getMapLayer(), si);
+		featuresLayer = new TiledLayer(xrange*2+1, yrange*2+1, tileWidth, tileHeight, tileSuperWidth, tileSuperHeight, mapPosition, getFeaturesLayer(), si);
+		itemsLayer = new TiledLayer(xrange*2+1, yrange*2+1, tileWidth, tileHeight, tileSuperWidth, tileSuperHeight, mapPosition, getItemsLayer(), si);
+		actorsLayer = new TiledLayer(xrange*2+1, yrange*2+1, tileWidth, tileHeight, tileSuperWidth, tileSuperHeight, mapPosition, getActorsLayer(), si);
 		mapUpdateRunnable = new MapUpdateRunnable(mapLayer);
 		mapUpdateRunnable.setEnabled(false);
 		new Thread(mapUpdateRunnable).start();
