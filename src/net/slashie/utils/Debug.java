@@ -77,8 +77,7 @@ public class Debug {
 
 	public static void doAssert(boolean expression, String msg){
 		if (!expression){
-			System.out.println("Programming Assertion Failed:"+msg);
-			System.exit(0);
+			throw new RuntimeException("Programming Assertion Failed:"+msg);
 		}
 	}
 
