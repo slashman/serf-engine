@@ -108,9 +108,7 @@ public abstract class GFXUserInterface extends UserInterface implements Runnable
 		return Position.add(PC_POS, relative);
 	}
 
-	public Position VP_START = new Position(0,0),
-				VP_END = new Position (31,18),
-				PC_POS = new Position (12,9);
+	public Position VP_START, VP_END, PC_POS;
 	private boolean flipEnabled = true;
 	
     public void setFlipFacing(boolean val){
@@ -751,12 +749,12 @@ public abstract class GFXUserInterface extends UserInterface implements Runnable
 		
 	}
 	private void initProperties(Properties p){
-		xrange = PropertyFilters.inte(p.getProperty("XRANGE"));
-		yrange = PropertyFilters.inte(p.getProperty("YRANGE"));
-		PC_POS = PropertyFilters.getPosition(p.getProperty("PC_POS"));
+		xrange = PropertyFilters.inte(p.getProperty("MAX_SIGHT_RANGE"));
+		yrange = PropertyFilters.inte(p.getProperty("MAX_SIGHT_RANGE"));
 		
-		VP_START = Position.add(PC_POS, new Position (-xrange,-yrange));
-		VP_END = Position.add(PC_POS, new Position (xrange,yrange));
+		PC_POS = new Position(xrange, yrange);
+		VP_START = new Position(0,0);
+		VP_END = new Position(xrange*2,yrange*2);
 		
 		COLOR_WINDOW_BACKGROUND = PropertyFilters.getColor(p.getProperty("COLOR_WINDOW_BACKGROUND"));
 		COLOR_BORDER_IN = PropertyFilters.getColor(p.getProperty("COLOR_BORDER_IN"));
@@ -947,11 +945,7 @@ public abstract class GFXUserInterface extends UserInterface implements Runnable
     		offset = new Position (0,0);
     	}
     	
-    	/*if (!insideViewPort(offset))
-    		offset = new Position (0,0);*/
-    	
     	saveMapLayer();
-		//si.commitLayer(getUILayer());
 		
 		while (true){
 			resetMapLayer();
