@@ -83,7 +83,7 @@ public abstract class GFXUserInterface extends UserInterface implements Runnable
 
  	protected transient SwingSystemInterface si;
 
- 	protected static int tileSize;
+ 	protected static int borderSize, tileWidth, tileHeight;
 	private Image 
 		TILE_LINE_STEPS, 
 		TILE_LINE_AIM,
@@ -247,16 +247,16 @@ public abstract class GFXUserInterface extends UserInterface implements Runnable
     private Position getRelativeMapCoordinates(MouseEvent e) {
     	int mouseX = e.getX();
     	int mouseY = e.getY();
-    	mouseX -= PC_POS.x * tileSize;
-    	mouseY -= PC_POS.y * tileSize;
+    	mouseX -= PC_POS.x * tileWidth + mapLayer.getPosition().x + mapLayer.getSuperWidth();
+    	mouseY -= PC_POS.y * tileHeight + mapLayer.getPosition().y + mapLayer.getSuperHeight();
     	if (mouseX > 0)
-    		mouseX = (int)Math.floor(mouseX / tileSize);
+    		mouseX = (int)Math.floor(mouseX / tileWidth);
     	else
-    		mouseX = (int)Math.ceil(mouseX / tileSize) - 1;
+    		mouseX = (int)Math.ceil(mouseX / tileWidth) - 1;
     	if (mouseY > 0)
-    		mouseY = (int)Math.floor(mouseY / tileSize);
+    		mouseY = (int)Math.floor(mouseY / tileHeight);
     	else
-    		mouseY = (int)Math.ceil(mouseY / tileSize) - 1;
+    		mouseY = (int)Math.ceil(mouseY / tileHeight) - 1;
     	getRelativeMapCoordinates_recycle.x = mouseX;
     	getRelativeMapCoordinates_recycle.y = mouseY;
     	return getRelativeMapCoordinates_recycle;
@@ -349,7 +349,7 @@ public abstract class GFXUserInterface extends UserInterface implements Runnable
 				}
 			}
 			messageBox.setText(message+looked);
-			si.drawImage(getUILayer(), (PC_POS.x + offset.x)*tileSize, ((PC_POS.y + offset.y)*tileSize), TILE_SCAN);
+			si.drawImage(getUILayer(), mapLayer.getPosition().x+mapLayer.getSuperWidth()+(PC_POS.x + offset.x)*tileWidth, mapLayer.getPosition().y+mapLayer.getSuperHeight()+((PC_POS.y + offset.y)*tileHeight), TILE_SCAN);
 			si.commitLayer(getUILayer());
 			String command = null;
 			while (command == null){
@@ -739,10 +739,10 @@ public abstract class GFXUserInterface extends UserInterface implements Runnable
 		TILE_LINE_STEPS = assets.getImageAsset("TILE_LINE_STEPS");
 		IMG_ICON = assets.getImageAsset("IMG_ICON");
 		IMG_BORDERS = (BufferedImage) assets.getImageAsset("IMG_BORDERS");
-		BORDER1 = ImageUtils.crearImagen(IMG_BORDERS, tileSize,0,tileSize,tileSize);
-		BORDER2 = ImageUtils.crearImagen(IMG_BORDERS, 0,0,tileSize,tileSize);
-		BORDER3 = ImageUtils.crearImagen(IMG_BORDERS, tileSize*3,0,tileSize,tileSize);
-		BORDER4 = ImageUtils.crearImagen(IMG_BORDERS, tileSize*2,0, tileSize,tileSize);
+		BORDER1 = ImageUtils.crearImagen(IMG_BORDERS, borderSize,0,borderSize,borderSize);
+		BORDER2 = ImageUtils.crearImagen(IMG_BORDERS, 0,0,borderSize,borderSize);
+		BORDER3 = ImageUtils.crearImagen(IMG_BORDERS, borderSize*3,0,borderSize,borderSize);
+		BORDER4 = ImageUtils.crearImagen(IMG_BORDERS, borderSize*2,0, borderSize,borderSize);
 		
 		IMG_YES_BUTTON = (BufferedImage) assets.getImageAsset("BTN_YES");
 		IMG_NO_BUTTON = (BufferedImage) assets.getImageAsset("BTN_NO");
@@ -770,11 +770,12 @@ public abstract class GFXUserInterface extends UserInterface implements Runnable
 	public void init(SwingSystemInterface psi, String title, UserCommand[] gameCommands, Properties UIProperties, Assets assets, Action target){
 		super.init(gameCommands);
 		this.target = target;
-		int tileHeight = PropertyFilters.inte(UIProperties.getProperty("TILE_HEIGHT"));
-		int tileWidth = PropertyFilters.inte(UIProperties.getProperty("TILE_WIDTH"));
+		tileHeight = PropertyFilters.inte(UIProperties.getProperty("TILE_HEIGHT"));
+		tileWidth = PropertyFilters.inte(UIProperties.getProperty("TILE_WIDTH"));
 		int tileSuperHeight = PropertyFilters.inte(UIProperties.getProperty("TILE_SUPER_HEIGHT"));
 		int tileSuperWidth = PropertyFilters.inte(UIProperties.getProperty("TILE_SUPER_WIDTH"));
-		tileSize = tileHeight;
+		borderSize =  PropertyFilters.inte(UIProperties.getProperty("BORDER_SIZE"));
+		
 		initAssets(assets);
 		initProperties(UIProperties);
 		//GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice().setDisplayMode(new DisplayMode(800,600,8, DisplayMode.REFRESH_RATE_UNKNOWN));
@@ -792,7 +793,7 @@ public abstract class GFXUserInterface extends UserInterface implements Runnable
 					COLOR_BORDER_OUT,
 					COLOR_BORDER_IN,
 					COLOR_WINDOW_BACKGROUND,
-					tileSize,
+					borderSize,
 					6,9,12 );
 		} catch (Exception e){
 			e.printStackTrace();
@@ -835,7 +836,7 @@ public abstract class GFXUserInterface extends UserInterface implements Runnable
 				new Color(52,42,20),
 				new Color(164,138,68),
 				new Color(232,253,77),
-				tileSize,
+				borderSize,
 				6,9,12);
 		persistantMessageBox.setBounds(520,90,260,400);
 		persistantMessageBox.setVisible(false);
@@ -985,7 +986,7 @@ public abstract class GFXUserInterface extends UserInterface implements Runnable
 			//si.print(PC_POS.x + offset.x, PC_POS.y + offset.y, '_', ConsoleSystemInterface.RED);
 			drawStepsTo(PC_POS.x + offset.x, (PC_POS.y + offset.y), TILE_LINE_STEPS, cellHeight);
 			
-			si.drawImage(getUILayer(), (PC_POS.x + offset.x)*tileSize-2, ((PC_POS.y + offset.y)*tileSize-2) -4*cellHeight, TILE_LINE_AIM);
+			si.drawImage(getUILayer(), (PC_POS.x + offset.x)*tileWidth-2, ((PC_POS.y + offset.y)*tileHeight-2) -4*cellHeight, TILE_LINE_AIM);
 			si.commitLayer(getUILayer());
 			CharKey x = new CharKey(CharKey.NONE);
 			while (x.code != CharKey.ENTER && x.code != CharKey.SPACE && x.code != CharKey.ESC && x.code != fireKeyCode &&
@@ -1040,7 +1041,7 @@ public abstract class GFXUserInterface extends UserInterface implements Runnable
 			throw ret;
   		}
   		
-  		BorderedMenuBox menuBox = new BorderedMenuBox(BORDER1, BORDER2, BORDER3, BORDER4, si, COLOR_WINDOW_BACKGROUND, COLOR_BORDER_IN, COLOR_BORDER_OUT, tileSize, 6,9,12,tileSize,null);
+  		BorderedMenuBox menuBox = new BorderedMenuBox(BORDER1, BORDER2, BORDER3, BORDER4, si, COLOR_WINDOW_BACKGROUND, COLOR_BORDER_IN, COLOR_BORDER_OUT, borderSize, 6,9,12,borderSize,null);
   		
   		//menuBox.setBounds(26,6,30,11);
   		menuBox.setBounds(6,4,70,12);
@@ -1062,7 +1063,7 @@ public abstract class GFXUserInterface extends UserInterface implements Runnable
 	private AbstractItem pickItem(String prompt) throws ActionCancelException{
 		enterScreen();
   		List inventory = player.getInventory();
-  		BorderedMenuBox menuBox = new BorderedMenuBox(BORDER1, BORDER2, BORDER3, BORDER4, si, COLOR_WINDOW_BACKGROUND, COLOR_BORDER_IN, COLOR_BORDER_OUT, tileSize, 6,9,12,tileSize,null);
+  		BorderedMenuBox menuBox = new BorderedMenuBox(BORDER1, BORDER2, BORDER3, BORDER4, si, COLOR_WINDOW_BACKGROUND, COLOR_BORDER_IN, COLOR_BORDER_OUT, borderSize, 6,9,12,borderSize,null);
   		
   		menuBox.setBounds(20,20,400,500);
   		menuBox.setItemsPerPage(12);
@@ -1086,7 +1087,7 @@ public abstract class GFXUserInterface extends UserInterface implements Runnable
 	private Vector pickMultiItems(String prompt) throws ActionCancelException{
 		//Equipment.eqMode = true;
 		List inventory = player.getInventory();
-		BorderedMenuBox menuBox = new BorderedMenuBox(BORDER1, BORDER2, BORDER3, BORDER4, si, COLOR_WINDOW_BACKGROUND, COLOR_BORDER_IN, COLOR_BORDER_OUT, tileSize, 6,9,12,tileSize+3,null);
+		BorderedMenuBox menuBox = new BorderedMenuBox(BORDER1, BORDER2, BORDER3, BORDER4, si, COLOR_WINDOW_BACKGROUND, COLOR_BORDER_IN, COLOR_BORDER_OUT, borderSize, 6,9,12,borderSize+3,null);
   		menuBox.setBounds(25,3,40,18);
   		//menuBox.setPromptSize(2);
   		menuBox.setMenuItems(inventory);
@@ -1094,7 +1095,7 @@ public abstract class GFXUserInterface extends UserInterface implements Runnable
   		//menuBox.setForeColor(ConsoleSystemInterface.RED);
   		//menuBox.setBorder(true);
   		Vector ret = new Vector();
-  		BorderedMenuBox selectedBox = new BorderedMenuBox(BORDER1, BORDER2, BORDER3, BORDER4, si, COLOR_WINDOW_BACKGROUND, COLOR_BORDER_IN, COLOR_BORDER_OUT, tileSize, 6,9,12,tileSize, null);
+  		BorderedMenuBox selectedBox = new BorderedMenuBox(BORDER1, BORDER2, BORDER3, BORDER4, si, COLOR_WINDOW_BACKGROUND, COLOR_BORDER_IN, COLOR_BORDER_OUT, borderSize, 6,9,12,borderSize, null);
   		selectedBox.setBounds(5,3,20,18);
   		//selectedBox.setPromptSize(2);
   		selectedBox.setTitle("Selected Items");
@@ -1237,7 +1238,7 @@ public abstract class GFXUserInterface extends UserInterface implements Runnable
   			return null;
   		if (items.size() == 1)
   			return (AbstractItem) items.get(0);
-  		BorderedMenuBox menuBox = new BorderedMenuBox(BORDER1, BORDER2, BORDER3, BORDER4, si, COLOR_WINDOW_BACKGROUND, COLOR_BORDER_IN, COLOR_BORDER_OUT, tileSize, 6,9,12,tileSize, null);
+  		BorderedMenuBox menuBox = new BorderedMenuBox(BORDER1, BORDER2, BORDER3, BORDER4, si, COLOR_WINDOW_BACKGROUND, COLOR_BORDER_IN, COLOR_BORDER_OUT, borderSize, 6,9,12,borderSize, null);
   		menuBox.setBounds(6,4,70,12);
   		menuBox.setMenuItems(items);
   		menuBox.setTitle(prompt);
@@ -1314,7 +1315,7 @@ public abstract class GFXUserInterface extends UserInterface implements Runnable
 		Position tmp = line.next();
 		while (!tmp.equals(target)){
 			tmp = line.next();
-			si.drawImage(getUILayer(), tmp.x*tileSize+13, (tmp.y*tileSize+13)-4*cellHeight, tile);
+			si.drawImage(getUILayer(), tmp.x*tileWidth+13, (tmp.y*tileHeight+13)-4*cellHeight, tile);
 		}
 		
 	}
@@ -1345,7 +1346,7 @@ public abstract class GFXUserInterface extends UserInterface implements Runnable
 	public int switchChat(String title, String prompt, Color titleColor, Color textColor, String... options) {
 		final Cursor defaultCursor = getDefaultCursor();
 		final Cursor handCursor = getHandCursor();
-		BorderedMenuBox selectionBox = new BorderedMenuBox(BORDER1, BORDER2, BORDER3, BORDER4, si, COLOR_WINDOW_BACKGROUND, COLOR_BORDER_IN, COLOR_BORDER_OUT, tileSize, 6,9,12,tileSize+6, null){
+		BorderedMenuBox selectionBox = new BorderedMenuBox(BORDER1, BORDER2, BORDER3, BORDER4, si, COLOR_WINDOW_BACKGROUND, COLOR_BORDER_IN, COLOR_BORDER_OUT, borderSize, 6,9,12,borderSize+6, null){
 			private static final long serialVersionUID = 1L;
 
 			@Override
@@ -1374,7 +1375,7 @@ public abstract class GFXUserInterface extends UserInterface implements Runnable
    			selectionBox.setBounds(80, 250, 640,300);
    		else {
    			int add = options.length - 5;
-   			selectionBox.setBounds(80, 250 - add * tileSize, 640,300 + add * tileSize);
+   			selectionBox.setBounds(80, 250 - add * borderSize, 640,300 + add * borderSize);
    		}
   		Vector<GFXMenuItem> menuItems = new Vector<GFXMenuItem>();
   		int i = 0;

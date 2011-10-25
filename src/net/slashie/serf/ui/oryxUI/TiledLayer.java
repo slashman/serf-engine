@@ -74,4 +74,18 @@ public class TiledLayer {
 	public void commit() {
 		si.commitLayer(layerIndex);
 	}
+	
+	public Position getPosition() {
+		return position;
+	}
+
+	public int getSuperWidth() {
+		return superWidth;
+	}
+
+	public int getSuperHeight() {
+		return superHeight;
+	}
+	
+	
 }
