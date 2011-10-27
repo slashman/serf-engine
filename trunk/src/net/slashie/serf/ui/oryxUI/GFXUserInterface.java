@@ -314,15 +314,13 @@ public abstract class GFXUserInterface extends UserInterface implements Runnable
     	
     	Position offset = new Position (0,0);
 		messageBox.setForeground(COLOR_LAST_MESSAGE);
-		saveMapLayer();
+		si.saveLayer(getUILayer());
 		Actor lookedMonster = null;
 		while (true){
 			int cellHeight = 0;
 			Position browser = getRelativePosition(player.getPosition(), offset);
 			String looked = "";
-			mapUpdateRunnable.setIdle(true);
-			resetAndDrawMapLayer();
-			mapUpdateRunnable.setLastDrawLevel(System.currentTimeMillis());
+			si.loadAndDrawLayer(getUILayer());
 
 			if (FOVMask[PC_POS.x + offset.x][PC_POS.y + offset.y]){
 				AbstractCell choosen = level.getMapCell(browser);
@@ -390,7 +388,7 @@ public abstract class GFXUserInterface extends UserInterface implements Runnable
     		si.removeMouseListener(cbml);
     	}
     	((GFXUISelector)getPlayer().getSelector()).activate();
-		resetMapLayer();
+    	si.loadLayer(getUILayer());
 	}
 
     protected Position getRelativePosition(Position position, Position offset) {
