@@ -277,7 +277,8 @@ public abstract class GFXUserInterface extends UserInterface implements Runnable
 					} else if (input.code == CharKey.m){
 						handler.put("MORE");
 					} else if (GFXUISelector.isArrow(input)){
-						handler.put("MOVE_CURSOR:"+input.code);
+						if (handler.isEmpty())
+							handler.put("MOVE_CURSOR:"+input.code);
 					}
 				} catch (InterruptedException e1) {} 
     		}
@@ -319,7 +320,10 @@ public abstract class GFXUserInterface extends UserInterface implements Runnable
 			int cellHeight = 0;
 			Position browser = getRelativePosition(player.getPosition(), offset);
 			String looked = "";
+			mapUpdateRunnable.setIdle(true);
 			resetAndDrawMapLayer();
+			mapUpdateRunnable.setLastDrawLevel(System.currentTimeMillis());
+
 			if (FOVMask[PC_POS.x + offset.x][PC_POS.y + offset.y]){
 				AbstractCell choosen = level.getMapCell(browser);
 				if (choosen != null)
