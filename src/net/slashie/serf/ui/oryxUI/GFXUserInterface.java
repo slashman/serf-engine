@@ -246,7 +246,7 @@ public abstract class GFXUserInterface extends UserInterface implements Runnable
     	int mouseX = e.getX();
     	int mouseY = e.getY();
     	mouseX -= PC_POS.x * tileWidth + mapLayer.getPosition().x + mapLayer.getSuperWidth();
-    	mouseY -= PC_POS.y * tileHeight + mapLayer.getPosition().y + mapLayer.getSuperHeight();
+    	mouseY -= PC_POS.y * tileHeight + mapLayer.getPosition().y + mapLayer.getSuperHeight() + scanCursorYVar;
     	if (mouseX > 0)
     		mouseX = (int)Math.floor(mouseX / tileWidth);
     	else
@@ -347,7 +347,7 @@ public abstract class GFXUserInterface extends UserInterface implements Runnable
 				}
 			}
 			messageBox.setText(message+looked);
-			si.drawImage(getUILayer(), mapLayer.getPosition().x+mapLayer.getSuperWidth()+(PC_POS.x + offset.x)*tileWidth, mapLayer.getPosition().y+mapLayer.getSuperHeight()+((PC_POS.y + offset.y)*tileHeight), TILE_SCAN);
+			si.drawImage(getUILayer(), mapLayer.getPosition().x+mapLayer.getSuperWidth()+(PC_POS.x + offset.x)*tileWidth, mapLayer.getPosition().y+mapLayer.getSuperHeight()+((PC_POS.y + offset.y)*tileHeight)+scanCursorYVar, TILE_SCAN);
 			si.commitLayer(getUILayer());
 			String command = null;
 			while (command == null){
@@ -729,6 +729,7 @@ public abstract class GFXUserInterface extends UserInterface implements Runnable
 	protected BufferedImage IMG_NO_BUTTON;
 	protected BufferedImage IMG_YES_HOVER_BUTTON;
 	protected BufferedImage IMG_NO_HOVER_BUTTON;
+	private int scanCursorYVar;
 	
 	private void initAssets(Assets assets){
 		this.assets = assets;
@@ -751,6 +752,7 @@ public abstract class GFXUserInterface extends UserInterface implements Runnable
 	private void initProperties(Properties p){
 		xrange = PropertyFilters.inte(p.getProperty("MAX_SIGHT_RANGE"));
 		yrange = PropertyFilters.inte(p.getProperty("MAX_SIGHT_RANGE"));
+		scanCursorYVar = PropertyFilters.inte(p.getProperty("SCAN_CURSOR_Y_VAR")); 
 		
 		PC_POS = new Position(xrange, yrange);
 		VP_START = new Position(0,0);
