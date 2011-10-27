@@ -184,11 +184,15 @@ public abstract class GFXUserInterface extends UserInterface implements Runnable
     protected void enterScreen(){
     	messageBox.setVisible(false);
     	isCursorEnabled = false;
+    	if (getPlayer() != null && getPlayer().getSelector() != null)
+    		((GFXUISelector)getPlayer().getSelector()).shutdown();
     }
     
     protected void leaveScreen(){
     	messageBox.setVisible(true);
     	isCursorEnabled = true;
+    	if (getPlayer() != null && getPlayer().getSelector() != null)
+    		((GFXUISelector)getPlayer().getSelector()).activate();
     }
     
     public int getUILayer(){
@@ -239,9 +243,7 @@ public abstract class GFXUserInterface extends UserInterface implements Runnable
 		leaveScreen();
 	}
     
-    
-
-	private Position getRelativeMapCoordinates_recycle = new Position(0,0);
+    private Position getRelativeMapCoordinates_recycle = new Position(0,0);
     private Position getRelativeMapCoordinates(MouseEvent e) {
     	int mouseX = e.getX();
     	int mouseY = e.getY();
