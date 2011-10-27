@@ -183,8 +183,6 @@ public class GFXUISelector extends UISelector implements ActionSelector, Seriali
 			}
 		};
 	}
-
-	
 	
 	public GFXUserInterface ui(){
 		return (GFXUserInterface) getUI();
@@ -280,7 +278,7 @@ public class GFXUISelector extends UISelector implements ActionSelector, Seriali
 	}
 
 	protected void shutdown() {
-		
+		deactivate();
 	}
 
 	protected Action advanceInDirection(int direction) {
