@@ -896,19 +896,19 @@ class SwingInterfacePanel extends JPanel{
 		backupImages = new Image[layers];
 		backupGraphics = new Graphics[layers];
 		
-		compositeImage = getTransparentImage_();
+		compositeImage = createTransparentImage();
 		compositeGraphics = compositeImage.getGraphics();
 		
 		for (int i = 0; i < layers; i++){
-			layerImages[i] = getTransparentImage_();
+			layerImages[i] = createTransparentImage();
 			layerGraphics[i] = layerImages[i].getGraphics();
 			layerGraphics[i].setColor(Color.WHITE);
 			
-			drawingImages[i] = getTransparentImage_();
+			drawingImages[i] = createTransparentImage();
 			drawingGraphics[i] = drawingImages[i].getGraphics();
 			drawingGraphics[i].setColor(Color.WHITE);
 			
-			savedImages[i] = getTransparentImage_();
+			savedImages[i] = createTransparentImage();
 			savedGraphics[i] = savedImages[i].getGraphics();
 			savedGraphics[i].setColor(Color.WHITE);
 		}
@@ -917,7 +917,7 @@ class SwingInterfacePanel extends JPanel{
         backupImages = new Image[backupBoards];
         backupGraphics = new Graphics[backupBoards];
         for (int i = 0 ; i < backupBoards; i++){
-        	backupImages[i] = getTransparentImage_();
+        	backupImages[i] = createTransparentImage();
         	backupGraphics[i] = backupImages[i].getGraphics();
         }
         
@@ -987,8 +987,7 @@ class SwingInterfacePanel extends JPanel{
 	GraphicsDevice gs = ge.getDefaultScreenDevice();
 	GraphicsConfiguration gc = gs.getDefaultConfiguration();
 	
-	// TODO: Fix this, should be expensive to create a new image everytime... just to clear the image to a transparent one.	
-	private Image getTransparentImage_(){
+	private Image createTransparentImage(){
 		return gc.createCompatibleImage(getWidth(), getHeight(), Transparency.BITMASK);
 	}
 	
