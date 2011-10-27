@@ -1,6 +1,7 @@
 package net.slashie.serf.ui.oryxUI;
 
 import java.awt.Cursor;
+import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.FontFormatException;
 import java.awt.Image;
@@ -218,8 +219,11 @@ public class UIAssetsLoader {
 	
 	public static Cursor createCursor (String cursorsFile, int x, int y, int width, int height, int hotX, int hotY) throws IOException{
 		Toolkit tk = Toolkit.getDefaultToolkit();
-		Image cursorImage = ImageUtils.createImage(cursorsFile , x, y, width, height);
-		Cursor c = tk.createCustomCursor(cursorImage, new Point(hotX, hotY), "gfxui-"+x+"-"+y);
+		BufferedImage cursorImage = ImageUtils.createImage(cursorsFile , x, y, width, height);
+		Dimension d = tk.getBestCursorSize(width, height);
+		BufferedImage emptyImage = ImageUtils.createEmptyImage(d.width, d.height);
+		Image compositeImage = ImageUtils.overlay(emptyImage, cursorImage, 0, 0);
+		Cursor c = tk.createCustomCursor(compositeImage, new Point(hotX, hotY), "gfxui-"+x+"-"+y);
 		return c;
 	}
 }
