@@ -3,10 +3,12 @@ package net.slashie.utils;
 import java.awt.Component;
 import java.awt.Graphics2D;
 import java.awt.GraphicsConfiguration;
+import java.awt.GraphicsDevice;
 import java.awt.GraphicsEnvironment;
 import java.awt.Image;
 import java.awt.MediaTracker;
 import java.awt.Toolkit;
+import java.awt.Transparency;
 import java.awt.geom.AffineTransform;
 import java.awt.image.AffineTransformOp;
 import java.awt.image.BufferedImage;
@@ -99,5 +101,13 @@ public class ImageUtils {
         retGC.drawImage(overlay,offsetx, offsety, null);
         retGC.dispose();
         return ret;
+	}
+
+	
+	public static BufferedImage createEmptyImage(int width, int height) {
+		GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
+		GraphicsDevice gs = ge.getDefaultScreenDevice();
+		GraphicsConfiguration gc = gs.getDefaultConfiguration();
+		return gc.createCompatibleImage(width, height, Transparency.BITMASK);
 	}
 }
