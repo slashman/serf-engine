@@ -48,7 +48,7 @@ public class TiledLayer {
 		System.arraycopy(tileBuffer, 0, tiles, 0, tileBuffer.length);
 	}
 	
-	public void draw(boolean clean){
+	/*public void draw(boolean clean){
 		if (clean){
 			si.cleanLayer(layerIndex);
 		}
@@ -69,7 +69,7 @@ public class TiledLayer {
 					
 			}
 		}
-	}
+	}*/
 
 	public void commit() {
 		si.commitLayer(layerIndex);
@@ -85,6 +85,30 @@ public class TiledLayer {
 
 	public int getSuperHeight() {
 		return superHeight;
+	}
+
+	public Appearance[][] getTiles() {
+		return tiles;
+	}
+
+	public int getLayerIndex() {
+		return layerIndex;
+	}
+
+	public int getCellWidth() {
+		return cellWidth;
+	}
+
+	public int getCellHeight() {
+		return cellHeight;
+	}
+
+	public int getHeight() {
+		return tiles[0].length;
+	}
+	
+	public int getWidth(){
+		return tiles.length;
 	}
 	
 	
