@@ -10,6 +10,10 @@ public class GFXAppearance extends Appearance{
 
 	private int superWidth, superHeight;
 	
+	public void setSuperHeight(int superHeight) {
+		this.superHeight = superHeight;
+	}
+	
 	public int getSuperHeight() {
 		return superHeight;
 	}
