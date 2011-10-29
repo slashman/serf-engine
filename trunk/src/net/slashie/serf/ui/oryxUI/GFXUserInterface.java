@@ -36,6 +36,7 @@ import net.slashie.serf.ui.ActionCancelException;
 import net.slashie.serf.ui.AppearanceFactory;
 import net.slashie.serf.ui.CommandListener;
 import net.slashie.serf.ui.Effect;
+import net.slashie.serf.ui.LayerSet;
 import net.slashie.serf.ui.UserCommand;
 import net.slashie.serf.ui.UserInterface;
 import net.slashie.serf.ui.oryxUI.effects.GFXEffect;
@@ -77,6 +78,7 @@ public abstract class GFXUserInterface extends UserInterface implements Runnable
 	private TiledLayer featuresLayer;
 	private TiledLayer itemsLayer;
 	private TiledLayer actorsLayer;
+	private LayerSet layerSet;
 	private MapUpdateRunnable mapUpdateRunnable;
 	
 	// Relations
@@ -666,10 +668,12 @@ public abstract class GFXUserInterface extends UserInterface implements Runnable
 		itemsLayer.updateBuffer();
 		actorsLayer.updateBuffer();
 		
-		mapLayer.draw(true);
+		/*mapLayer.draw(true);
 		featuresLayer.draw(true);
 		itemsLayer.draw(false);
-		actorsLayer.draw(false);
+		actorsLayer.draw(false); // Draw the layerset instead (Add the layers to the layerset on init)
+		*/
+		layerSet.drawAll(si);
 		
 		si.commitLayer(getMapLayer(), false);
 		si.commitLayer(getFeaturesLayer(), false);
@@ -855,6 +859,12 @@ public abstract class GFXUserInterface extends UserInterface implements Runnable
 		featuresLayer = new TiledLayer(xrange*2+1, yrange*2+1, tileWidth, tileHeight, tileSuperWidth, tileSuperHeight, mapPosition, getFeaturesLayer(), si);
 		itemsLayer = new TiledLayer(xrange*2+1, yrange*2+1, tileWidth, tileHeight, tileSuperWidth, tileSuperHeight, mapPosition, getItemsLayer(), si);
 		actorsLayer = new TiledLayer(xrange*2+1, yrange*2+1, tileWidth, tileHeight, tileSuperWidth, tileSuperHeight, mapPosition, getActorsLayer(), si);
+		layerSet = new LayerSet();
+		layerSet.addLayer(mapLayer);
+		layerSet.addLayer(featuresLayer);
+		layerSet.addLayer(itemsLayer);
+		layerSet.addLayer(actorsLayer);
+		
 		mapUpdateRunnable = new MapUpdateRunnable(mapLayer);
 		mapUpdateRunnable.setEnabled(false);
 		new Thread(mapUpdateRunnable).start();
@@ -888,7 +898,8 @@ public abstract class GFXUserInterface extends UserInterface implements Runnable
 						if (System.currentTimeMillis() - lastDrawLevel > 1000)
 							idle = false;
 					} else {
-						mapLayer.draw(true);
+						//mapLayer.draw(true); 
+						layerSet.drawAll(si);
 						if (enabled){
 							mapLayer.commit();
 						}
