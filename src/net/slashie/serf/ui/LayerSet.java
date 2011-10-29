@@ -38,13 +38,14 @@ public class LayerSet {
 					Appearance[][] tiles = layer.getTiles();
 					if (tiles[x][y] != null){
 						if (tiles[x][y] instanceof GFXAppearance){
-							si.drawImage(layerIndex, layer.getPosition().x+x*layer.getCellWidth()-layer.getSuperWidth(),layer.getPosition().y + y*layer.getCellHeight() + layer.getSuperHeight(), ((GFXAppearance)tiles[x][y]).getImage());
+							GFXAppearance app = ((GFXAppearance)tiles[x][y]);
+							si.drawImage(layerIndex, layer.getPosition().x+x*layer.getCellWidth()-layer.getSuperWidth() + app.getSuperWidth(),layer.getPosition().y + y*layer.getCellHeight() + layer.getSuperHeight() + app.getSuperHeight(), app.getImage());
 						} else if (tiles[x][y] instanceof AnimatedGFXAppearance){
 							AnimatedGFXAppearance animated = (AnimatedGFXAppearance)tiles[x][y];
 							long animationLength = animated.getDelay()*animated.getFrames();
 							long snap = currentMillis % animationLength;
 							int frame = (int)Math.floor((double)snap / (double)animated.getDelay());
-							si.drawImage(layerIndex, layer.getPosition().x+x*layer.getCellWidth()-layer.getSuperWidth(),layer.getPosition().y + y*layer.getCellHeight() + layer.getSuperHeight(), animated.getImage(frame));
+							si.drawImage(layerIndex, layer.getPosition().x+x*layer.getCellWidth()-layer.getSuperWidth() + animated.getSuperWidth(),layer.getPosition().y + y*layer.getCellHeight() + layer.getSuperHeight() + animated.getSuperHeight(), animated.getImage(frame));
 						}
 					}
 				}

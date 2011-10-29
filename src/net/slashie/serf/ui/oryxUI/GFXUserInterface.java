@@ -86,6 +86,7 @@ public abstract class GFXUserInterface extends UserInterface implements Runnable
  	protected transient SwingSystemInterface si;
 
  	protected static int borderSize, tileWidth, tileHeight;
+ 	private int CELL_HEIGHT_OFFSET;
 	private Image 
 		TILE_LINE_STEPS, 
 		TILE_LINE_AIM,
@@ -647,6 +648,11 @@ public abstract class GFXUserInterface extends UserInterface implements Runnable
 							actorsLayer.setBuffer(x,y, (GFXAppearance)AppearanceFactory.getAppearanceFactory().getAppearance("SHADOW"));
 						}else{
 							GFXAppearance playerAppearance = (GFXAppearance)player.getAppearance();
+							if (vcells[x][y].getHeightMod() > 0){
+								playerAppearance.setSuperHeight(vcells[x][y].getHeightMod() * -CELL_HEIGHT_OFFSET);
+							} else {
+								playerAppearance.setSuperHeight(0);
+							}
 							if (flipEnabled && flipFacing){
 								//TODO: Acquire flipped player apperance
 								actorsLayer.setBuffer(x,y,playerAppearance);
@@ -760,7 +766,8 @@ public abstract class GFXUserInterface extends UserInterface implements Runnable
 	private void initProperties(Properties p){
 		xrange = PropertyFilters.inte(p.getProperty("MAX_SIGHT_RANGE"));
 		yrange = PropertyFilters.inte(p.getProperty("MAX_SIGHT_RANGE"));
-		scanCursorYVar = PropertyFilters.inte(p.getProperty("SCAN_CURSOR_Y_VAR")); 
+		scanCursorYVar = PropertyFilters.inte(p.getProperty("SCAN_CURSOR_Y_VAR"));
+		CELL_HEIGHT_OFFSET = PropertyFilters.inte(p.getProperty("CELL_HEIGHT_OFFSET"));
 		
 		PC_POS = new Position(xrange, yrange);
 		VP_START = new Position(0,0);
