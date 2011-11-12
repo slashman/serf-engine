@@ -17,14 +17,14 @@ public class LayerSet {
 	
 	public void drawAll(SwingSystemInterface si){
 		int layersQ = layers.size();
-		int lastCleanedLayer = -1;
+		/*int lastCleanedLayer = -1;
 		for (int i = 0; i < layers.size(); i++){
 			int layerIndex = layers.get(i).getLayerIndex();
 			if (lastCleanedLayer != layerIndex){
 				lastCleanedLayer = layerIndex;
-				si.cleanLayer(layerIndex);
+				//si.cleanLayer(layerIndex);
 			}
-		}
+		}*/
 		
 		long currentMillis = System.currentTimeMillis();
 		int height = layers.get(0).getHeight();
