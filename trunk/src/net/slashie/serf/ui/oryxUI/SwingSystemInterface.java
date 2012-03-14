@@ -412,12 +412,21 @@ public class SwingSystemInterface implements Runnable{
 	}
 	
 	public synchronized CharKey inkey(){
-	    aStrokeInformer.informKey(Thread.currentThread());
+	    /*aStrokeInformer.informKey(Thread.currentThread());
 	    try {
 			this.wait();
 		} catch (InterruptedException ie) {}
 		CharKey ret = new CharKey(aStrokeInformer.getInkeyBuffer());
-		return ret;
+		return ret;*/
+		frameMain.addKeyListener(inputQueueKeyListener);
+		Integer code = null;
+		while (code == null){
+			try {
+				code = inputQueue.take();
+			} catch (InterruptedException e) {}
+		}
+		frameMain.removeKeyListener(inputQueueKeyListener);
+		return new CharKey(code);
 	}
 	private static final CharKey NULL_CHARKEY = new CharKey(CharKey.NONE);
 	public synchronized CharKey inkey(long wait){
