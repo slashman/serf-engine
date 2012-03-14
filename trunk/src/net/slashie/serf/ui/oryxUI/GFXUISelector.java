@@ -195,12 +195,14 @@ public class GFXUISelector extends UISelector implements ActionSelector, Seriali
 	    		shutdown();
 	    		return null;
 	    	}
+	    	selectionHandler.clear();
 	    	String selection = null;
 	    	while (selection == null){
 	    		try {
 					selection = selectionHandler.take();
 				} catch (InterruptedException e) {}
 	    	}
+	    	deactivate();
 	    	// System.out.println("Selection "+selection);
 	    	String[] commands = selection.split(":");
 	    	if (commands[0].equals("KEY")){
