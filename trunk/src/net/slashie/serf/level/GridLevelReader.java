@@ -163,7 +163,7 @@ public class GridLevelReader extends AbstractLevel {
 								addItem(new Position(where.x+x,where.y+y,where.z), vItem);
 						}else
 						if (cmds[1].equals("ABS_ACTOR")){
-							Actor toAdd = ActorFactory.createActor(cmds[2]);
+							Actor toAdd = ActorFactory.getFactory().createActor(cmds[2]);
 							toAdd.setPosition(where.x+x,where.y+y,where.z);
 							addActor(toAdd);
 						}else 
