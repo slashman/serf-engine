@@ -65,7 +65,7 @@ public class StaticGenerator {
 							l.addItem(new Position(where.x+x,where.y+y,where.z), vItem);
 					}else
 					if (cmds[1].equals("ABS_ACTOR")){
-						Actor toAdd = ActorFactory.createActor(cmds[2]);
+						Actor toAdd = ActorFactory.getFactory().createActor(cmds[2]);
 						toAdd.setPosition(where.x+x,where.y+y,where.z);
 						l.addActor(toAdd);
 					}else 
@@ -143,7 +143,7 @@ public class StaticGenerator {
 								l.addItem(new Position(where.x+x,where.y+y,where.z), vItem);
 						}else
 						if (cmds[1].equals("ABS_ACTOR")){
-							Actor toAdd = ActorFactory.createActor(cmds[2]);
+							Actor toAdd = ActorFactory.getFactory().createActor(cmds[2]);
 							toAdd.setPosition(where.x+x,where.y+y,where.z);
 							l.addActor(toAdd);
 						}else 
@@ -171,7 +171,7 @@ public class StaticGenerator {
 							continue;
 						String[] cmds = ((String)inhabitantsMap.get(inhabitants[z][y].charAt(x)+"")).split(" ");
 						if (cmds[0].equals("ABS_ACTOR")){
-							Actor toAdd = ActorFactory.createActor(cmds[2]);
+							Actor toAdd = ActorFactory.getFactory().createActor(cmds[2]);
 							toAdd.setPosition(where.x+x,where.y+y,where.z);
 							l.addActor(toAdd);
 						} else {
