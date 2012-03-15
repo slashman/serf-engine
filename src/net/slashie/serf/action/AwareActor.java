@@ -1,5 +1,8 @@
 package net.slashie.serf.action;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import net.slashie.serf.level.AbstractCell;
 import net.slashie.serf.ui.ActionCancelException;
 import net.slashie.utils.Position;
@@ -9,6 +12,17 @@ public abstract class AwareActor extends Actor{
 	public abstract int getSightRangeInCells();
 	public abstract int getSightRangeInDots();
 
+	public List<Actor> getNearbyActors(){
+		int distance = getSightRangeInCells();
+		List<Actor> allActors = getLevel().getActors();
+		List<Actor> ret = new ArrayList<Actor>();
+		for (Actor actor: allActors){
+			if (Position.distance(getPosition(), actor.getPosition()) <= distance){
+				ret.add(actor);
+			}
+		}
+		return ret;
+	}
 	
 	public int stare(Actor target) {
 		if (target == null || target.isInvisible() || target.getPosition().z != getPosition().z)
