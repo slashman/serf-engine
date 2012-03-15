@@ -245,6 +245,10 @@ public abstract class AbstractLevel implements FOVMap, Serializable{
 		}
 	}
 	
+	public void addFeature(AbstractFeature feature, Position location){
+		feature.setPosition(location.x, location.y, location.z);
+		addFeature(feature);
+	}
 	
 	
 	public void addFeature(String featureID, Position location){
@@ -631,6 +635,10 @@ public abstract class AbstractLevel implements FOVMap, Serializable{
 		// Add to new position
 		actorPositionMap.put(Position.toString(x, y, z), actor);
 	}
+	
+	public void dropActorOnPosition(Actor actor, Position p) {
+		actorPositionMap.put(Position.toString(p.x, p.y, p.z), actor);
+	}
 
 	public void updateActorPosition(Actor actor, Position p) {
 		updateActorPosition(actor, p.x, p.y, p.z);
@@ -639,6 +647,11 @@ public abstract class AbstractLevel implements FOVMap, Serializable{
 	
 	public Appearance filterAppearance(Appearance appearance) {
 		return appearance;
+	}
+
+	
+	public List<Actor> getActors() {
+		return dispatcher.getActors();
 	}
 	
 	
