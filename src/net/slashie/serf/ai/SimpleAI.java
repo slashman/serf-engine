@@ -42,11 +42,13 @@ public class SimpleAI extends BasicAI{
 		AwareActor aware = (AwareActor) who;
 		int directionToTarget = -1;
 		int targetDistance = 500;
-		if (getMainTarget(who) != null){
-			directionToTarget = aware.stare(getMainTarget(who));
-			targetDistance = aware.getLevel().getDistance(who.getPosition(), getMainTarget(who).getPosition());
+		Actor mainTarget = getMainTarget(who);
+		
+		if (mainTarget != null){
+			directionToTarget = aware.stare(mainTarget);
+			targetDistance = aware.getLevel().getDistance(who.getPosition(), mainTarget.getPosition());
 			if (lastKnowTargetPosition == null){
-				lastKnowTargetPosition = getMainTarget(who).getPosition();
+				lastKnowTargetPosition = mainTarget.getPosition();
 			}
 		}
 		if (patrolRange >0 && targetDistance > patrolRange){
@@ -83,12 +85,12 @@ public class SimpleAI extends BasicAI{
 				int direction = Action.toIntDirection(Position.mul(Action.directionToVariation(targetDistance), -1));
 				Action ret = mainWalk;
 	            ret.setDirection(direction);
-	            lastKnowTargetPosition = getMainTarget(who).getPosition();
+	            lastKnowTargetPosition = mainTarget.getPosition();
 	            return ret;
 				
 			} else {
 				//Randomly decide if will approach the player or attack
-				if (aware.seesActor(getMainTarget(who)) && rangedActions != null && Util.chance(80)){
+				if (aware.seesActor(mainTarget) && rangedActions != null && Util.chance(80)){
 					//Try to attack the player
 					inout: for (Iterator iter = rangedActions.iterator(); iter.hasNext();) {
 						RangedActionSpec element = (RangedActionSpec) iter.next();
@@ -127,10 +129,10 @@ public class SimpleAI extends BasicAI{
 								ret.setDirection(directionToTarget);
 							} else if (ret.needsPosition()){
 								if (Util.chance(accuracy)) 
-									lastKnowTargetPosition = getMainTarget(who).getPosition();
+									lastKnowTargetPosition = mainTarget.getPosition();
 								ret.setPosition(lastKnowTargetPosition);
 							}
-							lastKnowTargetPosition = getMainTarget(who).getPosition();
+							lastKnowTargetPosition = mainTarget.getPosition();
 							return ret;
 						}
 					}
@@ -138,17 +140,17 @@ public class SimpleAI extends BasicAI{
 				if (bumpEnemy){
 					Position destination = Position.add(who.getPosition(), Action.directionToVariation(directionToTarget));
 					Actor a = who.getLevel().getActorAt(destination);
-					if (a == getMainTarget(who)){
+					if (a == mainTarget){
 						Action ret = mainWalk;
 						ret.setDirection(directionToTarget);
-						lastKnowTargetPosition = getMainTarget(who).getPosition();
+						lastKnowTargetPosition = mainTarget.getPosition();
 						return ret;
 					}
 				}
 				
 				// Couldnt attack the player, so walk to him
 				if (isStationary){
-					lastKnowTargetPosition = getMainTarget(who).getPosition();
+					lastKnowTargetPosition = mainTarget.getPosition();
 					return pass;
 				} else {
 					Action ret = mainWalk;
@@ -165,7 +167,7 @@ public class SimpleAI extends BasicAI{
 					} else {
 						ret.setDirection(Util.rand(0,7));
 					}
-					lastKnowTargetPosition = getMainTarget(who).getPosition();
+					lastKnowTargetPosition = mainTarget.getPosition();
 		            return ret;
 				}
 			}

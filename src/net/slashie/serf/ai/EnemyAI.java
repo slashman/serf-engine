@@ -6,6 +6,7 @@ import net.slashie.serf.action.Actor;
 public class EnemyAI extends SimpleAI{
 	public EnemyAI(Action mainWalk) {
 		super(null, mainWalk);
+		setBumpEnemy(true);
 	}
 	
 	@Override
