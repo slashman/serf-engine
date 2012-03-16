@@ -653,6 +653,15 @@ public abstract class AbstractLevel implements FOVMap, Serializable{
 	public List<Actor> getActors() {
 		return dispatcher.getActors();
 	}
+
+	public boolean canMoveAround(Position p) {
+		return isValidCoordinate(p) && isValidCoordinate(p.x+1, p.y) && !isSolid(p) && !isSolid(p.x+1, p.y, p.z);
+	}
+
+	private boolean isSolid(int x, int y, int z) {
+		return getMapCell(x,y,z) == null ||
+		getMapCell (x,y,z).isSolid();
+	}
 	
 	
 }

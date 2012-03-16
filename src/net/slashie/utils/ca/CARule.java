@@ -1,6 +1,7 @@
 package net.slashie.utils.ca;
 
 import net.slashie.utils.Debug;
+import net.slashie.utils.Util;
 
 public class CARule{
 	/** Stores a rule of the form:
@@ -10,6 +11,12 @@ public class CARule{
 	 *  when 1 has morethan 4 2 around turn into 0
 	 */
 	private int baseCell, condType, cellQuant, cellParam, destinationCell;
+	private int chance;
+	
+	public CARule (int baseCell, int condType, int cellQuant, int cellParam, int destinationCell, int chance){
+		this(baseCell, condType, cellQuant, cellParam, destinationCell);
+		this.chance = chance;
+	}
 
 	public final static int
 		HAS = 0,
@@ -24,11 +31,14 @@ public class CARule{
 		this.cellQuant = cellQuant;
 		this.cellParam = cellParam;
 		this.destinationCell = destinationCell;
-		Debug.exitMethod();
+		chance = 100;
 	}
 
 	public void apply (int x, int y, Matrix m, boolean wrap){
 		//Debug.enterSoftMethod(this, "apply "+this+" to "+x+","+y);
+		if (chance != 100)
+			if (!Util.chance(chance))
+				return;
 		if (m.get(x,y) == baseCell){
 			int surroundingCount = 0;
 			if (wrap)

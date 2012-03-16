@@ -12,9 +12,24 @@ public class Line {
 	private int ystep;
 	private int xvar = 1;
 	
+	private Position original_start;
+	private Position original_end;
+	
+	@Override
+	public boolean equals(Object obj) {
+		return ((Line)obj).getStart().equals(getStart()) && ((Line)obj).getEnd().equals(getEnd());
+	}
+	
 	public Line(Position start, Position end){
-		start = new Position(start);
-		end = new Position(end);
+		this.original_start = start;
+		this.original_end = end;
+		reset();
+	}
+	
+	public void reset(){
+		Position start = new Position(original_start);
+		Position end = new Position(original_end);
+		
 		z=start.z;
 		//System.out.println("new line st "+start+" end  "+end);
 	     steep = Util.abs(end.y - start.y) > Util.abs(end.x - start.x);
@@ -90,5 +105,14 @@ public class Line {
 			}
 			System.out.print("\n");
 		}
+		System.out.print(new Line(new Position(5,3), new Position(6,8)).equals(new Line(new Position(5,3), new Position(6,8))));
+	}
+	
+	public Position getStart() {
+		return original_start;
+	}
+	
+	public Position getEnd() {
+		return original_end;
 	}
 }

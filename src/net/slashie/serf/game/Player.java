@@ -211,7 +211,8 @@ public abstract class Player extends AwareActor {
 		if (HANDLE_FEATURES ){
 			List<AbstractFeature> destinationFeatures = getLevel().getFeaturesAt(destinationPoint);
 			if (destinationFeatures != null)
-				for (AbstractFeature destinationFeature: destinationFeatures){
+				for (int i = 0; i < destinationFeatures.size(); i++){
+					AbstractFeature destinationFeature = destinationFeatures.get(i);
 					onFeatureStep(destinationFeature);
 					destinationFeature.onStep(this);
 					//landOnFeature(destinationFeature, destinationFeatures);
