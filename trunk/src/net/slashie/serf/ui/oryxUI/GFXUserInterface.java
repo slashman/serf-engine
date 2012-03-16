@@ -665,6 +665,7 @@ public abstract class GFXUserInterface extends UserInterface implements Runnable
 					if (actor != player && actor != null && !actor.isInvisible()){
 						GFXAppearance actorApp = (GFXAppearance) actor.getAppearance();
 						actorsLayer.setBuffer(x,y,actorApp);
+						seeActor(x, y, actor);
 					}
 				}
 			}
@@ -689,6 +690,9 @@ public abstract class GFXUserInterface extends UserInterface implements Runnable
 		
 	}
 	
+	public void seeActor(int x, int y, Actor actor) {
+	}
+
 	private String lastMessage;
 	private String currentText;
 	private int sameMessageCount = 1;
