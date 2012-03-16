@@ -212,7 +212,8 @@ public abstract class SworeGame implements CommandListener, PlayerEventListener,
 			formerLevelID = currentLevel.getID();
 			AbstractLevel storedLevel = storedLevels.get(formerLevelID);
 			if (storedLevel == null){
-				storedLevels.put(formerLevelID, currentLevel);
+				if (currentLevel.isPersistent())
+					storedLevels.put(formerLevelID, currentLevel);
 			}  
 		} else {
 			formerLevelID = "_BACK";
@@ -248,7 +249,7 @@ public abstract class SworeGame implements CommandListener, PlayerEventListener,
 		ui.levelChange();
 	}
 	
-	private LevelMetaData getMetaData(String levelID) {
+	protected LevelMetaData getMetaData(String levelID) {
 		return hashMetadata.get(levelID);
 	}
 	
