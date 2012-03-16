@@ -662,6 +662,11 @@ public abstract class AbstractLevel implements FOVMap, Serializable{
 		return getMapCell(x,y,z) == null ||
 		getMapCell (x,y,z).isSolid();
 	}
+
+	
+	public boolean isPersistent() {
+		return true;
+	}
 	
 	
 }
