@@ -191,7 +191,7 @@ public abstract class AbstractLevel implements FOVMap, Serializable{
 	}
 	
 	public boolean isExitPlaceable(Position where){
-		return !getMapCell(where).isSolid();
+		return getMapCell(where) != null && !getMapCell(where).isSolid();
 	}
 
 	public abstract int getWidth();

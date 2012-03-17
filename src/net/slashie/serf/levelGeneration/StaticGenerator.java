@@ -37,6 +37,10 @@ public class StaticGenerator {
 		return singleton;
     }
 
+	public void renderOverLevel(BufferedLevel l, String[] map, Position where) throws SworeException{
+		renderOverLevel(l, map, charMap, where);
+	}
+	
 	public void renderOverLevel(BufferedLevel l, String[] map, Hashtable<String,String> table, Position where) throws SworeException{
 		AbstractCell [][][] cmap = l.getCells();
     	for (int y = 0; y < map.length; y++)
