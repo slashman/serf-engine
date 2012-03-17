@@ -17,8 +17,6 @@ public class CARandomInitializer {
 		this.border = border;
 	}
 	
-	
-	
 	public void init(Matrix map){
 		for (int x = 0; x < map.getWidth(); x++)
 			for (int y = 0; y < map.getHeight(); y++)
