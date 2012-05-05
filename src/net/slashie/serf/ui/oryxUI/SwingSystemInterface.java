@@ -16,6 +16,7 @@ import java.awt.GraphicsEnvironment;
 import java.awt.GridLayout;
 import java.awt.Image;
 import java.awt.Point;
+import java.awt.RenderingHints;
 import java.awt.Toolkit;
 import java.awt.Transparency;
 import java.awt.Window;
@@ -976,6 +977,11 @@ class SwingInterfacePanel extends JPanel{
 		if (c != null){
 			old = drawingGraphics[layer].getColor();
 			drawingGraphics[layer].setColor(c);
+		}
+		if (false){ // TODO
+			((Graphics2D)drawingGraphics[layer]).setRenderingHint(
+			        RenderingHints.KEY_TEXT_ANTIALIASING,
+			        RenderingHints.VALUE_TEXT_ANTIALIAS_GASP);
 		}
 		drawingGraphics[layer].drawString(text, x,y);
 		if (c!= null){
