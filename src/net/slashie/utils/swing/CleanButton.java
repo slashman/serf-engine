@@ -10,7 +10,7 @@ import java.awt.event.MouseEvent;
 
 import javax.swing.JButton;
 import javax.swing.JLabel;
-
+import org.apache.log4j.Logger;
 import net.slashie.serf.ui.oryxUI.SwingSystemInterface;
 
 public class CleanButton extends JButton{
@@ -20,7 +20,7 @@ public class CleanButton extends JButton{
 	private int faceX, faceY;
 	private Image hover;
 	private String popupText;
-
+	final static Logger logger = Logger.getRootLogger();
 	private boolean onHover = false;
 	
 	private static JLabel legendLabel;
@@ -57,6 +57,9 @@ public class CleanButton extends JButton{
 						int diff = xLocation + textWidth + 30 - ssi.getScreenWidth();
 						xLocation -= diff;
 					}
+					//not sure why this is necessary but it appears it is
+					setCursor(getCursor());
+					
 					legendLabel.setText(getPopupText());
 					legendLabel.setLocation(xLocation, b.getLocationOnScreen().y+getHeight()-ssi.getScreenPosition().y);
 					legendLabel.setVisible(true);
@@ -79,7 +82,9 @@ public class CleanButton extends JButton{
 		this.background = background;
 	}
 	
-	public CleanButton(Image background, Image hover, Image face, Cursor c, String text){
+	public CleanButton(Image background, Image hover, Image face, Cursor c, String text)
+	{
+				
 		setBackground(background);
 		if (background != null)
 			setSize(background.getWidth(null), background.getHeight(null));

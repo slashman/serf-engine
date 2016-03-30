@@ -20,6 +20,8 @@ import java.util.concurrent.LinkedBlockingQueue;
 
 import javax.swing.SwingUtilities;
 
+import org.apache.log4j.Logger;
+
 import net.slashie.libjcsi.CharKey;
 import net.slashie.serf.action.Action;
 import net.slashie.serf.action.Actor;
@@ -80,6 +82,7 @@ public abstract class GFXUserInterface extends UserInterface implements Runnable
 	private TiledLayer actorsLayer;
 	private LayerSet layerSet;
 	private MapUpdateRunnable mapUpdateRunnable;
+	final Logger logger = Logger.getRootLogger();
 	
 	// Relations
 
@@ -125,6 +128,8 @@ public abstract class GFXUserInterface extends UserInterface implements Runnable
     private Color MAP_NOSOLID_LOS = new Color(98,96,85,150);
     private Color MAP_NOSOLID = new Color(86,77,65,150);
     private Color MAP_SOLID = new Color(83,83,83);
+    
+    /*
     private void examineLevelMap(){
 		messageBox.setVisible(false);
 		isCursorEnabled = false;
@@ -183,7 +188,7 @@ public abstract class GFXUserInterface extends UserInterface implements Runnable
 		isCursorEnabled = true;
 		resetMapLayer();
 	}
-    
+    */
     protected void enterScreen(){
     	messageBox.setVisible(false);
     	isCursorEnabled = false;
@@ -1161,6 +1166,9 @@ public abstract class GFXUserInterface extends UserInterface implements Runnable
 		si.cleanLayer(getItemsLayer());
 		si.commitLayer(getItemsLayer(), true);
 		
+		si.getComponentsPanel().removeAll();
+		logger.debug("shutting down");
+		System.exit(0);
 		
 		lastMessage = null;
 	}
@@ -1429,6 +1437,7 @@ public abstract class GFXUserInterface extends UserInterface implements Runnable
 		
 	public Cursor getHandCursor() {
 		return Cursor.getDefaultCursor();
+		//return getCursorAsset("HAND_CURSOR");
 	}
 
 	public Cursor getDefaultCursor() {

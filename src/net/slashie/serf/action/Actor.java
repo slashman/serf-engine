@@ -5,7 +5,7 @@ import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
+import org.apache.log4j.Logger;
 import net.slashie.serf.level.AbstractLevel;
 import net.slashie.serf.sound.SFXManager;
 import net.slashie.serf.ui.Appearance;
@@ -15,110 +15,139 @@ import net.slashie.utils.Debug;
 import net.slashie.utils.Position;
 import net.slashie.utils.PriorityEnqueable;
 
-public abstract class Actor implements Cloneable, java.io.Serializable, PriorityEnqueable{
+public abstract class Actor implements Cloneable, java.io.Serializable, PriorityEnqueable
+{
 	static final long serialVersionUID = 1L;
+	final static Logger logger = Logger.getRootLogger();
+	private static final int INTERRUPT_REINSERTION = 5;
 
-	private static final int INTERRUPT_REINSERTION = 5; 
-	
-	protected /*transient*/ int positionx, positiony, positionz;
+	protected /* transient */ int positionx, positiony, positionz;
 	private transient Appearance appearance;
 	private String appearanceId;
-	
+
 	protected ActionSelector selector;
-	private /*transient*/ Position position = new Position(0,0,0);
-	private /*transient*/ int nextTime=10;
-	
+	private /* transient */ Position position = new Position(0, 0, 0);
+	private /* transient */ int nextTime = 10;
+
 	private boolean wasSeen;
-	
-	public int getCost(){
+
+	public int getCost()
+	{
 		return nextTime;
 	}
-	
+
 	private Action previousAction;
-	
-	public void reduceCost(int value){
+
+	public void reduceCost(int value)
+	{
 		nextTime = nextTime - value;
 	}
-	
-	public void setNextTime(int value){
-		//Debug.say("Next time for "+getDescription()+" "+ value);
+
+	public void setNextTime(int value)
+	{
+		// Debug.say("Next time for "+getDescription()+" "+ value);
 		nextTime = value;
 	}
 
 	private AbstractLevel level;
 
-	//CallBack
-	public void counterFinished(String counterId) {};
-	
+	// CallBack
+	public void counterFinished(String counterId)
+	{
+	};
+
 	private List<String> removeable = new ArrayList<String>();
-	public void updateStatus(){
+
+	public void updateStatus()
+	{
 		wasSeen = false;
 		Set<String> counters = hashCounters.keySet();
 		removeable.clear();
-		for (String key: counters){
-			Integer counter = (Integer)hashCounters.get(key);
-			if (counter.intValue() == 0){
+		for (String key : counters)
+		{
+			Integer counter = (Integer) hashCounters.get(key);
+			if (counter.intValue() == 0)
+			{
 				counterFinished(key);
 				removeable.add(key);
-			} else {
-				hashCounters.put(key, new Integer(counter.intValue()-1));
+			}
+			else
+			{
+				hashCounters.put(key, new Integer(counter.intValue() - 1));
 			}
 		}
-		for (String key: removeable){
+		for (String key : removeable)
+		{
 			hashCounters.remove(key);
 		}
 	}
-	
-
 
 	public abstract String getDescription();
 
 	/**
-	 * Makes the actor try to perform the chosen action. 
-	 * @param x The action to be performed
+	 * Makes the actor try to perform the chosen action.
+	 * 
+	 * @param x
+	 *            The action to be performed
 	 * @return false if the actor could not perform the action, true otherwise
 	 */
-	public boolean execute(Action x){
-		if (x != null){
-        	x.setPerformer(this);
-        	if (x.canPerform(this)){
-	        	if (x.getSFX() != null)
-	        		SFXManager.play(x.getSFX());
+	public boolean execute(Action x)
+	{
+		if (x != null)
+		{
+			x.setPerformer(this);
+			if (x.canPerform(this))
+			{
+				if (x.getSFX() != null)
+					SFXManager.play(x.getSFX());
 				x.execute();
 				setNextTime(x.getCost());
 				updateStatus();
 				return true;
-        	} else {
-        		return false;
-        	}
-		} else {
-			//Null action, do nothing
+			}
+			else
+			{
+				return false;
+			}
+		}
+		else
+		{
+			// Null action, do nothing
 			doNothing();
 			return true;
 		}
 	}
-	
-	public void doNothing() {
+
+	public void doNothing()
+	{
 		setNextTime(0);
 	}
-	
-	public boolean act(){
+
+	public boolean act()
+	{
 		if (getSelector() == null)
 			setSelector(new NullSelector());
 		// Finish executing previous action
-		if (previousAction != null){
-			if (wasInterrupted()){
+		if (previousAction != null)
+		{
+			if (wasInterrupted())
+			{
 				previousAction.executionInterrupted();
-			} else {
+			}
+			else
+			{
 				previousAction.executeDisplaced();
 			}
 		}
 		wasInterrupted = false;
 		Action x = null;
-		if (nextAction != null){
+		if (nextAction != null)
+		{
 			x = nextAction;
 			nextAction = null;
-		} else {
+		}
+		else
+		{
 			x = getSelector().selectAction(this);
 		}
 		if (UserInterface.getUI().getPlayer().getGame().isGameOver())
@@ -127,8 +156,10 @@ public abstract class Actor implements Cloneable, java.io.Serializable, Priority
 		return execute(x);
 	}
 
-	public void setPosition (int x, int y, int z){
-		if (getLevel() != null){
+	public void setPosition(int x, int y, int z)
+	{
+		if (getLevel() != null)
+		{
 			getLevel().updateActorPosition(this, x, y, z);
 		}
 		position.x = x;
@@ -136,171 +167,218 @@ public abstract class Actor implements Cloneable, java.io.Serializable, Priority
 		position.z = z;
 	}
 
-	public void die(){
+	public void die()
+	{
 		/** Request to be removed from any dispatcher or structure */
 		level.removeActor(this);
 		aWannaDie = true;
 	}
-	
-	public void resurrect(){
+
+	public void resurrect()
+	{
 		/** Request to be removed from any dispatcher or structure */
 		aWannaDie = false;
 	}
 
-	public boolean wannaDie(){
+	public boolean wannaDie()
+	{
 		return aWannaDie;
 	}
 
 	private boolean aWannaDie;
 
-
-	public void setPosition (Position p){
-		if (getLevel() != null){
+	public void setPosition(Position p)
+	{
+		if (getLevel() != null)
+		{
 			getLevel().updateActorPosition(this, p);
 		}
 		position = p;
-		
+
 	}
 
-	public Position getPosition(){
+	public Position getPosition()
+	{
+		//logger.debug("Position: " + position.toString());
 		return position;
 	}
 
-	public void setLevel(AbstractLevel newLevel){
+	public void setLevel(AbstractLevel newLevel)
+	{
 		level = newLevel;
 		level.updateActorPosition(this, getPosition());
 	}
 
-	public AbstractLevel getLevel(){
+	public AbstractLevel getLevel()
+	{
 		return level;
 	}
 
-	public ActionSelector getSelector() {
+	public ActionSelector getSelector()
+	{
 		return selector;
 	}
 
-	public void setSelector(ActionSelector value) {
+	public void setSelector(ActionSelector value)
+	{
 		selector = value;
 	}
 
-	public Appearance getAppearance() {
+	public Appearance getAppearance()
+	{
 		if (appearance == null)
 			appearance = AppearanceFactory.getAppearanceFactory().getAppearance(appearanceId);
 		return appearance;
 	}
 
-	public void setAppearanceId(String appearanceId) {
+	public void setAppearanceId(String appearanceId)
+	{
 		this.appearanceId = appearanceId;
 	}
 
-	public Object clone(){
-		try {
+	public String getAppearanceId()
+	{
+		return appearanceId;
+	}
+
+	public Object clone()
+	{
+		try
+		{
 			Actor x = (Actor) super.clone();
 			if (getPosition() != null)
 				x.setPosition(new Position(getPosition()));
 			return x;
-		} catch (CloneNotSupportedException cnse){
+		}
+		catch (CloneNotSupportedException cnse)
+		{
 			Debug.doAssert(false, "failed class cast, Feature.clone()");
 		}
 		return null;
 	}
 
-
-	public void message(String mess){
+	public void message(String mess)
+	{
 		getLevel().addMessage(mess, getPosition());
 	}
-	
+
 	protected Map<String, Integer> hashCounters = new Hashtable<String, Integer>();
-	public void setCounter(String counterID, int turns){
+
+	public void setCounter(String counterID, int turns)
+	{
 		hashCounters.put(counterID, new Integer(turns));
 	}
-	
-	public void removeCounter(String counterID){
+
+	public void removeCounter(String counterID)
+	{
 		hashCounters.remove(counterID);
 	}
-	
-	public int getCounter(String counterID){
-		Integer val = (Integer)hashCounters.get(counterID);
+
+	public int getCounter(String counterID)
+	{
+		Integer val = (Integer) hashCounters.get(counterID);
 		if (val == null)
 			return -1;
 		else
 			return val.intValue();
 	}
-	
-	public boolean hasCounter(String counterID){
+
+	public boolean hasCounter(String counterID)
+	{
 		return getCounter(counterID) > 0;
 	}
-	
+
 	private Map<String, Boolean> hashFlags = new Hashtable<String, Boolean>();
-	public void setFlag(String flagID, boolean value){
+
+	public void setFlag(String flagID, boolean value)
+	{
 		hashFlags.put(flagID, new Boolean(value));
 	}
-	
-	public boolean getFlag(String flagID){
-		Boolean val =(Boolean)hashFlags.get(flagID); 
+
+	public boolean getFlag(String flagID)
+	{
+		Boolean val = (Boolean) hashFlags.get(flagID);
 		return val != null && val.booleanValue();
 	}
 
-	public boolean wasSeen() {
+	public boolean wasSeen()
+	{
 		return wasSeen;
 	}
 
-	public void setWasSeen(boolean wasSeen) {
+	public void setWasSeen(boolean wasSeen)
+	{
 		this.wasSeen = wasSeen;
 	}
 
 	public abstract String getClassifierID();
-	
+
 	/**
 	 * Determines if the User Interface can show a detailed info view
+	 * 
 	 * @return
 	 */
-	public boolean extendedInfoAvailable(){
+	public boolean extendedInfoAvailable()
+	{
 		return false;
 	}
-	
+
 	/**
-	 * Determines if the player must be shown to the user (May have additional gameplay effects)
+	 * Determines if the player must be shown to the user (May have additional
+	 * gameplay effects)
+	 * 
 	 * @return
 	 */
-	public boolean isInvisible() {
+	public boolean isInvisible()
+	{
 		return false;
 	}
 
-	public boolean isHostile() {
+	public boolean isHostile()
+	{
 		return false;
 	}
 
-	public void onPlayerBump() {}
-	
+	public void onPlayerBump()
+	{
+	}
+
 	private boolean wasInterrupted;
 
 	private Action nextAction;
-	
+
 	/**
 	 * Defines if this actor was interrupted while executing a long action
+	 * 
 	 * @return
 	 */
-	public boolean wasInterrupted(){
+	public boolean wasInterrupted()
+	{
 		return wasInterrupted;
 	}
-	
-	public void setInterrupted(){
+
+	public void setInterrupted()
+	{
 		wasInterrupted = true;
 		nextTime = INTERRUPT_REINSERTION;
 	}
-	
+
 	/**
-	 * Forces this action to be selected next by the action selector 
+	 * Forces this action to be selected next by the action selector
+	 * 
 	 * @param a
 	 */
-	public void setNextAction(Action a){
+	public void setNextAction(Action a)
+	{
 		nextAction = a;
 	}
 
-	
-	public void beforeActing() {}
+	public void beforeActing()
+	{
+	}
 
-	public void afterActing() {}
-	
+	public void afterActing()
+	{
+	}
+
 }
