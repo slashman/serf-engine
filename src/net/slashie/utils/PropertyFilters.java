@@ -15,9 +15,9 @@ public class PropertyFilters {
 	public static Color getColor(String rgba){
 		String[] components = rgba.split(",");
 		if (components.length == 4)
-			return new Color (inte(components[0]), inte(components[1]), inte(components[2]),inte(components[3]));
+			return new Color (inte(components[0].trim()), inte(components[1].trim()), inte(components[2].trim()),inte(components[3].trim()));
 		else
-			return new Color (inte(components[0]), inte(components[1]), inte(components[2]));
+			return new Color (inte(components[0].trim()), inte(components[1].trim()), inte(components[2].trim()));
 	}
 	
 	public static int inte(String n){
@@ -35,16 +35,16 @@ public class PropertyFilters {
 	
 	public static Rectangle getRectangle(String bounds){
 		String [] components = bounds.split(",");
-		return new Rectangle(inte(components[0]), inte(components[1]), inte(components[2]), inte(components[3]));
+		return new Rectangle(inte(components[0].trim()), inte(components[1].trim()), inte(components[2].trim()), inte(components[3].trim()));
 	}
 	
 	public static Position getPosition(String coord){
 		String [] components = coord.split(",");
-		return new Position(inte(components[0]), inte(components[1]));
+		return new Position(inte(components[0].trim()), inte(components[1].trim()));
 	}
 	
 	public static Point getPoint(String coord){
 		String [] components = coord.split(",");
-		return new Point(inte(components[0]), inte(components[1]));
+		return new Point(inte(components[0].trim()), inte(components[1].trim()));
 	}
 }

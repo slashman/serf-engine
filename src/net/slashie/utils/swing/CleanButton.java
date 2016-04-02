@@ -84,8 +84,7 @@ public class CleanButton extends JButton{
 	
 	public CleanButton(Image background, Image hover, Image face, Cursor c, String text)
 	{
-		
-		logger.debug("Cursor: " + c.getName());
+				
 		setBackground(background);
 		if (background != null)
 			setSize(background.getWidth(null), background.getHeight(null));

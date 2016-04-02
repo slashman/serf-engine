@@ -199,7 +199,7 @@ public abstract class Actor implements Cloneable, java.io.Serializable, Priority
 
 	public Position getPosition()
 	{
-		logger.debug("Position: " + position.toString());
+		//logger.debug("Position: " + position.toString());
 		return position;
 	}
 

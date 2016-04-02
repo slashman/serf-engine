@@ -38,6 +38,10 @@ public class Equipment implements Cloneable, Serializable{
 
 	public void reduceQuantity(int value){
 		quantity -= value;
+		if (quantity < 0)
+		{
+			quantity = 0;
+		}
 	}
 	
 	@Override

@@ -39,8 +39,7 @@ public class GridLevelReader extends AbstractLevel
 		this.charMap = charmap;
 		setDispatcher(new Dispatcher());
 		// addExit(mainExit.getB(), mainExit.getA());
-		// getMapCell(startPosition);
-		logger.debug("Grid Level reader constructor");
+		// getMapCell(startPosition);		
 	}
 
 	private Map<String, AbstractCell[][]> buffers = new Hashtable<String, AbstractCell[][]>();

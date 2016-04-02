@@ -16,6 +16,7 @@ import net.slashie.serf.ui.ActionCancelException;
 import net.slashie.utils.Position;
 import net.slashie.utils.Util;
 
+@SuppressWarnings("serial")
 public abstract class Player extends AwareActor {
 	private SworeGame game;
 	private boolean doNotRecordScore = false;
