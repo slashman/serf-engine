@@ -6,6 +6,10 @@ import java.util.Hashtable;
 import java.util.List;
 
 public class LevelMetaData implements Serializable{
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	private String levelID;
 	private List<String> exits = new ArrayList<String>();
 	private Hashtable<String,String> hexits = new Hashtable<String, String>();

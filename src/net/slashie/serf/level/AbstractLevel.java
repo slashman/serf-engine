@@ -8,6 +8,8 @@ import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.log4j.Logger;
+
 import net.slashie.serf.action.Actor;
 import net.slashie.serf.action.AwareActor;
 import net.slashie.serf.action.EnvironmentInfo;
@@ -25,6 +27,10 @@ import net.slashie.utils.Position;
 import net.slashie.utils.SZQueue;
 
 public abstract class AbstractLevel implements FOVMap, Serializable{
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	private String ID;
 	private Unleasher[] unleashers = new Unleasher[]{};
 	private List<AbstractFeature> features;
@@ -39,7 +45,7 @@ public abstract class AbstractLevel implements FOVMap, Serializable{
 	private Map<String, Counter> hashCounters = new Hashtable<String, Counter>();
 	private List<AbstractFeature> doomedFeatures = new ArrayList<AbstractFeature>();
 	private List<AbstractFeature> lightSources = new ArrayList<AbstractFeature>();
-	
+	final Logger logger = Logger.getRootLogger();
 	public List<AbstractFeature> getFeatures() {
 		return features;
 	}
@@ -79,8 +85,16 @@ public abstract class AbstractLevel implements FOVMap, Serializable{
 		messagesneffects = new SZQueue(50);
 	}
 
-	public void addMessage(Message what){
+	public void addMessage(Message what)
+	{
+		if (UserInterface.getUI() != null)
+		{
 		UserInterface.getUI().addMessage(what);
+		}
+		else
+		{
+			logger.debug(what.getText());
+		}
 	}
 
 	public void addMessage(String what){

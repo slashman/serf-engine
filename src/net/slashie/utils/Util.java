@@ -1,113 +1,132 @@
 package net.slashie.utils;
 
-import java.util.*;
+import java.util.List;
+import java.util.Random;
+import java.util.Vector;
+import org.apache.log4j.Logger;
 
-import net.slashie.serf.level.AbstractFeature;
-
-public class Util {
+public class Util
+{
 	private static Random rand = new Random(System.currentTimeMillis());
+	static final Logger logger = Logger.getRootLogger();
 
-	public static int rand(int low, int hi){
-		//return (int)((Math.random() * (hi -low))+low);
-		//rand.setSeed(rand.nextLong());
-		int ret = (int)((rand.nextDouble() * (hi - low + 1))+low);
-		//Debug.say("low " +low+" hi "+hi+"="+ret);
+	public static int rand(int low, int hi)
+	{
+
+		// return (int)((Math.random() * (hi -low))+low);
+		// rand.setSeed(rand.nextLong());
+		int ret = (int) ((rand.nextDouble() * (hi - low + 1)) + low);
+		//logger.debug("low " + low + " hi " + hi + "=" + ret);
 		return ret;
 	}
 
-	public static int greater(int a, int b){
+	public static int greater(int a, int b)
+	{
 		if (a > b)
 			return a;
 		return b;
 	}
 
-	public static int abs(int a){
+	public static int abs(int a)
+	{
 		if (a > 0)
 			return a;
 		return -a;
 	}
 
-	public static boolean chance(int p){
-		return Util.rand(1,100) <= p;
+	public static boolean chance(int p)
+	{
+		return Util.rand(1, 100) <= p;
 	}
 
-	public static Vector page(Vector source, int elementsOnPage, int pageNumber){
-		//System.out.println("elements on page"+elementsOnPage+" page Number"+pageNumber);
+	public static Vector page(Vector source, int elementsOnPage, int pageNumber)
+	{
+		// System.out.println("elements on page"+elementsOnPage+" page
+		// Number"+pageNumber);
 		if (source.size() == 0)
 			return source;
-		if ((pageNumber+1) * elementsOnPage > source.size() )
-			return new Vector(source.subList(pageNumber*elementsOnPage, source.size()));
+		if ((pageNumber + 1) * elementsOnPage > source.size())
+			return new Vector(source.subList(pageNumber * elementsOnPage, source.size()));
 		else
-			return new Vector(source.subList(pageNumber*elementsOnPage, (pageNumber+1) * elementsOnPage));
-	}
-	
-	public static List page(List source, int elementsOnPage, int pageNumber){
-		//System.out.println("elements on page"+elementsOnPage+" page Number"+pageNumber);
-		if (source.size() == 0)
-			return source;
-		if ((pageNumber+1) * elementsOnPage > source.size() )
-			return new Vector(source.subList(pageNumber*elementsOnPage, source.size()));
-		else
-			return new Vector(source.subList(pageNumber*elementsOnPage, (pageNumber+1) * elementsOnPage));
+			return new Vector(source.subList(pageNumber * elementsOnPage, (pageNumber + 1) * elementsOnPage));
 	}
 
-	public static String randomElementOf(String [] array){
-		return array[rand(0, array.length -1)];
+	public static List page(List source, int elementsOnPage, int pageNumber)
+	{
+		// System.out.println("elements on page"+elementsOnPage+" page
+		// Number"+pageNumber);
+		if (source.size() == 0)
+			return source;
+		if ((pageNumber + 1) * elementsOnPage > source.size())
+			return new Vector(source.subList(pageNumber * elementsOnPage, source.size()));
+		else
+			return new Vector(source.subList(pageNumber * elementsOnPage, (pageNumber + 1) * elementsOnPage));
 	}
-	
-	public static Object randomElementOf(List collection){
-		return collection.get(rand(0, collection.size() -1));
+
+	public static String randomElementOf(String[] array)
+	{
+		return array[rand(0, array.length - 1)];
 	}
-	
-	public static Object randomElementOf(Vector array){
-		return array.elementAt(rand(0, array.size() -1));
+
+	public static Object randomElementOf(List collection)
+	{
+		return collection.get(rand(0, collection.size() - 1));
 	}
-	
-	public static Object randomElementOf(Object [] array){
-		return array[rand(0, array.length -1)];
+
+	public static Object randomElementOf(Vector array)
+	{
+		return array.elementAt(rand(0, array.size() - 1));
 	}
-	
-	public static int sign(int n){
+
+	public static Object randomElementOf(Object[] array)
+	{
+		return array[rand(0, array.length - 1)];
+	}
+
+	public static int sign(int n)
+	{
 		if (n > 0)
 			return 1;
-		else if (n<0)
+		else if (n < 0)
 			return -1;
 		else
 			return 0;
 	}
 
-	
-	public static String limit(String string, int i) {
-		if (string.length()> i)
+	public static String limit(String string, int i)
+	{
+		if (string.length() > i)
 			return string.substring(0, i);
 		else
 			return string;
 	}
 
-
-	public static boolean sameLists(
-			List<? extends Object> listA,
-			List<? extends Object> listB) {
+	public static boolean sameLists(List<? extends Object> listA, List<? extends Object> listB)
+	{
 		if (listA == null && listB == null)
 			return true;
-		if (listA == null || listB == null){
+		if (listA == null || listB == null)
+		{
 			return false;
 		}
-		if (listA.size() != listB.size()){
+		if (listA.size() != listB.size())
+		{
 			return false;
 		}
-	
+
 		return false;
 	}
 
-	/** Returns an aproximation using i digits of detail
+	/**
+	 * Returns an aproximation using i digits of detail
 	 * 
 	 * @param d
 	 * @param range
 	 * @param i
 	 * @return
 	 */
-	public static double rand(double low, double hi) {
-		return rand.nextDouble() * (hi - low)+low;
+	public static double rand(double low, double hi)
+	{
+		return rand.nextDouble() * (hi - low) + low;
 	}
 }
