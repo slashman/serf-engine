@@ -638,6 +638,7 @@ public abstract class AbstractLevel implements FOVMap, Serializable{
 		for (AbstractFeature feature: featureDestructionSchedule){
 			destroyFeature(feature);
 		}
+		featureDestructionSchedule.clear();
 	}
 
 	
