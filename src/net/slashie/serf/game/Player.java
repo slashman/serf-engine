@@ -26,6 +26,7 @@ public abstract class Player extends AwareActor {
 	
 	//Status
     private GameSessionInfo gameSessionInfo;
+    private Actor currentEnemy;
 	
 	//Relationships
 	private transient PlayerEventListener playerEventListener;
@@ -364,6 +365,14 @@ public abstract class Player extends AwareActor {
 	@Override
 	public String getDescription() {
 		return name;
+	}
+	
+	public Actor getCurrentEnemy() {
+		return currentEnemy;
+	}
+	
+	public void setCurrentEnemy(Actor currentEnemy) {
+		this.currentEnemy = currentEnemy;
 	}
 	
 }

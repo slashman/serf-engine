@@ -381,13 +381,21 @@ public abstract class ConsoleUserInterface extends UserInterface implements Comm
 		si.refresh();
 		si.saveBuffer();
 		
-		Position defaultTarget = null; 
-   		Position nearest = getNearestActorPosition();
-   		if (nearest != null){
-   			defaultTarget = nearest;
-   		} else {
-   			defaultTarget = null;
-   		}
+		Position defaultTarget = null;
+		
+		if (player.getCurrentEnemy() != null) {
+			if (player.getCurrentEnemy().wannaDie() || !player.sees(player.getCurrentEnemy())) {
+				player.setCurrentEnemy(null);
+			} else {
+				defaultTarget = player.getCurrentEnemy().getPosition();
+			}
+		}
+		if (defaultTarget == null) {
+			Position nearest = getNearestActorPosition();
+	   		if (nearest != null){
+	   			defaultTarget = nearest;
+	   		}
+		}
     	
     	Position browser = null;
     	Position offset = new Position (0,0);
