@@ -33,22 +33,26 @@ public class BSPMapGenerator {
 		}
 	}
 	
-	public static List<BSPRoom> generateBSPMap(int width, int height, int maxBlockArea){
+	public static List<BSPRoom> generateBSPMap(int width, int height, int minSplitSize, int targetBlockArea){
 		Stack<BSPRoom> roomStack = new Stack<BSPRoom>();
 		List<BSPRoom> ret = new ArrayList<BSPRoom>();
 		BSPRoom firstRoom = new BSPRoom(0,0,width, height);
 		roomStack.push(firstRoom);
 		while (!roomStack.isEmpty()){
 			BSPRoom roomToSplit = roomStack.pop();
+			if (!shouldSplitRoom(roomToSplit, targetBlockArea * 2)){
+				ret.add(roomToSplit);
+				continue;
+			}
 			BSPSplit splitter = ((Split)Util.randomElementOf(Split.values())).getSplitter();
-			splitter.setTargetBlockArea(maxBlockArea);
+			splitter.setMinSplitSize(minSplitSize);
 			List<BSPRoom> splitRooms = splitter.splitRoom(roomToSplit);
 			if (splitRooms == null){
 				// Could not split room, we assume it is small enough already
 				ret.add(roomToSplit);
 			} else {
 				for (BSPRoom furtherRoomToSplit: splitRooms){
-					if (shouldSplitRoom(furtherRoomToSplit, maxBlockArea)){
+					if (shouldSplitRoom(furtherRoomToSplit, targetBlockArea)){
 						roomStack.push(furtherRoomToSplit);
 					} else {
 						ret.add(furtherRoomToSplit);
@@ -59,13 +63,13 @@ public class BSPMapGenerator {
 		return ret;
 	}
 
-	private static boolean shouldSplitRoom(BSPRoom room, int maxBlockArea) {
+	private static boolean shouldSplitRoom(BSPRoom room, int targetBlockArea) {
 		int roomArea = room.getHeight() * room.getWidth();
-		return roomArea > maxBlockArea;
+		return roomArea > targetBlockArea;
 	}
 	
 	public static void main(String[] args){
-		List<BSPRoom> rooms = generateBSPMap(50, 20, 20);
+		List<BSPRoom> rooms = generateBSPMap(79, 24, 10, 60);
 		ConsoleSystemInterface csi = new WSwingConsoleInterface("Test");
 		for (BSPRoom room: rooms){
 			/*for (int x = room.getXpos(); x < room.getXpos()+room.getWidth(); x++){

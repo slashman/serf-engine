@@ -6,7 +6,7 @@ import java.util.List;
 import net.slashie.utils.Util;
 
 public class SlashSplit implements BSPSplit{
-	protected int minHeightWidth = 5;
+	protected int minHeightWidth;
 	private boolean lastHorizontal;
 	private boolean isForcedHorizontal;
 	private boolean forcedHorizontal;
@@ -15,10 +15,10 @@ public class SlashSplit implements BSPSplit{
 		List<BSPRoom> ret = new ArrayList<BSPRoom>();
 		boolean preferVertical = false;
 		boolean preferHorizontal = false;
-		if (room.getHeight() <= minHeightWidth){
+		if (room.getHeight() <= minHeightWidth * 2){
 			preferVertical = true;
 		}
-		if (room.getWidth() <= minHeightWidth){
+		if (room.getWidth() <= minHeightWidth * 2){
 			preferHorizontal = true;
 		}
 		if (preferHorizontal && preferVertical){
@@ -42,7 +42,7 @@ public class SlashSplit implements BSPSplit{
 		
 		if (horizontal){
 			int splitRange = room.getHeight()-minHeightWidth;
-			if (splitRange <= minHeightWidth){
+			if (splitRange <= 3){
 				return null;
 			}
 			int splitHeight = Util.rand(minHeightWidth, splitRange);
@@ -53,7 +53,7 @@ public class SlashSplit implements BSPSplit{
 			return ret;
 		} else { // Vertical
 			int splitRange = room.getWidth()-minHeightWidth;
-			if (splitRange <= minHeightWidth){
+			if (splitRange <= 3){
 				return null;
 			}
 			int splitWidth = Util.rand(minHeightWidth, splitRange);
@@ -72,8 +72,8 @@ public class SlashSplit implements BSPSplit{
 		forcedHorizontal = b;
 	}
 	@Override
-	public void setTargetBlockArea(int maxBlockArea) {
-		minHeightWidth = (int)Math.round(Math.sqrt(maxBlockArea));
+	public void setMinSplitSize(int minSplitSize) {
+		minHeightWidth = minSplitSize;
 	}
 
 }
