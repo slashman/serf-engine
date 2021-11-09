@@ -279,7 +279,14 @@ public abstract class SworeGame implements CommandListener, PlayerEventListener,
 		{
 			currentLevel = storedLevel;
 			player.setLevel(currentLevel);
-			player.setPosition(currentLevel.getExitFor(formerLevelID));
+			if (currentLevel.getExitFor(formerLevelID) != null)
+			{
+				player.setPosition(currentLevel.getExitFor(formerLevelID));
+			}
+			else if (currentLevel.getExitFor("_START") != null)
+			{
+				player.setPosition(currentLevel.getExitFor("_START"));
+			}
 			onLevelLoad(currentLevel);
 		}
 		else
