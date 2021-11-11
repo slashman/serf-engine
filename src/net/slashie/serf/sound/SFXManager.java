@@ -23,6 +23,7 @@ public class SFXManager {
 		enabled = value;
 	}
 	
+	//private static List<BlockingQueue<String>> channels = new ArrayList<BlockingQueue<String>>();
 	private static List<SFXServer> channels = new ArrayList<SFXServer>();
 
 	static {
