@@ -23,10 +23,14 @@ public class SFXManager {
 		enabled = value;
 	}
 	
-	private static BlockingQueue<String> playList = new LinkedBlockingQueue<String>();
+	private static List<BlockingQueue<String>> channels = new ArrayList<BlockingQueue<String>>();
 
 	static {
-		new Thread(new SFXServer()).start();
+		for (int i = 0; i < 5; i++) {
+			BlockingQueue<String> playList = new LinkedBlockingQueue<String>(); 
+			channels.add(playList);
+			new Thread(new SFXServer(playList)).start();
+		}
 	}
 	
 	public static synchronized void play(String fileName){
@@ -34,16 +38,31 @@ public class SFXManager {
 			return;
 		if (fileName.equals(""))
 			return;
-		if (!playList.isEmpty())
+		BlockingQueue<String> selectedChannel = null;
+		for (BlockingQueue<String> channel: channels) {
+			if (channel.isEmpty()) {
+				selectedChannel = channel;
+				break;
+			}
+		}
+		if (selectedChannel == null) {
+			// All channels busy
 			return;
+		}
+		
 		if (fileName.endsWith(".wav")){
 			try {
-				playList.put(fileName);
+				selectedChannel.put(fileName);
 			} catch (InterruptedException e) {}
 		} 
 	}
 	
 	static class SFXServer implements Runnable{
+		private BlockingQueue<String> playList;
+		public SFXServer(BlockingQueue<String> playList) {
+			this.playList = playList;
+		}
+		
 		@Override
 		public void run() {
 			while (true){
@@ -132,11 +151,13 @@ public class SFXManager {
 			System.err.println(report);
 		}
 	}
-
 	
 	public static void setVolume(double sfxVolume) {
 		try {
-			playList.put("VOLUME"+Math.round(sfxVolume*100.0d));
+			for (BlockingQueue<String> channel: channels) {
+				channel.put("VOLUME"+Math.round(sfxVolume*100.0d));
+			}
 		} catch (InterruptedException e) {}
 	}
+
 }
