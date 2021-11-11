@@ -23,13 +23,14 @@ public class SFXManager {
 		enabled = value;
 	}
 	
-	private static List<BlockingQueue<String>> channels = new ArrayList<BlockingQueue<String>>();
+	private static List<SFXServer> channels = new ArrayList<SFXServer>();
 
 	static {
 		for (int i = 0; i < 5; i++) {
-			BlockingQueue<String> playList = new LinkedBlockingQueue<String>(); 
-			channels.add(playList);
-			new Thread(new SFXServer(playList)).start();
+			BlockingQueue<String> playList = new LinkedBlockingQueue<String>();
+			SFXServer channel = new SFXServer(playList);
+			channels.add(channel);
+			new Thread(channel).start();
 		}
 	}
 	
@@ -38,9 +39,9 @@ public class SFXManager {
 			return;
 		if (fileName.equals(""))
 			return;
-		BlockingQueue<String> selectedChannel = null;
-		for (BlockingQueue<String> channel: channels) {
-			if (channel.isEmpty()) {
+		SFXServer selectedChannel = null;
+		for (SFXServer channel: channels) {
+			if (!channel.isBusy()) {
 				selectedChannel = channel;
 				break;
 			}
@@ -51,16 +52,26 @@ public class SFXManager {
 		}
 		
 		if (fileName.endsWith(".wav")){
-			try {
-				selectedChannel.put(fileName);
-			} catch (InterruptedException e) {}
+			selectedChannel.put(fileName);
 		} 
 	}
 	
 	static class SFXServer implements Runnable{
 		private BlockingQueue<String> playList;
+		private boolean busy;
+		
 		public SFXServer(BlockingQueue<String> playList) {
 			this.playList = playList;
+		}
+		
+		public void put(String fileName) {
+			try {
+				this.playList.put(fileName);
+			} catch (InterruptedException e) {}
+		}
+		
+		public boolean isBusy() {
+			return busy;
 		}
 		
 		@Override
@@ -73,6 +84,7 @@ public class SFXManager {
 					} catch (InterruptedException e) {
 					}
 				}
+				busy = true;
 				if (playFile.equals("KILL")){
 					/*Close all lines*/
 					List<String> keys = new ArrayList<String>(map.keySet());
@@ -86,6 +98,7 @@ public class SFXManager {
 				} else {
 					play(playFile);
 				}
+				busy = false;
 			}
 		}
 		
@@ -153,11 +166,9 @@ public class SFXManager {
 	}
 	
 	public static void setVolume(double sfxVolume) {
-		try {
-			for (BlockingQueue<String> channel: channels) {
-				channel.put("VOLUME"+Math.round(sfxVolume*100.0d));
-			}
-		} catch (InterruptedException e) {}
+		for (SFXServer channel: channels) {
+			channel.put("VOLUME"+Math.round(sfxVolume*100.0d));
+		}
 	}
 
 }
